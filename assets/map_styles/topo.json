@@ -63,13 +63,30 @@
       "id": "trails-casing",
       "type": "line",
       "source": "cairn-trails",
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#F6F3EC", "line-width": 4, "line-opacity": 0.7 }
+      "minzoom": 12,
+      "paint": {
+        "line-color": "#F6F3EC",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 2, 14, 4, 17, 6],
+        "line-opacity": ["interpolate", ["linear"], ["zoom"], 12, 0.3, 14, 0.7]
+      }
+    },
+    {
+      "id": "tracks",
+      "type": "line",
+      "source": "cairn-trails",
+      "minzoom": 12,
+      "filter": ["==", ["get", "highway"], "track"],
+      "paint": {
+        "line-color": "#8C7A5E",
+        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 0.8, 16, 2],
+        "line-dasharray": [4, 2]
+      }
     },
     {
       "id": "trails",
       "type": "line",
       "source": "cairn-trails",
+      "filter": ["!=", ["get", "highway"], "track"],
       "layout": { "line-cap": "round", "line-join": "round" },
       "paint": {
         "line-color": ["case", ["==", ["get", "informal"], true], "#9C8A6E", "#6B4F2A"],

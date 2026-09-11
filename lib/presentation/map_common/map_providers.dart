@@ -79,3 +79,7 @@ Future<void> persistCamera(
 
 /// True once the user has granted location and the puck should render.
 final locationEnabledProvider = StateProvider<bool>((ref) => false);
+
+/// Whether the map is tilted into 2.5D (Addendum A5.2). The layer sheet toggles
+/// it; [CairnMap] re-applies the pitch after a style load.
+final tiltProvider = StateProvider<bool>((ref) => false);

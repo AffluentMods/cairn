@@ -9,6 +9,7 @@ import '../shell/shell_providers.dart';
 import 'basemaps/basemap_registry.dart';
 import 'camera_provider.dart';
 import 'map_providers.dart';
+import 'overlays/overlay_controller.dart';
 import 'poi_icons.dart';
 
 /// The shared MapLibre surface for the Explore and Navigate tabs. It builds a
@@ -52,6 +53,10 @@ class _CairnMapState extends ConsumerState<CairnMap> {
     final c = _controller;
     if (c == null) return;
     await addCairnIcons(c);
+    await ref.read(overlayControllerProvider.notifier).reinstall();
+    if (ref.read(tiltProvider)) {
+      await c.animateCamera(CameraUpdate.tiltTo(60));
+    }
     await ref.read(viewportProvider.notifier).updateFrom(c);
     await widget.onStyleLoaded?.call(c);
   }

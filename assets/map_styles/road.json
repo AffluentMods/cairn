@@ -4388,15 +4388,6 @@
       }
     },
     {
-      "id": "hillshade",
-      "type": "hillshade",
-      "source": "terrain-dem",
-      "paint": {
-        "hillshade-exaggeration": 0.35,
-        "hillshade-shadow-color": "#2b2b2b"
-      }
-    },
-    {
       "id": "poi_r20",
       "type": "symbol",
       "source": "openmaptiles",
@@ -6417,5 +6408,5 @@
       }
     }
   ],
-  "name": "Cairn Outdoors"
+  "name": "Cairn Road"
 }

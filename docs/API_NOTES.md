@@ -37,3 +37,15 @@ update the parser plus this note if they differ:
   cases (new, full, quarter) are exact by construction. The 2026-07-25 pin (~82 percent,
   waxing gibbous) should still be cross-checked against a live reference to trust the last
   percentage point.
+
+## Phase R
+
+- 2026-09-11: Addendum A5.1 specified building the `terrain.json` and `road.json` base
+  styles from fetched OpenFreeMap `positron` and `bright` style snapshots. No reliable
+  network fetch was available in this session, so both were derived instead from the
+  existing `outdoors.json` (OpenFreeMap liberty vector base plus terrain-dem hillshade plus
+  the cairn-* overlay layers). `terrain.json` raises hillshade exaggeration to 0.6 and tones
+  roads and labels down so relief dominates; `road.json` drops the hillshade layer and keeps
+  roads and labels at normal prominence. Both keep every cairn-* source and layer. If a
+  positron or bright snapshot is preferred later, regenerate these two files from it and
+  preserve the same cairn-* sources and layers.
