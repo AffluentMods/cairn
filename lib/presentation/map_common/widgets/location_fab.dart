@@ -70,7 +70,9 @@ class _LocationFabState extends ConsumerState<LocationFab> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      heroTag: 'locationFab',
+      // No hero: Explore and Navigate both keep a LocationFab alive in the
+      // IndexedStack, and a shared hero tag misplaces the button.
+      heroTag: null,
       onPressed: _onTap,
       child: _busy
           ? const SizedBox(

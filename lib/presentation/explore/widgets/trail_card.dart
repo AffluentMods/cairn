@@ -139,8 +139,11 @@ class _LengthAndGain extends ConsumerWidget {
             const SizedBox(width: 10),
             if (snap.connectionState != ConnectionState.done)
               _Shimmer(color: scheme.surfaceContainerHighest)
-            else if (snap.data != null)
-              Text('↗ ${fmt.elevation(snap.data!)}', style: style),
+            else if (snap.data != null) ...[
+              Icon(Icons.north_east, size: 13, color: scheme.onSurfaceVariant),
+              const SizedBox(width: 2),
+              Text(fmt.elevation(snap.data!), style: style),
+            ],
           ],
         );
       },

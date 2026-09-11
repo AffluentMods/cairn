@@ -386,7 +386,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                     ),
                   ),
                   const Positioned(
-                      right: 16, bottom: 336, child: LocationFab()),
+                      right: 16, bottom: 24, child: LocationFab()),
                 ],
               ],
             ),
