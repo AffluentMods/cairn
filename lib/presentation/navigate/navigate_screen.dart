@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:uuid/uuid.dart';
 
@@ -15,11 +16,15 @@ import '../map_common/cairn_map.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/widgets/elevation_profile.dart';
+import '../map_common/widgets/layer_sheet.dart';
+import '../map_common/widgets/location_fab.dart';
+import '../map_common/widgets/stat_row.dart';
 import '../shell/shell_providers.dart';
+import 'directions_launcher.dart';
 import 'recording_provider.dart';
 import 'route_editor_provider.dart';
+import 'widgets/conditions_panel.dart';
 import 'widgets/live_stats_grid.dart';
-import 'widgets/route_stats_bar.dart';
 import 'widgets/waypoint_list.dart';
 
 /// The Navigate tab (Addendum A4.2): the active route on a full map. Customize
@@ -244,13 +249,71 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     }
   }
 
+  void _openConditions() {
+    final state = ref.read(routeEditorProvider);
+    final poly = state.polyline;
+    if (poly.length < 2) return;
+
+    final profile = state.stats.profile;
+    var highDist = 0.0;
+    var highElev = -1e9;
+    final startElev = profile.isEmpty ? 0.0 : profile.first.elevM;
+    for (final p in profile) {
+      if (p.elevM > highElev) {
+        highElev = p.elevM;
+        highDist = p.distanceM;
+      }
+    }
+    final highPt = pointAtDistance(poly, highDist) ?? poly.last;
+
+    var minLat = poly.first[0], maxLat = poly.first[0];
+    var minLon = poly.first[1], maxLon = poly.first[1];
+    for (final p in poly) {
+      minLat = p[0] < minLat ? p[0] : minLat;
+      maxLat = p[0] > maxLat ? p[0] : maxLat;
+      minLon = p[1] < minLon ? p[1] : minLon;
+      maxLon = p[1] > maxLon ? p[1] : maxLon;
+    }
+
+    showConditions(
+      context,
+      name: context.l10n.tabNavigate,
+      routePolyline: poly,
+      trailheadLat: poly.first[0],
+      trailheadLon: poly.first[1],
+      trailheadElevM: startElev,
+      highLat: highPt[0],
+      highLon: highPt[1],
+      highElevM: highElev < -1e8 ? startElev : highElev,
+      bbox: [minLat, minLon, maxLat, maxLon],
+      profile: profile,
+    );
+  }
+
+  Future<void> _openDirections() async {
+    final waypoints = ref.read(routeEditorProvider).waypoints;
+    if (waypoints.isEmpty) return;
+    final first = waypoints.first;
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await openDirections(first.lat, first.lon);
+    if (!ok && mounted) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(context.l10n.navDirectionsFailed)),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final topInset = MediaQuery.of(context).padding.top;
     final locationEnabled = ref.watch(locationEnabledProvider);
     final recording =
         ref.watch(recordingProvider.select((s) => s.status)) !=
             RecordingStatus.idle;
     final canSave = ref.watch(routeEditorProvider.select((s) => s.canSave));
+    final hasRoute = ref.watch(
+        routeEditorProvider.select((s) => s.waypoints.isNotEmpty));
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
@@ -271,22 +334,49 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                           .read(routeEditorProvider.notifier)
                           .addWaypoint(latLng.latitude, latLng.longitude),
                 ),
-                if (!recording)
+                if (!recording) ...[
                   Positioned(
-                    top: MediaQuery.of(context).padding.top + 8,
+                    top: topInset + 8,
                     right: 12,
                     child: Column(
                       children: [
+                        const LayerSwitcherButton(),
+                        const SizedBox(height: 8),
+                        _RoundButton(
+                          icon: Icons.wb_cloudy_outlined,
+                          tooltip: l10n.layerConditions,
+                          onPressed: hasRoute ? _openConditions : null,
+                        ),
+                        const SizedBox(height: 8),
+                        _RoundButton(
+                          icon: Icons.threed_rotation,
+                          tooltip: l10n.nav3dView,
+                          onPressed: () => context.push('/navigate/3d'),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    top: topInset + 8,
+                    left: 12,
+                    child: Column(
+                      children: [
+                        _RoundButton(
+                          icon: Icons.directions_outlined,
+                          tooltip: l10n.navDirections,
+                          onPressed: hasRoute ? _openDirections : null,
+                        ),
+                        const SizedBox(height: 8),
                         _RoundButton(
                           icon: Icons.undo,
-                          tooltip: context.l10n.planUndo,
+                          tooltip: l10n.planUndo,
                           onPressed: () =>
                               ref.read(routeEditorProvider.notifier).undo(),
                         ),
                         const SizedBox(height: 8),
                         _RoundButton(
                           icon: Icons.clear_all,
-                          tooltip: context.l10n.navClear,
+                          tooltip: l10n.navClear,
                           onPressed: () {
                             ref.read(routeEditorProvider.notifier).clear();
                             _syncRoute();
@@ -295,6 +385,9 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                       ],
                     ),
                   ),
+                  const Positioned(
+                      right: 16, bottom: 336, child: LocationFab()),
+                ],
               ],
             ),
           ),
@@ -317,7 +410,7 @@ class _RoundButton extends StatelessWidget {
 
   final IconData icon;
   final String tooltip;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -343,6 +436,10 @@ class _PlanPanel extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final fmt = ref.watch(unitFormatterProvider);
+    final stats = ref.watch(routeEditorProvider.select((s) => s.stats));
+    final hasRoute =
+        ref.watch(routeEditorProvider.select((s) => s.polyline.length >= 2));
     return Material(
       color: Theme.of(context).colorScheme.surface,
       child: SizedBox(
@@ -352,7 +449,14 @@ class _PlanPanel extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const RouteStatsBar(),
+              StatRow(
+                distance: hasRoute ? fmt.distance(stats.distanceM) : null,
+                gain: hasRoute ? fmt.elevation(stats.gainM) : null,
+                loss: hasRoute ? fmt.elevation(stats.lossM) : null,
+                time: hasRoute && stats.estimatedTime > Duration.zero
+                    ? UnitFormatter.durationHm(stats.estimatedTime)
+                    : null,
+              ),
               const SizedBox(height: 8),
               ElevationProfile(
                 profile: ref.watch(
