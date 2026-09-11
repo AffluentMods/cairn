@@ -316,6 +316,10 @@
   "appearanceCreate": "Create a theme",
   "appearancePreview": "Preview",
 
+  "settingsDeveloper": "Developer",
+  "settingsSimulateLocation": "Simulate location",
+  "settingsSimulateLocationSub": "Walk the loaded route instead of using GPS. Start recording to begin.",
+
   "settingsDiagnostics": "Diagnostics",
   "diagnosticsSubtitle": "On-device crash and stall log",
   "diagnosticsTitle": "Diagnostics",

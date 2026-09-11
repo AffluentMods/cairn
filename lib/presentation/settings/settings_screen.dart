@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'dart:io';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import '../../core/settings/settings_providers.dart';
 import '../../core/theme/cairn_theme.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
+import '../navigate/navigate_providers.dart';
 import 'about_screen.dart';
 import 'appearance_screen.dart';
 import 'diagnostics_screen.dart';
@@ -132,6 +134,18 @@ class SettingsScreen extends ConsumerWidget {
               MaterialPageRoute<void>(builder: (_) => const DiagnosticsScreen()),
             ),
           ),
+          if (kDebugMode) ...[
+            const Divider(),
+            _header(context, l10n.settingsDeveloper),
+            SwitchListTile(
+              secondary: const Icon(Icons.route_outlined),
+              title: Text(l10n.settingsSimulateLocation),
+              subtitle: Text(l10n.settingsSimulateLocationSub),
+              value: ref.watch(simulateLocationProvider),
+              onChanged: (v) =>
+                  ref.read(simulateLocationProvider.notifier).state = v,
+            ),
+          ],
           ListTile(
             title: Text(l10n.settingsLicenses),
             leading: const Icon(Icons.article_outlined),

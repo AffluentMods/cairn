@@ -1690,6 +1690,24 @@ abstract class AppLocalizations {
   /// **'Preview'**
   String get appearancePreview;
 
+  /// No description provided for @settingsDeveloper.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer'**
+  String get settingsDeveloper;
+
+  /// No description provided for @settingsSimulateLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate location'**
+  String get settingsSimulateLocation;
+
+  /// No description provided for @settingsSimulateLocationSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk the loaded route instead of using GPS. Start recording to begin.'**
+  String get settingsSimulateLocationSub;
+
   /// No description provided for @settingsDiagnostics.
   ///
   /// In en, this message translates to:

@@ -876,6 +876,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearancePreview => 'Preview';
 
   @override
+  String get settingsDeveloper => 'Developer';
+
+  @override
+  String get settingsSimulateLocation => 'Simulate location';
+
+  @override
+  String get settingsSimulateLocationSub =>
+      'Walk the loaded route instead of using GPS. Start recording to begin.';
+
+  @override
   String get settingsDiagnostics => 'Diagnostics';
 
   @override

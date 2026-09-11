@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
@@ -13,11 +14,14 @@ import '../../core/geo/nearest_point.dart';
 import '../../core/settings/settings_providers.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
+import '../../data/sources/location_source.dart';
 import '../../domain/models/track.dart';
 import '../../domain/usecases/recording_accumulator.dart';
 import '../../domain/usecases/trip_calories.dart';
 import '../saved/library_providers.dart' show libraryRefreshProvider;
+import 'navigate_providers.dart';
 import 'recording_service.dart';
+import 'route_editor_provider.dart';
 
 enum RecordingStatus { idle, recording, paused }
 
@@ -137,6 +141,16 @@ class RecordingController extends Notifier<RecordingState> {
         routeName = route.name;
       }
     }
+    // Fall back to the route currently loaded in Navigate, so recording from
+    // "Navigate this trail" tracks on-route and distance remaining, and so the
+    // simulator has a path to walk (Fix Pass 1 X2.6, X2.8).
+    if (_routeGeom == null) {
+      final active = ref.read(routeEditorProvider).polyline;
+      if (active.length >= 2) {
+        _routeGeom = active;
+        _routeLenM = polylineLengthMeters(active);
+      }
+    }
 
     _acc = RecordingAccumulator();
     _seq = 0;
@@ -147,12 +161,18 @@ class RecordingController extends Notifier<RecordingState> {
     initRecordingService();
     await startRecordingService('Recording', name);
 
-    _sub = Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
-        accuracy: LocationAccuracy.best,
-        distanceFilter: 5,
-      ),
-    ).listen(_onPosition);
+    // Device GPS in production; a simulated walk along the route in debug when
+    // the developer toggle is on (Fix Pass 1 X2.8).
+    final LocationSource source;
+    if (kDebugMode &&
+        ref.read(simulateLocationProvider) &&
+        _routeGeom != null &&
+        _routeGeom!.length >= 2) {
+      source = SimulatedLocationSource(_routeGeom!);
+    } else {
+      source = const DeviceLocationSource();
+    }
+    _sub = source.stream().listen(_onPosition);
 
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
 
