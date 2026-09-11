@@ -14,6 +14,7 @@ import '../../navigate/navigate_providers.dart';
 import '../../navigate/route_editor_provider.dart';
 import '../../saved/library_providers.dart';
 import '../../shared/stat_tile.dart';
+import '../highlight_provider.dart';
 
 Future<void> showTrailDetail(BuildContext context, Trail trail) {
   return showModalBottomSheet<void>(
@@ -182,6 +183,9 @@ class _TrailDetailSheet extends ConsumerWidget {
   Future<void> _fitTrail(WidgetRef ref, BuildContext context) async {
     final controller = ref.read(mapControllerProvider);
     if (controller == null || trail.geometry.isEmpty) return;
+    // Highlight the trail on Explore so "Show route" actually shows something,
+    // then fit the camera to it (Fix Pass 1 X2.7).
+    ref.read(highlightRouteProvider.notifier).state = trail.geometry;
     var minLat = trail.geometry.first[0], maxLat = trail.geometry.first[0];
     var minLon = trail.geometry.first[1], maxLon = trail.geometry.first[1];
     for (final p in trail.geometry) {

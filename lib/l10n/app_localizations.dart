@@ -1294,6 +1294,12 @@ abstract class AppLocalizations {
   /// **'Copy'**
   String get genericCopy;
 
+  /// No description provided for @genericClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get genericClear;
+
   /// No description provided for @designerTitle.
   ///
   /// In en, this message translates to:

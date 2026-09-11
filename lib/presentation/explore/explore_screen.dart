@@ -15,6 +15,7 @@ import '../map_common/map_providers.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
 import '../shell/shell_providers.dart';
+import 'highlight_provider.dart';
 import 'nearby_trails_provider.dart';
 import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
@@ -50,7 +51,61 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
-  Future<void> _onStyleLoaded(MapLibreMapController c) => _refreshOverlays();
+  Future<void> _onStyleLoaded(MapLibreMapController c) async {
+    await _installHighlight(c);
+    await _applyHighlight();
+    await _refreshOverlays();
+  }
+
+  /// Adds the "Show route" highlight source and its casing + line layers. They
+  /// sit on top of the trails so the chosen trail stands out (Fix Pass 1 X2.7).
+  Future<void> _installHighlight(MapLibreMapController c) async {
+    try {
+      await c.addSource(
+        'cairn-highlight',
+        const GeojsonSourceProperties(
+          data: {'type': 'FeatureCollection', 'features': <dynamic>[]},
+        ),
+      );
+      await c.addLineLayer(
+        'cairn-highlight',
+        'cairn-highlight-casing',
+        const LineLayerProperties(
+          lineColor: '#FFFFFF',
+          lineWidth: 8.0,
+          lineOpacity: 0.9,
+          lineCap: 'round',
+          lineJoin: 'round',
+        ),
+      );
+      await c.addLineLayer(
+        'cairn-highlight',
+        'cairn-highlight-line',
+        const LineLayerProperties(
+          lineColor: '#2E90FA',
+          lineWidth: 4.0,
+          lineCap: 'round',
+          lineJoin: 'round',
+        ),
+      );
+    } catch (_) {
+      // Already installed on this style; the data refresh below covers it.
+    }
+  }
+
+  Future<void> _applyHighlight() async {
+    final controller = _controller;
+    if (controller == null) return;
+    final geom = ref.read(highlightRouteProvider);
+    try {
+      await controller.setGeoJsonSource(
+        'cairn-highlight',
+        geom == null ? emptyFeatureCollection() : lineToGeoJson(geom),
+      );
+    } catch (_) {
+      // The source may not exist yet on a fresh style; install covers it.
+    }
+  }
 
   Future<void> _onCameraIdle(MapLibreMapController c) async {
     _generation++;
@@ -181,6 +236,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       _generation++;
       _refreshOverlays();
     });
+    ref.listen(highlightRouteProvider, (_, __) => _applyHighlight());
+    final hasHighlight = ref.watch(highlightRouteProvider) != null;
 
     return Scaffold(
       body: Stack(
@@ -207,6 +264,20 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
           Positioned(top: topInset + 8, right: 12, child: const LayerSwitcherButton()),
           const Positioned(right: 16, bottom: 200, child: LocationFab()),
+          if (hasHighlight)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 190,
+              child: Center(
+                child: ActionChip(
+                  avatar: const Icon(Icons.close, size: 18),
+                  label: Text(context.l10n.genericClear),
+                  onPressed: () =>
+                      ref.read(highlightRouteProvider.notifier).state = null,
+                ),
+              ),
+            ),
           if (_showOfflineBanner)
             Positioned(
               top: topInset + 60,

@@ -243,6 +243,7 @@
   "genericSkip": "Skip",
   "genericDone": "Done",
   "genericCopy": "Copy",
+  "genericClear": "Clear",
 
   "designerTitle": "Theme Designer",
   "designerNewTitle": "New theme",

@@ -673,6 +673,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericCopy => 'Copy';
 
   @override
+  String get genericClear => 'Clear';
+
+  @override
   String get designerTitle => 'Theme Designer';
 
   @override
