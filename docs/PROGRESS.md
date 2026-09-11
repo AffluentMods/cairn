@@ -79,8 +79,9 @@ service URLs (radar/temperature/snow) are best-effort and may need per-service p
 (API_NOTES).
 
 Remaining follow-ups (documented, not blockers):
-- User waypoints: route attachment and GPX `<wpt>` export.
-- NWS overlay service paths: verify radar/temperature/snow with `?f=json` on a device.
+- User-waypoint route attachment: pins are standalone and export fine (GPX `<wpt>` includes all
+  pins), but attaching one to a specific saved route needs the active-route id tracked, a small
+  refactor left for later.
 - Optional: before/after screenshots for F1 to F3 under docs/screens/phase-r/.
 
 ## Questions for you

@@ -263,10 +263,17 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   Future<void> _exportGpx() async {
     final state = ref.read(routeEditorProvider);
     if (state.polyline.length < 2) return;
+    final pins =
+        ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
     final gpx = exportRouteGpx(
       name: 'Cairn route',
       geometry: state.polyline,
       elevations: [for (final p in state.stats.profile) p.elevM],
+      waypoints: [
+        for (final w in pins)
+          GpxWaypoint(
+              lat: w.lat, lon: w.lon, name: w.name, note: w.note, kind: w.kind),
+      ],
     );
     final bytes = Uint8List.fromList(utf8.encode(gpx));
     await Share.shareXFiles([

@@ -80,13 +80,35 @@ GpxPt? _toPt(Wpt w) {
 }
 
 /// Exports a route as GPX (creator Cairn). Elevations come from the caller (DEM).
+/// A user waypoint, for GPX `<wpt>` export.
+class GpxWaypoint {
+  const GpxWaypoint({
+    required this.lat,
+    required this.lon,
+    this.name,
+    this.note,
+    this.kind,
+  });
+
+  final double lat;
+  final double lon;
+  final String? name;
+  final String? note;
+  final String? kind;
+}
+
 String exportRouteGpx({
   required String name,
   required List<List<double>> geometry,
   List<double>? elevations,
+  List<GpxWaypoint> waypoints = const [],
 }) {
   final gpx = Gpx()
     ..creator = 'Cairn'
+    ..wpts = [
+      for (final w in waypoints)
+        Wpt(lat: w.lat, lon: w.lon, name: w.name, desc: w.note, type: w.kind),
+    ]
     ..trks = [
       Trk(
         name: name,
