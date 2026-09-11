@@ -192,6 +192,38 @@ class Tombstones extends Table {
   Set<Column> get primaryKey => {entityType, entityId};
 }
 
+/// Trails the user saved from Explore (Addendum A7). The id is `r<relationId>`
+/// or `w<firstWayId>`, stable across reloads of the underlying OSM data.
+class FavoriteTrails extends Table {
+  TextColumn get trailId => text()();
+  TextColumn get name => text()();
+  RealColumn get centerLat => real()();
+  RealColumn get centerLon => real()();
+  RealColumn get lengthM => real().nullable()();
+  DateTimeColumn get savedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {trailId};
+}
+
+/// User-dropped pins (water, camp, hazard, viewpoint, parking, note), distinct
+/// from the numbered route-shaping waypoints (Addendum A7). Optionally attached
+/// to a route; deleting that route clears the attachment, it does not drop the
+/// pin unless the user asks.
+class UserWaypoints extends Table {
+  TextColumn get id => text()(); // uuid
+  TextColumn get kind => text()(); // water, camp, hazard, viewpoint, parking, note
+  TextColumn get name => text().nullable()();
+  TextColumn get note => text().nullable()();
+  RealColumn get lat => real()();
+  RealColumn get lon => real()();
+  TextColumn get routeId => text().nullable().references(Routes, #id)();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     OsmWays,
@@ -206,6 +238,8 @@ class Tombstones extends Table {
     OfflineRegions,
     ConditionsCache,
     Tombstones,
+    FavoriteTrails,
+    UserWaypoints,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -215,7 +249,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -225,6 +259,13 @@ class AppDatabase extends _$AppDatabase {
           if (from < 2) {
             await m.createTable(tombstones);
             await m.addColumn(tracks, tracks.lastModified);
+          }
+          // v3: saved trails and user waypoints (Phase R, Addendum A7). The
+          // addendum wrote this as v2; the sync feature already claimed v2, so
+          // these land in v3. Logged in docs/DECISIONS.md.
+          if (from < 3) {
+            await m.createTable(favoriteTrails);
+            await m.createTable(userWaypoints);
           }
         },
       );

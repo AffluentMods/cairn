@@ -79,3 +79,8 @@ option that ships fastest and record it here.
 - **Follow-route Summit gate pending the user's decision.** Reason: Section 12.4 gates follow
   mode behind Summit, but Navigate's Start uses follow mode. Built ungated for now (gates land
   in Phase 9 regardless); open item in PROGRESS: is follow-route free?
+- **FavoriteTrails and UserWaypoints land in Drift schema v3, not v2.** Reason: Addendum A7
+  wrote them as v2, but the sync feature had already claimed schemaVersion 2 (Tombstones +
+  Tracks.lastModified). Trust the real code: these two tables ship in a v2 to v3 migration so
+  no existing install loses data. Tables are defined inline in `app_database.dart` to match the
+  existing convention there, not as separate files under `db/tables/`.

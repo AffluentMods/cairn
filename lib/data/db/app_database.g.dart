@@ -5045,6 +5045,773 @@ class TombstonesCompanion extends UpdateCompanion<Tombstone> {
   }
 }
 
+class $FavoriteTrailsTable extends FavoriteTrails
+    with TableInfo<$FavoriteTrailsTable, FavoriteTrail> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $FavoriteTrailsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _trailIdMeta =
+      const VerificationMeta('trailId');
+  @override
+  late final GeneratedColumn<String> trailId = GeneratedColumn<String>(
+      'trail_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _centerLatMeta =
+      const VerificationMeta('centerLat');
+  @override
+  late final GeneratedColumn<double> centerLat = GeneratedColumn<double>(
+      'center_lat', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _centerLonMeta =
+      const VerificationMeta('centerLon');
+  @override
+  late final GeneratedColumn<double> centerLon = GeneratedColumn<double>(
+      'center_lon', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _lengthMMeta =
+      const VerificationMeta('lengthM');
+  @override
+  late final GeneratedColumn<double> lengthM = GeneratedColumn<double>(
+      'length_m', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _savedAtMeta =
+      const VerificationMeta('savedAt');
+  @override
+  late final GeneratedColumn<DateTime> savedAt = GeneratedColumn<DateTime>(
+      'saved_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [trailId, name, centerLat, centerLon, lengthM, savedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'favorite_trails';
+  @override
+  VerificationContext validateIntegrity(Insertable<FavoriteTrail> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('trail_id')) {
+      context.handle(_trailIdMeta,
+          trailId.isAcceptableOrUnknown(data['trail_id']!, _trailIdMeta));
+    } else if (isInserting) {
+      context.missing(_trailIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('center_lat')) {
+      context.handle(_centerLatMeta,
+          centerLat.isAcceptableOrUnknown(data['center_lat']!, _centerLatMeta));
+    } else if (isInserting) {
+      context.missing(_centerLatMeta);
+    }
+    if (data.containsKey('center_lon')) {
+      context.handle(_centerLonMeta,
+          centerLon.isAcceptableOrUnknown(data['center_lon']!, _centerLonMeta));
+    } else if (isInserting) {
+      context.missing(_centerLonMeta);
+    }
+    if (data.containsKey('length_m')) {
+      context.handle(_lengthMMeta,
+          lengthM.isAcceptableOrUnknown(data['length_m']!, _lengthMMeta));
+    }
+    if (data.containsKey('saved_at')) {
+      context.handle(_savedAtMeta,
+          savedAt.isAcceptableOrUnknown(data['saved_at']!, _savedAtMeta));
+    } else if (isInserting) {
+      context.missing(_savedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {trailId};
+  @override
+  FavoriteTrail map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FavoriteTrail(
+      trailId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}trail_id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      centerLat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}center_lat'])!,
+      centerLon: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}center_lon'])!,
+      lengthM: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}length_m']),
+      savedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}saved_at'])!,
+    );
+  }
+
+  @override
+  $FavoriteTrailsTable createAlias(String alias) {
+    return $FavoriteTrailsTable(attachedDatabase, alias);
+  }
+}
+
+class FavoriteTrail extends DataClass implements Insertable<FavoriteTrail> {
+  final String trailId;
+  final String name;
+  final double centerLat;
+  final double centerLon;
+  final double? lengthM;
+  final DateTime savedAt;
+  const FavoriteTrail(
+      {required this.trailId,
+      required this.name,
+      required this.centerLat,
+      required this.centerLon,
+      this.lengthM,
+      required this.savedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['trail_id'] = Variable<String>(trailId);
+    map['name'] = Variable<String>(name);
+    map['center_lat'] = Variable<double>(centerLat);
+    map['center_lon'] = Variable<double>(centerLon);
+    if (!nullToAbsent || lengthM != null) {
+      map['length_m'] = Variable<double>(lengthM);
+    }
+    map['saved_at'] = Variable<DateTime>(savedAt);
+    return map;
+  }
+
+  FavoriteTrailsCompanion toCompanion(bool nullToAbsent) {
+    return FavoriteTrailsCompanion(
+      trailId: Value(trailId),
+      name: Value(name),
+      centerLat: Value(centerLat),
+      centerLon: Value(centerLon),
+      lengthM: lengthM == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lengthM),
+      savedAt: Value(savedAt),
+    );
+  }
+
+  factory FavoriteTrail.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FavoriteTrail(
+      trailId: serializer.fromJson<String>(json['trailId']),
+      name: serializer.fromJson<String>(json['name']),
+      centerLat: serializer.fromJson<double>(json['centerLat']),
+      centerLon: serializer.fromJson<double>(json['centerLon']),
+      lengthM: serializer.fromJson<double?>(json['lengthM']),
+      savedAt: serializer.fromJson<DateTime>(json['savedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'trailId': serializer.toJson<String>(trailId),
+      'name': serializer.toJson<String>(name),
+      'centerLat': serializer.toJson<double>(centerLat),
+      'centerLon': serializer.toJson<double>(centerLon),
+      'lengthM': serializer.toJson<double?>(lengthM),
+      'savedAt': serializer.toJson<DateTime>(savedAt),
+    };
+  }
+
+  FavoriteTrail copyWith(
+          {String? trailId,
+          String? name,
+          double? centerLat,
+          double? centerLon,
+          Value<double?> lengthM = const Value.absent(),
+          DateTime? savedAt}) =>
+      FavoriteTrail(
+        trailId: trailId ?? this.trailId,
+        name: name ?? this.name,
+        centerLat: centerLat ?? this.centerLat,
+        centerLon: centerLon ?? this.centerLon,
+        lengthM: lengthM.present ? lengthM.value : this.lengthM,
+        savedAt: savedAt ?? this.savedAt,
+      );
+  FavoriteTrail copyWithCompanion(FavoriteTrailsCompanion data) {
+    return FavoriteTrail(
+      trailId: data.trailId.present ? data.trailId.value : this.trailId,
+      name: data.name.present ? data.name.value : this.name,
+      centerLat: data.centerLat.present ? data.centerLat.value : this.centerLat,
+      centerLon: data.centerLon.present ? data.centerLon.value : this.centerLon,
+      lengthM: data.lengthM.present ? data.lengthM.value : this.lengthM,
+      savedAt: data.savedAt.present ? data.savedAt.value : this.savedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteTrail(')
+          ..write('trailId: $trailId, ')
+          ..write('name: $name, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLon: $centerLon, ')
+          ..write('lengthM: $lengthM, ')
+          ..write('savedAt: $savedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(trailId, name, centerLat, centerLon, lengthM, savedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FavoriteTrail &&
+          other.trailId == this.trailId &&
+          other.name == this.name &&
+          other.centerLat == this.centerLat &&
+          other.centerLon == this.centerLon &&
+          other.lengthM == this.lengthM &&
+          other.savedAt == this.savedAt);
+}
+
+class FavoriteTrailsCompanion extends UpdateCompanion<FavoriteTrail> {
+  final Value<String> trailId;
+  final Value<String> name;
+  final Value<double> centerLat;
+  final Value<double> centerLon;
+  final Value<double?> lengthM;
+  final Value<DateTime> savedAt;
+  final Value<int> rowid;
+  const FavoriteTrailsCompanion({
+    this.trailId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.centerLat = const Value.absent(),
+    this.centerLon = const Value.absent(),
+    this.lengthM = const Value.absent(),
+    this.savedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FavoriteTrailsCompanion.insert({
+    required String trailId,
+    required String name,
+    required double centerLat,
+    required double centerLon,
+    this.lengthM = const Value.absent(),
+    required DateTime savedAt,
+    this.rowid = const Value.absent(),
+  })  : trailId = Value(trailId),
+        name = Value(name),
+        centerLat = Value(centerLat),
+        centerLon = Value(centerLon),
+        savedAt = Value(savedAt);
+  static Insertable<FavoriteTrail> custom({
+    Expression<String>? trailId,
+    Expression<String>? name,
+    Expression<double>? centerLat,
+    Expression<double>? centerLon,
+    Expression<double>? lengthM,
+    Expression<DateTime>? savedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (trailId != null) 'trail_id': trailId,
+      if (name != null) 'name': name,
+      if (centerLat != null) 'center_lat': centerLat,
+      if (centerLon != null) 'center_lon': centerLon,
+      if (lengthM != null) 'length_m': lengthM,
+      if (savedAt != null) 'saved_at': savedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FavoriteTrailsCompanion copyWith(
+      {Value<String>? trailId,
+      Value<String>? name,
+      Value<double>? centerLat,
+      Value<double>? centerLon,
+      Value<double?>? lengthM,
+      Value<DateTime>? savedAt,
+      Value<int>? rowid}) {
+    return FavoriteTrailsCompanion(
+      trailId: trailId ?? this.trailId,
+      name: name ?? this.name,
+      centerLat: centerLat ?? this.centerLat,
+      centerLon: centerLon ?? this.centerLon,
+      lengthM: lengthM ?? this.lengthM,
+      savedAt: savedAt ?? this.savedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (trailId.present) {
+      map['trail_id'] = Variable<String>(trailId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (centerLat.present) {
+      map['center_lat'] = Variable<double>(centerLat.value);
+    }
+    if (centerLon.present) {
+      map['center_lon'] = Variable<double>(centerLon.value);
+    }
+    if (lengthM.present) {
+      map['length_m'] = Variable<double>(lengthM.value);
+    }
+    if (savedAt.present) {
+      map['saved_at'] = Variable<DateTime>(savedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FavoriteTrailsCompanion(')
+          ..write('trailId: $trailId, ')
+          ..write('name: $name, ')
+          ..write('centerLat: $centerLat, ')
+          ..write('centerLon: $centerLon, ')
+          ..write('lengthM: $lengthM, ')
+          ..write('savedAt: $savedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $UserWaypointsTable extends UserWaypoints
+    with TableInfo<$UserWaypointsTable, UserWaypoint> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserWaypointsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _latMeta = const VerificationMeta('lat');
+  @override
+  late final GeneratedColumn<double> lat = GeneratedColumn<double>(
+      'lat', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _lonMeta = const VerificationMeta('lon');
+  @override
+  late final GeneratedColumn<double> lon = GeneratedColumn<double>(
+      'lon', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _routeIdMeta =
+      const VerificationMeta('routeId');
+  @override
+  late final GeneratedColumn<String> routeId = GeneratedColumn<String>(
+      'route_id', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES routes (id)'));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, kind, name, note, lat, lon, routeId, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_waypoints';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserWaypoint> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('lat')) {
+      context.handle(
+          _latMeta, lat.isAcceptableOrUnknown(data['lat']!, _latMeta));
+    } else if (isInserting) {
+      context.missing(_latMeta);
+    }
+    if (data.containsKey('lon')) {
+      context.handle(
+          _lonMeta, lon.isAcceptableOrUnknown(data['lon']!, _lonMeta));
+    } else if (isInserting) {
+      context.missing(_lonMeta);
+    }
+    if (data.containsKey('route_id')) {
+      context.handle(_routeIdMeta,
+          routeId.isAcceptableOrUnknown(data['route_id']!, _routeIdMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserWaypoint map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserWaypoint(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name']),
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      lat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}lat'])!,
+      lon: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}lon'])!,
+      routeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_id']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $UserWaypointsTable createAlias(String alias) {
+    return $UserWaypointsTable(attachedDatabase, alias);
+  }
+}
+
+class UserWaypoint extends DataClass implements Insertable<UserWaypoint> {
+  final String id;
+  final String kind;
+  final String? name;
+  final String? note;
+  final double lat;
+  final double lon;
+  final String? routeId;
+  final DateTime createdAt;
+  const UserWaypoint(
+      {required this.id,
+      required this.kind,
+      this.name,
+      this.note,
+      required this.lat,
+      required this.lon,
+      this.routeId,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['kind'] = Variable<String>(kind);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['lat'] = Variable<double>(lat);
+    map['lon'] = Variable<double>(lon);
+    if (!nullToAbsent || routeId != null) {
+      map['route_id'] = Variable<String>(routeId);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  UserWaypointsCompanion toCompanion(bool nullToAbsent) {
+    return UserWaypointsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      lat: Value(lat),
+      lon: Value(lon),
+      routeId: routeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(routeId),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory UserWaypoint.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserWaypoint(
+      id: serializer.fromJson<String>(json['id']),
+      kind: serializer.fromJson<String>(json['kind']),
+      name: serializer.fromJson<String?>(json['name']),
+      note: serializer.fromJson<String?>(json['note']),
+      lat: serializer.fromJson<double>(json['lat']),
+      lon: serializer.fromJson<double>(json['lon']),
+      routeId: serializer.fromJson<String?>(json['routeId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<String>(kind),
+      'name': serializer.toJson<String?>(name),
+      'note': serializer.toJson<String?>(note),
+      'lat': serializer.toJson<double>(lat),
+      'lon': serializer.toJson<double>(lon),
+      'routeId': serializer.toJson<String?>(routeId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  UserWaypoint copyWith(
+          {String? id,
+          String? kind,
+          Value<String?> name = const Value.absent(),
+          Value<String?> note = const Value.absent(),
+          double? lat,
+          double? lon,
+          Value<String?> routeId = const Value.absent(),
+          DateTime? createdAt}) =>
+      UserWaypoint(
+        id: id ?? this.id,
+        kind: kind ?? this.kind,
+        name: name.present ? name.value : this.name,
+        note: note.present ? note.value : this.note,
+        lat: lat ?? this.lat,
+        lon: lon ?? this.lon,
+        routeId: routeId.present ? routeId.value : this.routeId,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  UserWaypoint copyWithCompanion(UserWaypointsCompanion data) {
+    return UserWaypoint(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      name: data.name.present ? data.name.value : this.name,
+      note: data.note.present ? data.note.value : this.note,
+      lat: data.lat.present ? data.lat.value : this.lat,
+      lon: data.lon.present ? data.lon.value : this.lon,
+      routeId: data.routeId.present ? data.routeId.value : this.routeId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserWaypoint(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('routeId: $routeId, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, kind, name, note, lat, lon, routeId, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserWaypoint &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.name == this.name &&
+          other.note == this.note &&
+          other.lat == this.lat &&
+          other.lon == this.lon &&
+          other.routeId == this.routeId &&
+          other.createdAt == this.createdAt);
+}
+
+class UserWaypointsCompanion extends UpdateCompanion<UserWaypoint> {
+  final Value<String> id;
+  final Value<String> kind;
+  final Value<String?> name;
+  final Value<String?> note;
+  final Value<double> lat;
+  final Value<double> lon;
+  final Value<String?> routeId;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const UserWaypointsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    this.lat = const Value.absent(),
+    this.lon = const Value.absent(),
+    this.routeId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UserWaypointsCompanion.insert({
+    required String id,
+    required String kind,
+    this.name = const Value.absent(),
+    this.note = const Value.absent(),
+    required double lat,
+    required double lon,
+    this.routeId = const Value.absent(),
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        kind = Value(kind),
+        lat = Value(lat),
+        lon = Value(lon),
+        createdAt = Value(createdAt);
+  static Insertable<UserWaypoint> custom({
+    Expression<String>? id,
+    Expression<String>? kind,
+    Expression<String>? name,
+    Expression<String>? note,
+    Expression<double>? lat,
+    Expression<double>? lon,
+    Expression<String>? routeId,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (name != null) 'name': name,
+      if (note != null) 'note': note,
+      if (lat != null) 'lat': lat,
+      if (lon != null) 'lon': lon,
+      if (routeId != null) 'route_id': routeId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UserWaypointsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? kind,
+      Value<String?>? name,
+      Value<String?>? note,
+      Value<double>? lat,
+      Value<double>? lon,
+      Value<String?>? routeId,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return UserWaypointsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      name: name ?? this.name,
+      note: note ?? this.note,
+      lat: lat ?? this.lat,
+      lon: lon ?? this.lon,
+      routeId: routeId ?? this.routeId,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (lat.present) {
+      map['lat'] = Variable<double>(lat.value);
+    }
+    if (lon.present) {
+      map['lon'] = Variable<double>(lon.value);
+    }
+    if (routeId.present) {
+      map['route_id'] = Variable<String>(routeId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserWaypointsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('name: $name, ')
+          ..write('note: $note, ')
+          ..write('lat: $lat, ')
+          ..write('lon: $lon, ')
+          ..write('routeId: $routeId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5061,6 +5828,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $ConditionsCacheTable conditionsCache =
       $ConditionsCacheTable(this);
   late final $TombstonesTable tombstones = $TombstonesTable(this);
+  late final $FavoriteTrailsTable favoriteTrails = $FavoriteTrailsTable(this);
+  late final $UserWaypointsTable userWaypoints = $UserWaypointsTable(this);
   late final Index idxWaysBbox = Index('idx_ways_bbox',
       'CREATE INDEX idx_ways_bbox ON osm_ways (min_lat, max_lat, min_lon, max_lon)');
   late final Index idxPoisLatlon = Index(
@@ -5082,6 +5851,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         offlineRegions,
         conditionsCache,
         tombstones,
+        favoriteTrails,
+        userWaypoints,
         idxWaysBbox,
         idxPoisLatlon
       ];
@@ -6116,6 +6887,21 @@ final class $$RoutesTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$UserWaypointsTable, List<UserWaypoint>>
+      _userWaypointsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.userWaypoints,
+              aliasName:
+                  $_aliasNameGenerator(db.routes.id, db.userWaypoints.routeId));
+
+  $$UserWaypointsTableProcessedTableManager get userWaypointsRefs {
+    final manager = $$UserWaypointsTableTableManager($_db, $_db.userWaypoints)
+        .filter((f) => f.routeId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_userWaypointsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$RoutesTableFilterComposer
@@ -6173,6 +6959,27 @@ class $$RoutesTableFilterComposer
             $$RouteWaypointsTableFilterComposer(
               $db: $db,
               $table: $db.routeWaypoints,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> userWaypointsRefs(
+      Expression<bool> Function($$UserWaypointsTableFilterComposer f) f) {
+    final $$UserWaypointsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.userWaypoints,
+        getReferencedColumn: (t) => t.routeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$UserWaypointsTableFilterComposer(
+              $db: $db,
+              $table: $db.userWaypoints,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -6287,6 +7094,27 @@ class $$RoutesTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> userWaypointsRefs<T extends Object>(
+      Expression<T> Function($$UserWaypointsTableAnnotationComposer a) f) {
+    final $$UserWaypointsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.userWaypoints,
+        getReferencedColumn: (t) => t.routeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$UserWaypointsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.userWaypoints,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$RoutesTableTableManager extends RootTableManager<
@@ -6300,7 +7128,7 @@ class $$RoutesTableTableManager extends RootTableManager<
     $$RoutesTableUpdateCompanionBuilder,
     (Route, $$RoutesTableReferences),
     Route,
-    PrefetchHooks Function({bool routeWaypointsRefs})> {
+    PrefetchHooks Function({bool routeWaypointsRefs, bool userWaypointsRefs})> {
   $$RoutesTableTableManager(_$AppDatabase db, $RoutesTable table)
       : super(TableManagerState(
           db: db,
@@ -6371,11 +7199,13 @@ class $$RoutesTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$RoutesTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({routeWaypointsRefs = false}) {
+          prefetchHooksCallback: (
+              {routeWaypointsRefs = false, userWaypointsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
-                if (routeWaypointsRefs) db.routeWaypoints
+                if (routeWaypointsRefs) db.routeWaypoints,
+                if (userWaypointsRefs) db.userWaypoints
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -6389,6 +7219,19 @@ class $$RoutesTableTableManager extends RootTableManager<
                         managerFromTypedResult: (p0) =>
                             $$RoutesTableReferences(db, table, p0)
                                 .routeWaypointsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.routeId == item.id),
+                        typedResults: items),
+                  if (userWaypointsRefs)
+                    await $_getPrefetchedData<Route, $RoutesTable,
+                            UserWaypoint>(
+                        currentTable: table,
+                        referencedTable:
+                            $$RoutesTableReferences._userWaypointsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$RoutesTableReferences(db, table, p0)
+                                .userWaypointsRefs,
                         referencedItemsForCurrentItem: (item,
                                 referencedItems) =>
                             referencedItems.where((e) => e.routeId == item.id),
@@ -6411,7 +7254,7 @@ typedef $$RoutesTableProcessedTableManager = ProcessedTableManager<
     $$RoutesTableUpdateCompanionBuilder,
     (Route, $$RoutesTableReferences),
     Route,
-    PrefetchHooks Function({bool routeWaypointsRefs})>;
+    PrefetchHooks Function({bool routeWaypointsRefs, bool userWaypointsRefs})>;
 typedef $$RouteWaypointsTableCreateCompanionBuilder = RouteWaypointsCompanion
     Function({
   required String routeId,
@@ -7987,6 +8830,515 @@ typedef $$TombstonesTableProcessedTableManager = ProcessedTableManager<
     (Tombstone, BaseReferences<_$AppDatabase, $TombstonesTable, Tombstone>),
     Tombstone,
     PrefetchHooks Function()>;
+typedef $$FavoriteTrailsTableCreateCompanionBuilder = FavoriteTrailsCompanion
+    Function({
+  required String trailId,
+  required String name,
+  required double centerLat,
+  required double centerLon,
+  Value<double?> lengthM,
+  required DateTime savedAt,
+  Value<int> rowid,
+});
+typedef $$FavoriteTrailsTableUpdateCompanionBuilder = FavoriteTrailsCompanion
+    Function({
+  Value<String> trailId,
+  Value<String> name,
+  Value<double> centerLat,
+  Value<double> centerLon,
+  Value<double?> lengthM,
+  Value<DateTime> savedAt,
+  Value<int> rowid,
+});
+
+class $$FavoriteTrailsTableFilterComposer
+    extends Composer<_$AppDatabase, $FavoriteTrailsTable> {
+  $$FavoriteTrailsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get trailId => $composableBuilder(
+      column: $table.trailId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get centerLat => $composableBuilder(
+      column: $table.centerLat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get centerLon => $composableBuilder(
+      column: $table.centerLon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lengthM => $composableBuilder(
+      column: $table.lengthM, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get savedAt => $composableBuilder(
+      column: $table.savedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$FavoriteTrailsTableOrderingComposer
+    extends Composer<_$AppDatabase, $FavoriteTrailsTable> {
+  $$FavoriteTrailsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get trailId => $composableBuilder(
+      column: $table.trailId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get centerLat => $composableBuilder(
+      column: $table.centerLat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get centerLon => $composableBuilder(
+      column: $table.centerLon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lengthM => $composableBuilder(
+      column: $table.lengthM, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get savedAt => $composableBuilder(
+      column: $table.savedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$FavoriteTrailsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $FavoriteTrailsTable> {
+  $$FavoriteTrailsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get trailId =>
+      $composableBuilder(column: $table.trailId, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLat =>
+      $composableBuilder(column: $table.centerLat, builder: (column) => column);
+
+  GeneratedColumn<double> get centerLon =>
+      $composableBuilder(column: $table.centerLon, builder: (column) => column);
+
+  GeneratedColumn<double> get lengthM =>
+      $composableBuilder(column: $table.lengthM, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get savedAt =>
+      $composableBuilder(column: $table.savedAt, builder: (column) => column);
+}
+
+class $$FavoriteTrailsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $FavoriteTrailsTable,
+    FavoriteTrail,
+    $$FavoriteTrailsTableFilterComposer,
+    $$FavoriteTrailsTableOrderingComposer,
+    $$FavoriteTrailsTableAnnotationComposer,
+    $$FavoriteTrailsTableCreateCompanionBuilder,
+    $$FavoriteTrailsTableUpdateCompanionBuilder,
+    (
+      FavoriteTrail,
+      BaseReferences<_$AppDatabase, $FavoriteTrailsTable, FavoriteTrail>
+    ),
+    FavoriteTrail,
+    PrefetchHooks Function()> {
+  $$FavoriteTrailsTableTableManager(
+      _$AppDatabase db, $FavoriteTrailsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$FavoriteTrailsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$FavoriteTrailsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$FavoriteTrailsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> trailId = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<double> centerLat = const Value.absent(),
+            Value<double> centerLon = const Value.absent(),
+            Value<double?> lengthM = const Value.absent(),
+            Value<DateTime> savedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FavoriteTrailsCompanion(
+            trailId: trailId,
+            name: name,
+            centerLat: centerLat,
+            centerLon: centerLon,
+            lengthM: lengthM,
+            savedAt: savedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String trailId,
+            required String name,
+            required double centerLat,
+            required double centerLon,
+            Value<double?> lengthM = const Value.absent(),
+            required DateTime savedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              FavoriteTrailsCompanion.insert(
+            trailId: trailId,
+            name: name,
+            centerLat: centerLat,
+            centerLon: centerLon,
+            lengthM: lengthM,
+            savedAt: savedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$FavoriteTrailsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $FavoriteTrailsTable,
+    FavoriteTrail,
+    $$FavoriteTrailsTableFilterComposer,
+    $$FavoriteTrailsTableOrderingComposer,
+    $$FavoriteTrailsTableAnnotationComposer,
+    $$FavoriteTrailsTableCreateCompanionBuilder,
+    $$FavoriteTrailsTableUpdateCompanionBuilder,
+    (
+      FavoriteTrail,
+      BaseReferences<_$AppDatabase, $FavoriteTrailsTable, FavoriteTrail>
+    ),
+    FavoriteTrail,
+    PrefetchHooks Function()>;
+typedef $$UserWaypointsTableCreateCompanionBuilder = UserWaypointsCompanion
+    Function({
+  required String id,
+  required String kind,
+  Value<String?> name,
+  Value<String?> note,
+  required double lat,
+  required double lon,
+  Value<String?> routeId,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$UserWaypointsTableUpdateCompanionBuilder = UserWaypointsCompanion
+    Function({
+  Value<String> id,
+  Value<String> kind,
+  Value<String?> name,
+  Value<String?> note,
+  Value<double> lat,
+  Value<double> lon,
+  Value<String?> routeId,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+final class $$UserWaypointsTableReferences
+    extends BaseReferences<_$AppDatabase, $UserWaypointsTable, UserWaypoint> {
+  $$UserWaypointsTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $RoutesTable _routeIdTable(_$AppDatabase db) => db.routes.createAlias(
+      $_aliasNameGenerator(db.userWaypoints.routeId, db.routes.id));
+
+  $$RoutesTableProcessedTableManager? get routeId {
+    final $_column = $_itemColumn<String>('route_id');
+    if ($_column == null) return null;
+    final manager = $$RoutesTableTableManager($_db, $_db.routes)
+        .filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_routeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$UserWaypointsTableFilterComposer
+    extends Composer<_$AppDatabase, $UserWaypointsTable> {
+  $$UserWaypointsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lat => $composableBuilder(
+      column: $table.lat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lon => $composableBuilder(
+      column: $table.lon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$RoutesTableFilterComposer get routeId {
+    final $$RoutesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.routeId,
+        referencedTable: $db.routes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoutesTableFilterComposer(
+              $db: $db,
+              $table: $db.routes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$UserWaypointsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UserWaypointsTable> {
+  $$UserWaypointsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lat => $composableBuilder(
+      column: $table.lat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lon => $composableBuilder(
+      column: $table.lon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$RoutesTableOrderingComposer get routeId {
+    final $$RoutesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.routeId,
+        referencedTable: $db.routes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoutesTableOrderingComposer(
+              $db: $db,
+              $table: $db.routes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$UserWaypointsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UserWaypointsTable> {
+  $$UserWaypointsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<double> get lat =>
+      $composableBuilder(column: $table.lat, builder: (column) => column);
+
+  GeneratedColumn<double> get lon =>
+      $composableBuilder(column: $table.lon, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$RoutesTableAnnotationComposer get routeId {
+    final $$RoutesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.routeId,
+        referencedTable: $db.routes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$RoutesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.routes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$UserWaypointsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UserWaypointsTable,
+    UserWaypoint,
+    $$UserWaypointsTableFilterComposer,
+    $$UserWaypointsTableOrderingComposer,
+    $$UserWaypointsTableAnnotationComposer,
+    $$UserWaypointsTableCreateCompanionBuilder,
+    $$UserWaypointsTableUpdateCompanionBuilder,
+    (UserWaypoint, $$UserWaypointsTableReferences),
+    UserWaypoint,
+    PrefetchHooks Function({bool routeId})> {
+  $$UserWaypointsTableTableManager(_$AppDatabase db, $UserWaypointsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UserWaypointsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UserWaypointsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UserWaypointsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<String?> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<double> lat = const Value.absent(),
+            Value<double> lon = const Value.absent(),
+            Value<String?> routeId = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserWaypointsCompanion(
+            id: id,
+            kind: kind,
+            name: name,
+            note: note,
+            lat: lat,
+            lon: lon,
+            routeId: routeId,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String kind,
+            Value<String?> name = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            required double lat,
+            required double lon,
+            Value<String?> routeId = const Value.absent(),
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UserWaypointsCompanion.insert(
+            id: id,
+            kind: kind,
+            name: name,
+            note: note,
+            lat: lat,
+            lon: lon,
+            routeId: routeId,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$UserWaypointsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({routeId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (routeId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.routeId,
+                    referencedTable:
+                        $$UserWaypointsTableReferences._routeIdTable(db),
+                    referencedColumn:
+                        $$UserWaypointsTableReferences._routeIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$UserWaypointsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $UserWaypointsTable,
+    UserWaypoint,
+    $$UserWaypointsTableFilterComposer,
+    $$UserWaypointsTableOrderingComposer,
+    $$UserWaypointsTableAnnotationComposer,
+    $$UserWaypointsTableCreateCompanionBuilder,
+    $$UserWaypointsTableUpdateCompanionBuilder,
+    (UserWaypoint, $$UserWaypointsTableReferences),
+    UserWaypoint,
+    PrefetchHooks Function({bool routeId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8014,4 +9366,8 @@ class $AppDatabaseManager {
       $$ConditionsCacheTableTableManager(_db, _db.conditionsCache);
   $$TombstonesTableTableManager get tombstones =>
       $$TombstonesTableTableManager(_db, _db.tombstones);
+  $$FavoriteTrailsTableTableManager get favoriteTrails =>
+      $$FavoriteTrailsTableTableManager(_db, _db.favoriteTrails);
+  $$UserWaypointsTableTableManager get userWaypoints =>
+      $$UserWaypointsTableTableManager(_db, _db.userWaypoints);
 }

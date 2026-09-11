@@ -18,11 +18,13 @@ import 'db/app_database.dart';
 import 'gpx/gpx_importer.dart';
 import 'repositories/conditions_repository_impl.dart';
 import 'repositories/elevation_repository_impl.dart';
+import 'repositories/favorites_repository.dart';
 import 'repositories/offline_repository_impl.dart';
 import 'repositories/poi_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
 import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
+import 'repositories/user_waypoints_repository.dart';
 import 'sources/affluent_proxy_source.dart';
 import 'sources/nifc_source.dart';
 import 'sources/nws_source.dart';
@@ -152,4 +154,13 @@ final gpxImporterProvider = Provider<GpxImporter>(
     tracks: ref.watch(trackRepositoryProvider),
     elevation: ref.watch(elevationRepositoryProvider),
   ),
+);
+
+/// Saved trails (Explore heart) and user pins (Navigate), Phase R schema v3.
+final favoritesRepositoryProvider = Provider<FavoritesRepository>(
+  (ref) => FavoritesRepository(ref.watch(appDatabaseProvider)),
+);
+
+final userWaypointsRepositoryProvider = Provider<UserWaypointsRepository>(
+  (ref) => UserWaypointsRepository(ref.watch(appDatabaseProvider)),
 );
