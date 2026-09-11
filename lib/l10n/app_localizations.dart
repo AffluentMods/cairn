@@ -1384,6 +1384,18 @@ abstract class AppLocalizations {
   /// **'Downloaded'**
   String get navDownloaded;
 
+  /// No description provided for @navDownloadNotOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'This map type cannot be saved offline. Switch to Outdoors, Topo, Terrain, or Road.'**
+  String get navDownloadNotOffline;
+
+  /// No description provided for @navRouteArea.
+  ///
+  /// In en, this message translates to:
+  /// **'Route area'**
+  String get navRouteArea;
+
   /// No description provided for @navStart.
   ///
   /// In en, this message translates to:

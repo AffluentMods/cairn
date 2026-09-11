@@ -262,6 +262,8 @@
   "navDirectionsFailed": "No app could open directions.",
   "navDownload": "Download",
   "navDownloaded": "Downloaded",
+  "navDownloadNotOffline": "This map type cannot be saved offline. Switch to Outdoors, Topo, Terrain, or Road.",
+  "navRouteArea": "Route area",
   "navStart": "Start",
   "navDone": "Done",
   "navClear": "Clear",

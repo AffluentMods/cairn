@@ -720,6 +720,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navDownloaded => 'Downloaded';
 
   @override
+  String get navDownloadNotOffline =>
+      'This map type cannot be saved offline. Switch to Outdoors, Topo, Terrain, or Road.';
+
+  @override
+  String get navRouteArea => 'Route area';
+
+  @override
   String get navStart => 'Start';
 
   @override
