@@ -41,6 +41,40 @@ push. `flutter analyze` clean, 115 tests, both flavors build.
   tool/store_prebuild.sh swaps it in for the store build only), a Summit purchase sheet, and
   docs/REVENUECAT.md with the exact Play Console + RevenueCat + build steps.
 
+## Phase R: navigation redesign (Addendum A) - in progress
+
+Executing the addendum as its own phase before resuming the numbered phases.
+Committed in slices; `flutter analyze` clean and 117 tests pass at each.
+
+Done and verified on the Pixel_3a API 36 emulator:
+- **4-tab IA**: Explore, Navigate, Saved, Activity (old map/plan/record/library moved
+  with `git mv`; `git log --follow` intact). One MapLibre surface at a time via CairnMap.
+- **Explore**: full map, search, layer button, and a "Trails in view" list from OSM/USFS
+  names in the viewport (grouped, distance-sorted, gain loaded lazily), each a card with a
+  USFS chip, length, gain, distance away, and a heart that saves to FavoriteTrails.
+- **Navigate**: shared map with round buttons (Layers with overlay badge, Conditions, 3D,
+  Directions, Undo, Clear, Locate), StatRow (F3: distance/gain/loss/time, statEmpty, arrow
+  icons), Save and Start. Directions hands the trailhead to the user's own maps app.
+- **Saved**: Routes / Trails / Offline tabs, Import GPX and Settings in the app bar.
+- **Activity**: recordings list with month totals.
+- **Layers (A5)**: six base maps (outdoors, topo, satellite, and new terrain, road, ign_plan)
+  in a scrollable sheet (fixes the F1 overflow), Tilt and 3D rows, and an overlays list
+  (radar, temperature, snow depth, slope, lidar hillshade, OSM GPS traces). Base-map switching
+  verified (Outdoors to Topo). Overlay service URLs are best-effort pending device checks.
+- **Schema v3**: FavoriteTrails and UserWaypoints via a v2 to v3 migration.
+- **F2** trail styling fixed in all six styles; **F3** stat row done.
+
+Still to do in Phase R:
+- Trail detail sheet: heart + a real "Navigate this trail" that loads the trail as the active
+  route in Navigate.
+- Navigate: the draggable stats sheet (0.14/0.45/0.9 snaps), Download and the Download/Start
+  swap by offline coverage, the edit-mode toolbar, and the elevation profile fill.
+- User waypoints (A4.5): the add-waypoint flow, editor sheet, render, and GPX export.
+- 3D view (A5.2): the real bundled MapLibre-GL-JS WebView (currently a placeholder screen).
+- Remove the dead l10n keys (tabMap, libraryTracks, ...) and update the last call sites.
+- LICENSES entries for webview_flutter and MapLibre GL JS once 3D lands.
+- Before/after screenshots for F1 to F3 under docs/screens/phase-r/.
+
 ## Questions for you
 
 Answer whenever. Nothing below blocked the build; each has a shipped default I chose.
