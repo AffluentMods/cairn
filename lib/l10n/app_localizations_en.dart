@@ -840,6 +840,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get nav3dResetNorth => 'Reset north';
 
   @override
+  String get navRecenter => 'Recenter';
+
+  @override
   String get navClose => 'Close';
 
   @override

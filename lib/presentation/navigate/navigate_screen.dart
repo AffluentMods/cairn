@@ -13,6 +13,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/geo/resample.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
+import '../../core/theme/cairn_colors.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
@@ -56,6 +57,10 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   Circle? _scrubMarker;
   bool _downloading = false;
   bool _pendingFit = false;
+
+  /// Whether the camera is following the location puck during recording (Fix
+  /// Pass 1 X2.6). A pan dismisses it and raises the Recenter pill.
+  bool _follow = true;
 
   MapLibreMapController? get _c => ref.read(mapControllerProvider);
 
@@ -379,6 +384,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final pack = await _promptPack(defaultPack);
     if (pack == null) return;
     await HapticFeedback.mediumImpact();
+    if (mounted) setState(() => _follow = true); // follow from the first fix
     await ref
         .read(recordingProvider.notifier)
         .start(packKg: pack.isNegative ? null : pack);
@@ -538,6 +544,10 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
       _pendingFit = true;
       _tryFit();
     });
+    // One haptic tap when the hiker drifts off the route (Fix Pass 1 X2.6).
+    ref.listen(recordingProvider.select((s) => s.onRoute), (prev, next) {
+      if (prev == true && next == false) HapticFeedback.mediumImpact();
+    });
 
     return Scaffold(
       body: Stack(
@@ -545,6 +555,14 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
           CairnMap(
             tabIndex: ShellTab.navigate,
             myLocationEnabled: locationEnabled || recording,
+            trackingMode: recording && _follow
+                ? MyLocationTrackingMode.trackingCompass
+                : MyLocationTrackingMode.none,
+            onCameraTrackingDismissed: recording
+                ? () {
+                    if (_follow) setState(() => _follow = false);
+                  }
+                : null,
             onStyleLoaded: _onStyleLoaded,
             onMapClick: editing
                 ? (point, latLng) => ref
@@ -610,6 +628,45 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
             ),
           if (!editing)
             const Positioned(right: 16, bottom: 24, child: LocationFab()),
+
+          // Recenter pill: shown when the hiker pans away during recording, so
+          // one tap resumes heading-up follow (Fix Pass 1 X2.6).
+          if (recording && !_follow)
+            Positioned(
+              top: topInset + 12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Material(
+                  color: context.cairn.accent,
+                  borderRadius: BorderRadius.circular(22),
+                  elevation: 3,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: () => setState(() => _follow = true),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.my_location,
+                              size: 18, color: context.cairn.onAccent),
+                          const SizedBox(width: 8),
+                          Text(
+                            context.l10n.navRecenter,
+                            style: TextStyle(
+                              color: context.cairn.onAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
           if (editing)
             Positioned(

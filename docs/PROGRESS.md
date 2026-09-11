@@ -260,3 +260,36 @@ earlier by an Overpass outage; retry when a mirror is up.
 Remaining: X1.3.2 viewport pipeline (debounce + generation + cancellation), X1.3.4 GeoJSON hash +
 cap, X1.3.8 crash/stall log + Diagnostics, X2.5 profile redraw, X2.2/2.6/2.7 section/follow/Show
 route, X2.8 simulator, X1.3.9 + X3 3D, X4 theme system.
+
+## Fix Pass 1 status (updated)
+
+Done and verified on the emulator (x64) with live network and simulated location:
+
+- X1.3.1 GeoWorker off-UI compute: trails load with no ANR (Trails in view shows real gain and
+  distance). X1.3.2/4 viewport pipeline + GeoJSON hash/cap. X1.3.3 forest-road exclude + cap 30.
+  X1.3.5 location never blocks. X1.3.6/7 overlay bounds + order. X1.3.8 crash/stall log +
+  Diagnostics. X1.3.10 map loading state.
+- X2.1 route framing (route drawn + framed with stats), X2.4 sheet title/stats, X2.5 elevation
+  profile redraw (clean grade-colored line, single fill, gutter labels, no stripes), X2.7 Show
+  route (bright highlight + Clear pill).
+- X2.6 follow-mode core: on Start the camera follows the location puck heading-up
+  (MyLocationTrackingMode.trackingCompass); an off-route drift fires one haptic; a Recenter pill
+  reappears via onCameraTrackingDismissed. Follow verified with `adb emu geo fix`; the pill's
+  pan-triggered appearance needs a real finger (synthetic `adb` swipes do not trigger the
+  dismiss callback).
+- X4.2/4.3 theme token system + seven built-ins + Appearance (live theme switch verified),
+  X4.4 Theme Designer + custom themes, X4.5 nav bar/sheets/chips refresh, X4.1 inactive-tab
+  reskin fix.
+- X1.3.9 3D WebView disposed on close. X3 3D drapes the active base map + terrain + route +
+  markers + fly-along. NOTE: 3D rendering is unverified on the CI emulator (its WebView has no
+  WebGL); verify on the physical phone.
+
+Remaining (best done with real-device GPS, or lower priority):
+
+- X2.2 which-section logic (whole trail vs viewport section + 25%).
+- X2.8 route simulator + LocationSource dev controls (would let follow mode be exercised without
+  real GPS).
+- X4.6 tool/check_theme_tokens.sh CI guard (needs the remaining semantic-color allowlist first;
+  the reskin already works because chrome reads the ColorScheme/tokens).
+- X1.5 re-run the full scripted session on the physical phone (the source of truth for maps,
+  location, and performance).

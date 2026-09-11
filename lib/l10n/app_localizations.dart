@@ -1618,6 +1618,12 @@ abstract class AppLocalizations {
   /// **'Reset north'**
   String get nav3dResetNorth;
 
+  /// No description provided for @navRecenter.
+  ///
+  /// In en, this message translates to:
+  /// **'Recenter'**
+  String get navRecenter;
+
   /// No description provided for @navClose.
   ///
   /// In en, this message translates to:

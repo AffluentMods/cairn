@@ -29,6 +29,8 @@ class CairnMap extends ConsumerStatefulWidget {
     this.onMapClick,
     this.onMapLongClick,
     this.myLocationEnabled = false,
+    this.trackingMode = MyLocationTrackingMode.none,
+    this.onCameraTrackingDismissed,
   });
 
   final int tabIndex;
@@ -38,6 +40,14 @@ class CairnMap extends ConsumerStatefulWidget {
   final void Function(math.Point<double> point, LatLng coords)? onMapClick;
   final void Function(math.Point<double> point, LatLng coords)? onMapLongClick;
   final bool myLocationEnabled;
+
+  /// Camera tracking of the location puck (Fix Pass 1 X2.6 follow mode). None
+  /// on Explore; trackingCompass on Navigate while recording.
+  final MyLocationTrackingMode trackingMode;
+
+  /// Fires when a user gesture dismisses tracking, so Navigate can show a
+  /// Recenter pill.
+  final VoidCallback? onCameraTrackingDismissed;
 
   @override
   ConsumerState<CairnMap> createState() => _CairnMapState();
@@ -126,11 +136,13 @@ class _CairnMapState extends ConsumerState<CairnMap> {
           myLocationRenderMode: widget.myLocationEnabled
               ? MyLocationRenderMode.compass
               : MyLocationRenderMode.normal,
+          myLocationTrackingMode: widget.trackingMode,
           compassEnabled: true,
           trackCameraPosition: true,
           onMapCreated: _onCreated,
           onStyleLoadedCallback: _onStyleLoaded,
           onCameraIdle: _onCameraIdle,
+          onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
           onMapClick: widget.onMapClick,
           onMapLongClick: widget.onMapLongClick,
           attributionButtonPosition: AttributionButtonPosition.bottomLeft,

@@ -31,6 +31,10 @@ class RecordingState {
     this.followRouteName,
     this.distanceRemainingM,
     this.onRoute = true,
+    this.currentLat,
+    this.currentLon,
+    this.heading,
+    this.fixSeq = 0,
   });
 
   final RecordingStatus status;
@@ -41,6 +45,17 @@ class RecordingState {
   final String? followRouteName;
   final double? distanceRemainingM;
   final bool onRoute;
+
+  /// The latest accepted fix, so the map can follow it (Fix Pass 1 X2.6).
+  final double? currentLat;
+  final double? currentLon;
+
+  /// Course over ground in degrees, or null when unknown (stationary).
+  final double? heading;
+
+  /// Bumped on every accepted fix, so a follow listener fires even when the
+  /// coordinates round to the same value.
+  final int fixSeq;
 
   bool get isActive => status != RecordingStatus.idle;
 
@@ -53,6 +68,10 @@ class RecordingState {
     String? followRouteName,
     double? distanceRemainingM,
     bool? onRoute,
+    double? currentLat,
+    double? currentLon,
+    double? heading,
+    int? fixSeq,
   }) {
     return RecordingState(
       status: status ?? this.status,
@@ -63,6 +82,10 @@ class RecordingState {
       followRouteName: followRouteName ?? this.followRouteName,
       distanceRemainingM: distanceRemainingM ?? this.distanceRemainingM,
       onRoute: onRoute ?? this.onRoute,
+      currentLat: currentLat ?? this.currentLat,
+      currentLon: currentLon ?? this.currentLon,
+      heading: heading ?? this.heading,
+      fixSeq: fixSeq ?? this.fixSeq,
     );
   }
 }
@@ -77,6 +100,10 @@ class RecordingController extends Notifier<RecordingState> {
   int _lastNotify = 0;
   List<List<double>>? _routeGeom;
   double? _routeLenM;
+  double? _curLat;
+  double? _curLon;
+  double? _curHeading;
+  int _fixSeq = 0;
 
   @override
   RecordingState build() {
@@ -155,6 +182,12 @@ class RecordingController extends Notifier<RecordingState> {
     );
     if (!acc.add(sample)) return;
 
+    _curLat = pos.latitude;
+    _curLon = pos.longitude;
+    // geolocator reports heading < 0 or 0 when stationary; keep the last known.
+    if (pos.heading > 0 && pos.speed > 0.5) _curHeading = pos.heading;
+    _fixSeq++;
+
     ref.read(trackRepositoryProvider).appendPoint(
           trackId,
           TrackPointData(
@@ -214,6 +247,10 @@ class RecordingController extends Notifier<RecordingState> {
       stats: stats,
       onRoute: onRoute,
       distanceRemainingM: remaining,
+      currentLat: _curLat,
+      currentLon: _curLon,
+      heading: _curHeading,
+      fixSeq: _fixSeq,
     );
 
     final nowSec = stats.totalSeconds;

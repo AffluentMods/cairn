@@ -302,6 +302,7 @@
   "nav3dNeedsConnection": "3D view needs a connection. The flat map works offline.",
   "nav3dFlyAlong": "Fly along route",
   "nav3dResetNorth": "Reset north",
+  "navRecenter": "Recenter",
   "navClose": "Close",
   "routeUnnamed": "Unnamed route",
   "mapLoading": "Loading map",
