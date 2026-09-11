@@ -83,10 +83,13 @@ class OverlayController extends Notifier<Set<String>> {
         def.sourceId,
         RasterSourceProperties(tiles: [tileUrl], tileSize: 256),
       );
+      // Below the first Cairn layer so overlays never hide trails, the route,
+      // or fires (Fix Pass 1 X1.3.6/7).
       await c.addLayer(
         def.sourceId,
         def.layerId,
         RasterLayerProperties(rasterOpacity: def.opacity),
+        belowLayerId: 'land-line',
         minzoom: def.minZoom.toDouble(),
         maxzoom: def.maxZoom.toDouble(),
       );

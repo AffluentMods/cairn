@@ -74,6 +74,7 @@ const _arcgisExport =
 final overlays = <OverlayDef>[
   OverlayDef(
     key: 'radar',
+    maxZoom: 10,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlayRadar,
     subtitle: (l) => l.overlayRadarSubtitle,
@@ -87,6 +88,7 @@ final overlays = <OverlayDef>[
   ),
   OverlayDef(
     key: 'temperature',
+    maxZoom: 8,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlayTemperature,
     subtitle: (l) => l.overlayTemperatureSubtitle,
@@ -100,6 +102,7 @@ final overlays = <OverlayDef>[
   ),
   OverlayDef(
     key: 'snowDepth',
+    maxZoom: 10,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlaySnowDepth,
     subtitle: (l) => l.overlaySnowDepthSubtitle,
@@ -113,6 +116,7 @@ final overlays = <OverlayDef>[
   ),
   OverlayDef(
     key: 'slope',
+    maxZoom: 14,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlaySlope,
     subtitle: (l) => l.overlaySlopeSubtitle,
@@ -128,6 +132,7 @@ final overlays = <OverlayDef>[
   ),
   OverlayDef(
     key: 'lidarHillshade',
+    maxZoom: 15,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlayLidarHillshade,
     subtitle: (l) => l.overlayLidarHillshadeSubtitle,
@@ -142,6 +147,7 @@ final overlays = <OverlayDef>[
   ),
   OverlayDef(
     key: 'gpsTraces',
+    maxZoom: 16,
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlayGpsTraces,
     subtitle: (l) => l.overlayGpsTracesSubtitle,

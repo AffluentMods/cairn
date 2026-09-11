@@ -178,6 +178,18 @@ abstract class AppLocalizations {
   /// **'Open settings'**
   String get locationOpenSettings;
 
+  /// No description provided for @locationNoFix.
+  ///
+  /// In en, this message translates to:
+  /// **'No GPS fix yet. Try again outside or near a window.'**
+  String get locationNoFix;
+
+  /// No description provided for @locationServicesOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Location is off on this phone.'**
+  String get locationServicesOff;
+
   /// No description provided for @trailUnnamed.
   ///
   /// In en, this message translates to:
@@ -1437,6 +1449,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get navClose;
+
+  /// No description provided for @routeUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed route'**
+  String get routeUnnamed;
+
+  /// No description provided for @mapLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading map'**
+  String get mapLoading;
+
+  /// No description provided for @mapLoadFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'The map did not load.'**
+  String get mapLoadFailed;
 
   /// No description provided for @layersMapType.
   ///

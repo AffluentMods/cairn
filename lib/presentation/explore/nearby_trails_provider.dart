@@ -49,6 +49,9 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
     final name = t.name;
     if (name == null || name.isEmpty) continue;
     if (t.geometry.isEmpty) continue;
+    // Forest roads (highway=track) stay on the map but not in this list
+    // (Fix Pass 1 X1.3.3).
+    if (t.highway == 'track') continue;
     (byName[name] ??= <Trail>[]).add(t);
   }
 
@@ -84,5 +87,5 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
   });
 
   out.sort((a, b) => a.distanceM.compareTo(b.distanceM));
-  return out.take(50).toList();
+  return out.take(30).toList();
 });

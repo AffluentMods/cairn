@@ -54,6 +54,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get locationOpenSettings => 'Open settings';
 
   @override
+  String get locationNoFix =>
+      'No GPS fix yet. Try again outside or near a window.';
+
+  @override
+  String get locationServicesOff => 'Location is off on this phone.';
+
+  @override
   String get trailUnnamed => 'Unnamed path';
 
   @override
@@ -747,6 +754,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navClose => 'Close';
+
+  @override
+  String get routeUnnamed => 'Unnamed route';
+
+  @override
+  String get mapLoading => 'Loading map';
+
+  @override
+  String get mapLoadFailed => 'The map did not load.';
 
   @override
   String get layersMapType => 'Map type';

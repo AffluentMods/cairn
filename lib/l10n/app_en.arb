@@ -19,6 +19,8 @@
   "locationPermissionBody": "Turn on location to see where you are on the map.",
   "backgroundLocationBody": "Cairn records your hike with the screen off. Choose Allow all the time so the track does not stop when you lock your phone.",
   "locationOpenSettings": "Open settings",
+  "locationNoFix": "No GPS fix yet. Try again outside or near a window.",
+  "locationServicesOff": "Location is off on this phone.",
 
   "trailUnnamed": "Unnamed path",
   "trailSegmentLength": "{distance} segment",
@@ -271,6 +273,9 @@
   "nav3dView": "3D view",
   "nav3dNeedsConnection": "3D view needs a connection. The flat map works offline.",
   "navClose": "Close",
+  "routeUnnamed": "Unnamed route",
+  "mapLoading": "Loading map",
+  "mapLoadFailed": "The map did not load.",
 
   "layersMapType": "Map type",
   "layersOverlays": "Overlays",

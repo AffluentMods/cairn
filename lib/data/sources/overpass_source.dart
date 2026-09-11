@@ -39,7 +39,10 @@ class OverpassSource {
           data: {'data': query},
           options: Options(
             contentType: Headers.formUrlEncodedContentType,
-            receiveTimeout: const Duration(seconds: 90),
+            // Fail over to the next mirror quickly instead of hanging (Fix Pass
+            // 1: a slow Overpass must not make the app feel frozen).
+            sendTimeout: const Duration(seconds: 20),
+            receiveTimeout: const Duration(seconds: 40),
             responseType: ResponseType.json,
           ),
         );
@@ -62,7 +65,7 @@ class OverpassSource {
 
   /// bbox is (south, west, north, east).
   static String waysQuery(List<double> b) => '''
-[out:json][timeout:60];
+[out:json][timeout:35];
 (
   way["highway"~"^(path|footway|track|bridleway|steps)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
   relation["route"~"^(hiking|foot)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
@@ -72,7 +75,7 @@ out body;
 out skel qt;''';
 
   static String poisQuery(List<double> b) => '''
-[out:json][timeout:60];
+[out:json][timeout:35];
 (
   node["natural"~"^(spring|water|peak|saddle)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
   node["tourism"~"^(camp_site|wilderness_hut|viewpoint)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
