@@ -1606,6 +1606,18 @@ abstract class AppLocalizations {
   /// **'3D view needs a connection. The flat map works offline.'**
   String get nav3dNeedsConnection;
 
+  /// No description provided for @nav3dFlyAlong.
+  ///
+  /// In en, this message translates to:
+  /// **'Fly along route'**
+  String get nav3dFlyAlong;
+
+  /// No description provided for @nav3dResetNorth.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset north'**
+  String get nav3dResetNorth;
+
   /// No description provided for @navClose.
   ///
   /// In en, this message translates to:

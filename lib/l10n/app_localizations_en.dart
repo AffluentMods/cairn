@@ -834,6 +834,12 @@ class AppLocalizationsEn extends AppLocalizations {
       '3D view needs a connection. The flat map works offline.';
 
   @override
+  String get nav3dFlyAlong => 'Fly along route';
+
+  @override
+  String get nav3dResetNorth => 'Reset north';
+
+  @override
   String get navClose => 'Close';
 
   @override

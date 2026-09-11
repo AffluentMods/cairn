@@ -115,3 +115,12 @@ option that ships fastest and record it here.
   persistent user themes. `CustomThemes` (nine ARGB color ints plus name/mode) ships in a v3 to v4
   migration. Themes import and export as a `.cairntheme` JSON file and a `cairn-theme-1:` base64
   code; import validates the schema and rejects anything else.
+- **The 3D view drapes the active base map on the terrain, built in Dart.** Reason: Fix Pass 1 X3
+  found the 3D view showed bare grey hillshade with no base map, route, or labels. The WebView now
+  loads the active base map's own style JSON (its sources already use absolute HTTPS URLs and carry
+  a terrain-dem source plus cairn-route/route layers), injects the route, enables setTerrain, and
+  frames the route then tilts. A single MapLibre error no longer blanks the view: only a total
+  failure to reach load within 12 s shows the offline message, now with Retry. NOTE: on-device 3D
+  rendering could not be verified on the CI emulator because its WebView has no working WebGL
+  (MESA rendernode failure); it renders on a real device (the original grey-terrain report proves
+  the phone's WebView WebGL works). Verify on the physical phone.

@@ -300,6 +300,8 @@
   "navDiscardChanges": "Discard changes to this route?",
   "nav3dView": "3D view",
   "nav3dNeedsConnection": "3D view needs a connection. The flat map works offline.",
+  "nav3dFlyAlong": "Fly along route",
+  "nav3dResetNorth": "Reset north",
   "navClose": "Close",
   "routeUnnamed": "Unnamed route",
   "mapLoading": "Loading map",

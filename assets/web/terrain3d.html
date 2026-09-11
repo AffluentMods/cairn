@@ -12,62 +12,80 @@
   <script src="maplibre-gl.js"></script>
   <script>
     let map;
-    // Called from Dart after the page loads, with camera and the active route.
+    let loaded = false;
+    // Called from Dart with the active base map style (so the terrain is draped
+    // with the real map, not bare hillshade), the camera, and the route bounds.
     function init(opts) {
       try {
         map = new maplibregl.Map({
           container: 'map',
           attributionControl: false,
+          style: opts.style,
           center: [opts.lon, opts.lat],
           zoom: opts.zoom || 12,
-          pitch: 65,
+          pitch: 0,
           bearing: opts.bearing || 0,
-          maxPitch: 85,
-          style: {
-            version: 8,
-            sources: {
-              'terrain-dem': {
-                type: 'raster-dem',
-                tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
-                encoding: 'terrarium',
-                tileSize: 256,
-                maxzoom: 15,
-                attribution: 'Terrain: Mapzen, AWS Terrain Tiles'
-              },
-              'cairn-route': {
-                type: 'geojson',
-                data: opts.route || { type: 'FeatureCollection', features: [] }
-              }
-            },
-            layers: [
-              { id: 'bg', type: 'background', paint: { 'background-color': '#0E1412' } },
-              { id: 'hillshade', type: 'hillshade', source: 'terrain-dem',
-                paint: {
-                  'hillshade-exaggeration': 0.65,
-                  'hillshade-shadow-color': '#16231b',
-                  'hillshade-accent-color': '#0E1412',
-                  'hillshade-highlight-color': '#e9e4d6'
-                } },
-              { id: 'route-casing', type: 'line', source: 'cairn-route',
-                layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': '#0E1412', 'line-opacity': 0.5, 'line-width': 7 } },
-              { id: 'route', type: 'line', source: 'cairn-route',
-                layout: { 'line-cap': 'round', 'line-join': 'round' },
-                paint: { 'line-color': '#D9A441', 'line-width': 4 } }
-            ]
-          }
+          maxPitch: 85
         });
+        // Only a total failure to load is fatal. A full vector base map emits
+        // routine tile/glyph/sprite errors that must not blank the view.
+        setTimeout(function () {
+          if (!loaded) {
+            CairnBridge.postMessage(JSON.stringify({ type: 'error', message: 'load timeout' }));
+          }
+        }, 12000);
         map.on('load', function () {
-          try { map.setTerrain({ source: 'terrain-dem', exaggeration: 1.3 }); } catch (e) {}
+          loaded = true;
+          // Real 3D relief from the DEM the base style already carries.
+          try { map.setTerrain({ source: 'terrain-dem', exaggeration: 1.2 }); } catch (e) {}
+          try {
+            map.setSky({
+              'sky-color': '#8fb4d6',
+              'sky-horizon-blend': 0.5,
+              'horizon-color': '#d3e2ee',
+              'horizon-fog-blend': 0.6,
+              'fog-color': '#e6ecef',
+              'fog-ground-blend': 0.4
+            });
+          } catch (e) {}
+          try {
+            if (opts.start) new maplibregl.Marker({ color: '#2FBF71' })
+              .setLngLat(opts.start).addTo(map);
+            if (opts.end) new maplibregl.Marker({ color: '#E5484D' })
+              .setLngLat(opts.end).addTo(map);
+          } catch (e) {}
+          // Frame the route (if any), then tilt into the 3D view.
+          if (opts.bounds) {
+            try { map.fitBounds(opts.bounds, { padding: 60, duration: 0 }); } catch (e) {}
+          }
+          map.easeTo({ pitch: 62, duration: 800 });
           CairnBridge.postMessage(JSON.stringify({ type: 'ready' }));
         });
+        // Log errors for debugging but never blank the view on a transient one.
         map.on('error', function (e) {
-          var m = (e && e.error && e.error.message) ? String(e.error.message) : 'map error';
-          CairnBridge.postMessage(JSON.stringify({ type: 'error', message: m }));
+          try { console.error('maplibre', e && e.error && e.error.message); } catch (_) {}
         });
       } catch (e) {
         CairnBridge.postMessage(JSON.stringify({ type: 'error', message: String(e) }));
       }
+    }
+
+    // Fly the camera along the route once, then settle back (Fix Pass 1 X3).
+    function flyAlong(coords) {
+      if (!map || !coords || coords.length < 2) return;
+      var i = 0;
+      var step = Math.max(1, Math.floor(coords.length / 120));
+      function next() {
+        if (!map || i >= coords.length) { return; }
+        map.easeTo({ center: coords[i], bearing: map.getBearing(), duration: 180, pitch: 70 });
+        i += step;
+        setTimeout(next, 180);
+      }
+      next();
+    }
+
+    function resetBearing() {
+      if (map) map.easeTo({ bearing: 0, duration: 400 });
     }
   </script>
 </body>
