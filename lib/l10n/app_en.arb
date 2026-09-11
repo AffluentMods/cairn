@@ -244,5 +244,6 @@
   "genericOk": "OK",
   "genericSave": "Save",
   "genericDelete": "Delete",
-  "genericClose": "Close"
+  "genericClose": "Close",
+  "genericSkip": "Skip"
 }

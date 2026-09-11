@@ -1299,6 +1299,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get genericClose;
+
+  /// No description provided for @genericSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get genericSkip;
 }
 
 class _AppLocalizationsDelegate

@@ -672,4 +672,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genericClose => 'Close';
+
+  @override
+  String get genericSkip => 'Skip';
 }
