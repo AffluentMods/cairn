@@ -103,6 +103,30 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           emptyFeatureCollection(),
         );
       }
+
+      if (layers.contains(MapOverlay.fires)) {
+        final fires = await ref
+            .read(conditionsRepositoryProvider)
+            .firesInBbox(viewport.bbox);
+        await controller.setGeoJsonSource('cairn-fires', firesToGeoJson(fires));
+      } else {
+        await controller.setGeoJsonSource(
+          'cairn-fires',
+          emptyFeatureCollection(),
+        );
+      }
+
+      if (layers.contains(MapOverlay.land)) {
+        final land = await ref
+            .read(conditionsRepositoryProvider)
+            .landInBbox(viewport.bbox);
+        await controller.setGeoJsonSource('cairn-land', landToGeoJson(land));
+      } else {
+        await controller.setGeoJsonSource(
+          'cairn-land',
+          emptyFeatureCollection(),
+        );
+      }
     } finally {
       _refreshing = false;
       if (_pending) {

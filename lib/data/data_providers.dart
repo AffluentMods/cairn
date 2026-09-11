@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/net/dio_client.dart';
+import '../domain/repositories/conditions_repository.dart';
 import '../domain/repositories/elevation_repository.dart';
 import '../domain/repositories/offline_repository.dart';
 import '../domain/repositories/poi_repository.dart';
@@ -13,12 +14,16 @@ import '../domain/repositories/track_repository.dart';
 import '../domain/repositories/trail_repository.dart';
 import 'db/app_database.dart';
 import 'gpx/gpx_importer.dart';
+import 'repositories/conditions_repository_impl.dart';
 import 'repositories/elevation_repository_impl.dart';
 import 'repositories/offline_repository_impl.dart';
 import 'repositories/poi_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
 import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
+import 'sources/nifc_source.dart';
+import 'sources/nws_source.dart';
+import 'sources/open_meteo_source.dart';
 import 'sources/overpass_source.dart';
 import 'sources/terrain_tile_source.dart';
 import 'sources/usfs_source.dart';
@@ -49,6 +54,28 @@ final overpassSourceProvider = Provider<OverpassSource>(
 
 final usfsSourceProvider = Provider<UsfsSource>(
   (ref) => UsfsSource(ref.watch(dioProvider)),
+);
+
+final nifcSourceProvider = Provider<NifcSource>(
+  (ref) => NifcSource(ref.watch(dioProvider)),
+);
+
+final nwsSourceProvider = Provider<NwsSource>(
+  (ref) => NwsSource(ref.watch(dioProvider)),
+);
+
+final openMeteoSourceProvider = Provider<OpenMeteoSource>(
+  (ref) => OpenMeteoSource(ref.watch(dioProvider)),
+);
+
+final conditionsRepositoryProvider = Provider<ConditionsRepository>(
+  (ref) => ConditionsRepositoryImpl(
+    db: ref.watch(appDatabaseProvider),
+    nifc: ref.watch(nifcSourceProvider),
+    nws: ref.watch(nwsSourceProvider),
+    openMeteo: ref.watch(openMeteoSourceProvider),
+    usfs: ref.watch(usfsSourceProvider),
+  ),
 );
 
 final trailRepositoryProvider = Provider<TrailRepository>(

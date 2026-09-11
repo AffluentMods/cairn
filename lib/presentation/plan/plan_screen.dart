@@ -12,6 +12,7 @@ import '../../domain/models/route_plan.dart';
 import '../map/map_geojson.dart';
 import '../map/map_providers.dart';
 import '../map/map_style.dart';
+import '../map/widgets/conditions_panel.dart';
 import 'route_editor_provider.dart';
 import 'widgets/elevation_profile.dart';
 import 'widgets/route_stats_bar.dart';
@@ -122,6 +123,46 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
     );
   }
 
+  void _openConditions() {
+    final state = ref.read(routeEditorProvider);
+    final poly = state.polyline;
+    if (poly.length < 2) return;
+
+    final profile = state.stats.profile;
+    var highDist = 0.0;
+    var highElev = -1e9;
+    final startElev = profile.isEmpty ? 0.0 : profile.first.elevM;
+    for (final p in profile) {
+      if (p.elevM > highElev) {
+        highElev = p.elevM;
+        highDist = p.distanceM;
+      }
+    }
+    final highPt = pointAtDistance(poly, highDist) ?? poly.last;
+
+    var minLat = poly.first[0], maxLat = poly.first[0];
+    var minLon = poly.first[1], maxLon = poly.first[1];
+    for (final p in poly) {
+      minLat = p[0] < minLat ? p[0] : minLat;
+      maxLat = p[0] > maxLat ? p[0] : maxLat;
+      minLon = p[1] < minLon ? p[1] : minLon;
+      maxLon = p[1] > maxLon ? p[1] : maxLon;
+    }
+
+    showConditions(
+      context,
+      name: context.l10n.planTitle,
+      routePolyline: poly,
+      trailheadLat: poly.first[0],
+      trailheadLon: poly.first[1],
+      trailheadElevM: startElev,
+      highLat: highPt[0],
+      highLon: highPt[1],
+      highElevM: highElev < -1e8 ? startElev : highElev,
+      bbox: [minLat, minLon, maxLat, maxLon],
+    );
+  }
+
   Future<String?> _promptName() {
     final controller = TextEditingController();
     return showDialog<String>(
@@ -172,6 +213,11 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
               ref.read(routeEditorProvider.notifier).clear();
               _sync();
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.wb_cloudy_outlined),
+            tooltip: l10n.layerConditions,
+            onPressed: canSave ? _openConditions : null,
           ),
           TextButton(
             onPressed: canSave ? _save : null,

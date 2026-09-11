@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import '../../core/geo/polyline_simplify.dart';
+import '../../domain/models/fire_incident.dart';
+import '../../domain/models/land_unit.dart';
 import '../../domain/models/poi.dart';
 import '../../domain/models/trail.dart';
 
@@ -81,6 +83,73 @@ Map<String, dynamic> poisToGeoJson(List<PoiPoint> pois) {
         },
     ],
   };
+}
+
+/// Fires as GeoJSON: a Polygon feature per perimeter ring, and a Point feature
+/// per incident with no perimeter. Properties carry enough to render the card.
+Map<String, dynamic> firesToGeoJson(List<FireIncident> fires) {
+  final features = <Map<String, dynamic>>[];
+  for (final f in fires) {
+    final props = {
+      'id': f.id,
+      'name': f.name,
+      'prescribed': f.prescribed,
+      if (f.acres != null) 'acres': f.acres,
+      if (f.percentContained != null) 'contained': f.percentContained,
+    };
+    if (f.isPerimeter) {
+      for (final ring in f.polygons) {
+        features.add({
+          'type': 'Feature',
+          'properties': props,
+          'geometry': {
+            'type': 'Polygon',
+            'coordinates': [
+              [
+                for (final p in ring) [p[1], p[0]],
+              ],
+            ],
+          },
+        });
+      }
+    } else if (f.lat != null && f.lon != null) {
+      features.add({
+        'type': 'Feature',
+        'properties': props,
+        'geometry': {
+          'type': 'Point',
+          'coordinates': [f.lon, f.lat],
+        },
+      });
+    }
+  }
+  return {'type': 'FeatureCollection', 'features': features};
+}
+
+/// Land units as GeoJSON Polygons, colored by kind via stroke/fill properties.
+Map<String, dynamic> landToGeoJson(List<LandUnit> units) {
+  final features = <Map<String, dynamic>>[];
+  for (final u in units) {
+    for (final ring in u.polygons) {
+      features.add({
+        'type': 'Feature',
+        'properties': {
+          'name': u.name,
+          'stroke': u.strokeHex,
+          'fill': u.strokeHex,
+        },
+        'geometry': {
+          'type': 'Polygon',
+          'coordinates': [
+            [
+              for (final p in ring) [p[1], p[0]],
+            ],
+          ],
+        },
+      });
+    }
+  }
+  return {'type': 'FeatureCollection', 'features': features};
 }
 
 /// A single LineString FeatureCollection ([lat,lon] input) for the route or
