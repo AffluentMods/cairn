@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/theme/cairn_colors.dart';
 import 'shell_providers.dart';
 
 /// The four-tab bottom navigation shell: Explore, Navigate, Saved, Activity
@@ -32,10 +33,16 @@ class AppShell extends ConsumerWidget {
     final l10n = context.l10n;
     return Scaffold(
       body: shell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: current,
-        onDestinationSelected: _onTap,
-        destinations: [
+      bottomNavigationBar: DecoratedBox(
+        // Nav bar sits on the background with a hairline top border, not a
+        // floating tinted surface (Fix Pass 1 X4.5).
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: context.cairn.outline)),
+        ),
+        child: NavigationBar(
+          selectedIndex: current,
+          onDestinationSelected: _onTap,
+          destinations: [
           NavigationDestination(
             icon: const Icon(Icons.explore_outlined),
             selectedIcon: const Icon(Icons.explore),
@@ -56,7 +63,8 @@ class AppShell extends ConsumerWidget {
             selectedIcon: const Icon(Icons.timeline),
             label: l10n.tabActivity,
           ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -686,7 +686,7 @@ class _BottomCard extends StatelessWidget {
       alignment: Alignment.bottomCenter,
       child: Material(
         color: Theme.of(context).colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         elevation: 8,
         child: SafeArea(
           top: false,
@@ -878,7 +878,7 @@ class _LoadedSheet extends ConsumerWidget {
       builder: (context, controller) => Material(
         color: scheme.surface,
         elevation: 8,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         child: ListView(
           controller: controller,
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),

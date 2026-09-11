@@ -241,7 +241,7 @@ class _NearbyTrailsSheet extends ConsumerWidget {
       builder: (context, scroll) => Material(
         color: scheme.surface,
         elevation: 8,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         child: ListView(
           controller: scroll,
           padding: EdgeInsets.zero,

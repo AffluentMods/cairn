@@ -181,6 +181,24 @@ ThemeData themeFromSpec(CairnThemeSpec s) {
       backgroundColor: s.raised,
       contentTextStyle: TextStyle(color: s.textPrimary),
     ),
+    // Sheets and dialogs get generous 24 dp corners (Fix Pass 1 X4.5).
+    bottomSheetTheme: BottomSheetThemeData(
+      backgroundColor: s.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+    ),
+    dialogTheme: DialogThemeData(
+      backgroundColor: s.raised,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+    ),
+    chipTheme: ChipThemeData(
+      backgroundColor: s.raised,
+      side: BorderSide(color: s.outline),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    ),
   );
 }
 
