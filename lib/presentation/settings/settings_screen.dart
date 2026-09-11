@@ -9,9 +9,11 @@ import '../../core/l10n/l10n_ext.dart';
 import '../../core/net/dio_client.dart';
 import '../../core/settings/settings.dart';
 import '../../core/settings/settings_providers.dart';
+import '../../core/theme/cairn_theme.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
 import 'about_screen.dart';
+import 'appearance_screen.dart';
 import 'diagnostics_screen.dart';
 
 /// Settings (spec Phase 9): units, theme, default map, weights, terrain cache,
@@ -42,17 +44,14 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => notifier.setUnits(UnitSystem.metric),
           ),
           const Divider(),
-          _header(context, l10n.settingsTheme),
-          for (final mode in ThemeMode.values)
-            RadioListTileless(
-              selected: s.themeMode == mode,
-              title: switch (mode) {
-                ThemeMode.system => l10n.themeSystem,
-                ThemeMode.dark => l10n.themeDark,
-                ThemeMode.light => l10n.themeLight,
-              },
-              onTap: () => notifier.setThemeMode(mode),
+          ListTile(
+            leading: const Icon(Icons.palette_outlined),
+            title: Text(l10n.settingsAppearance),
+            subtitle: Text(_appearanceSummary(context, s)),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const AppearanceScreen()),
             ),
+          ),
           const Divider(),
           _header(context, l10n.settingsDefaultStyle),
           for (final style in CairnMapStyle.values)
@@ -150,6 +149,18 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  String _appearanceSummary(BuildContext context, Settings s) {
+    final l10n = context.l10n;
+    String nameOf(String id) =>
+        (builtInThemeById(id) ?? cairnBuiltInThemes.first).name;
+    return switch (s.themeMode) {
+      ThemeMode.system =>
+        '${l10n.themeSystem} · ${nameOf(s.darkThemeId)} / ${nameOf(s.lightThemeId)}',
+      ThemeMode.dark => '${l10n.themeDark} · ${nameOf(s.darkThemeId)}',
+      ThemeMode.light => '${l10n.themeLight} · ${nameOf(s.lightThemeId)}',
+    };
   }
 
   Widget _header(BuildContext context, String text) => Padding(

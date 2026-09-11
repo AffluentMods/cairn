@@ -277,6 +277,14 @@
   "mapLoading": "Loading map",
   "mapLoadFailed": "The map did not load.",
 
+  "settingsAppearance": "Appearance",
+  "appearanceTitle": "Appearance",
+  "appearanceModeHeader": "Mode",
+  "appearanceDarkTheme": "Dark theme",
+  "appearanceLightTheme": "Light theme",
+  "appearanceCreate": "Create a theme",
+  "appearancePreview": "Preview",
+
   "settingsDiagnostics": "Diagnostics",
   "diagnosticsSubtitle": "On-device crash and stall log",
   "diagnosticsTitle": "Diagnostics",

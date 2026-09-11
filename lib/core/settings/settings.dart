@@ -13,6 +13,8 @@ class Settings {
     this.mapStyle = CairnMapStyle.outdoors,
     this.units = UnitSystem.imperial,
     this.themeMode = ThemeMode.system,
+    this.darkThemeId = 'larch',
+    this.lightThemeId = 'paper',
     this.bodyWeightKg,
     this.defaultPackKg,
     this.showConditions = true,
@@ -22,6 +24,12 @@ class Settings {
   final CairnMapStyle mapStyle;
   final UnitSystem units;
   final ThemeMode themeMode;
+
+  /// The theme applied in dark mode and in light mode (Fix Pass 1 X4.3). A
+  /// built-in id (larch, paper, ...) or a custom theme's id.
+  final String darkThemeId;
+  final String lightThemeId;
+
   final double? bodyWeightKg;
   final double? defaultPackKg;
   final bool showConditions;
@@ -34,6 +42,8 @@ class Settings {
     CairnMapStyle? mapStyle,
     UnitSystem? units,
     ThemeMode? themeMode,
+    String? darkThemeId,
+    String? lightThemeId,
     double? bodyWeightKg,
     double? defaultPackKg,
     bool? showConditions,
@@ -43,6 +53,8 @@ class Settings {
       mapStyle: mapStyle ?? this.mapStyle,
       units: units ?? this.units,
       themeMode: themeMode ?? this.themeMode,
+      darkThemeId: darkThemeId ?? this.darkThemeId,
+      lightThemeId: lightThemeId ?? this.lightThemeId,
       bodyWeightKg: bodyWeightKg ?? this.bodyWeightKg,
       defaultPackKg: defaultPackKg ?? this.defaultPackKg,
       showConditions: showConditions ?? this.showConditions,

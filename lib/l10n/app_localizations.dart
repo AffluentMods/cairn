@@ -1468,6 +1468,48 @@ abstract class AppLocalizations {
   /// **'The map did not load.'**
   String get mapLoadFailed;
 
+  /// No description provided for @settingsAppearance.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get settingsAppearance;
+
+  /// No description provided for @appearanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Appearance'**
+  String get appearanceTitle;
+
+  /// No description provided for @appearanceModeHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Mode'**
+  String get appearanceModeHeader;
+
+  /// No description provided for @appearanceDarkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get appearanceDarkTheme;
+
+  /// No description provided for @appearanceLightTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Light theme'**
+  String get appearanceLightTheme;
+
+  /// No description provided for @appearanceCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a theme'**
+  String get appearanceCreate;
+
+  /// No description provided for @appearancePreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview'**
+  String get appearancePreview;
+
   /// No description provided for @settingsDiagnostics.
   ///
   /// In en, this message translates to:

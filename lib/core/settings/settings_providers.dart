@@ -15,6 +15,8 @@ final sharedPreferencesProvider = Provider<SharedPreferences>(
 const _kMapStyle = 'settings.mapStyle';
 const _kUnits = 'settings.units';
 const _kThemeMode = 'settings.themeMode';
+const _kDarkTheme = 'settings.darkThemeId';
+const _kLightTheme = 'settings.lightThemeId';
 const _kBodyWeight = 'settings.bodyWeightKg';
 const _kPackWeight = 'settings.defaultPackKg';
 const _kShowConditions = 'settings.showConditions';
@@ -40,6 +42,8 @@ class SettingsNotifier extends Notifier<Settings> {
         prefs.getString(_kThemeMode),
         ThemeMode.system,
       ),
+      darkThemeId: prefs.getString(_kDarkTheme) ?? 'larch',
+      lightThemeId: prefs.getString(_kLightTheme) ?? 'paper',
       bodyWeightKg: prefs.getDouble(_kBodyWeight),
       defaultPackKg: prefs.getDouble(_kPackWeight),
       showConditions: prefs.getBool(_kShowConditions) ?? true,
@@ -62,6 +66,16 @@ class SettingsNotifier extends Notifier<Settings> {
   Future<void> setThemeMode(ThemeMode mode) async {
     state = state.copyWith(themeMode: mode);
     await _prefs.setString(_kThemeMode, mode.name);
+  }
+
+  Future<void> setDarkThemeId(String id) async {
+    state = state.copyWith(darkThemeId: id);
+    await _prefs.setString(_kDarkTheme, id);
+  }
+
+  Future<void> setLightThemeId(String id) async {
+    state = state.copyWith(lightThemeId: id);
+    await _prefs.setString(_kLightTheme, id);
   }
 
   Future<void> setBodyWeightKg(double? kg) async {

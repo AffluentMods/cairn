@@ -35,7 +35,7 @@ void main() {
     });
 
     test('a short profile is not usable', () {
-      final view = buildProfileView([ProfilePoint(0, 0)], 500);
+      final view = buildProfileView([const ProfilePoint(0, 0)], 500);
       expect(view.isUsable, isFalse);
     });
   });

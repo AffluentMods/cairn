@@ -765,6 +765,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapLoadFailed => 'The map did not load.';
 
   @override
+  String get settingsAppearance => 'Appearance';
+
+  @override
+  String get appearanceTitle => 'Appearance';
+
+  @override
+  String get appearanceModeHeader => 'Mode';
+
+  @override
+  String get appearanceDarkTheme => 'Dark theme';
+
+  @override
+  String get appearanceLightTheme => 'Light theme';
+
+  @override
+  String get appearanceCreate => 'Create a theme';
+
+  @override
+  String get appearancePreview => 'Preview';
+
+  @override
   String get settingsDiagnostics => 'Diagnostics';
 
   @override
