@@ -51,8 +51,17 @@ final appRouter = GoRouter(
               routes: [
                 GoRoute(
                   path: 'track/:id',
-                  builder: (_, s) =>
-                      TrackDetailScreen(id: s.pathParameters['id']!),
+                  builder: (_, s) => TrackDetailScreen(
+                    id: s.pathParameters['id']!,
+                    kind: DetailKind.track,
+                  ),
+                ),
+                GoRoute(
+                  path: 'route/:id',
+                  builder: (_, s) => TrackDetailScreen(
+                    id: s.pathParameters['id']!,
+                    kind: DetailKind.route,
+                  ),
                 ),
                 GoRoute(
                   path: 'offline',

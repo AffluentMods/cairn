@@ -8,11 +8,14 @@ import '../core/net/dio_client.dart';
 import '../domain/repositories/elevation_repository.dart';
 import '../domain/repositories/poi_repository.dart';
 import '../domain/repositories/route_repository.dart';
+import '../domain/repositories/track_repository.dart';
 import '../domain/repositories/trail_repository.dart';
 import 'db/app_database.dart';
+import 'gpx/gpx_importer.dart';
 import 'repositories/elevation_repository_impl.dart';
 import 'repositories/poi_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
+import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
 import 'sources/overpass_source.dart';
 import 'sources/terrain_tile_source.dart';
@@ -74,4 +77,16 @@ final elevationRepositoryProvider = Provider<ElevationRepository>(
 
 final routeRepositoryProvider = Provider<RouteRepository>(
   (ref) => RouteRepositoryImpl(ref.watch(appDatabaseProvider)),
+);
+
+final trackRepositoryProvider = Provider<TrackRepository>(
+  (ref) => TrackRepositoryImpl(ref.watch(appDatabaseProvider)),
+);
+
+final gpxImporterProvider = Provider<GpxImporter>(
+  (ref) => GpxImporter(
+    routes: ref.watch(routeRepositoryProvider),
+    tracks: ref.watch(trackRepositoryProvider),
+    elevation: ref.watch(elevationRepositoryProvider),
+  ),
 );
