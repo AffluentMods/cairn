@@ -37,7 +37,6 @@ dependencies:
   latlong2: ^0.9.1
   turf: ^0.0.10
   gpx: ^2.3.0
-  image: ^4.3.0
 
   # Location + recording
   geolocator: ^13.0.0

@@ -68,7 +68,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         final trails = await repo.trailsInBbox(viewport.bbox);
         await controller.setGeoJsonSource(
           'cairn-trails',
-          trailsToGeoJson(trails, zoom: viewport.zoom),
+          await trailsToGeoJsonAsync(trails, zoom: viewport.zoom),
         );
         // Rebuild the "Trails in view" list now that this area is cached, so a
         // cold load does not stay empty until the next pan (Fix Pass 1 X1.3.3).

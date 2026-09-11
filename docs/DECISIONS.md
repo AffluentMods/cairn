@@ -91,3 +91,23 @@ option that ships fastest and record it here.
   Tracks.lastModified). Trust the real code: these two tables ship in a v2 to v3 migration so
   no existing install loses data. Tables are defined inline in `app_database.dart` to match the
   existing convention there, not as separate files under `db/tables/`.
+
+## Fix Pass 1
+
+- **Off-UI compute is a thin `GeoWorker.run` seam over `Isolate.run`, not a long-lived worker.**
+  Reason: Fix Pass 1 X1.3.1 requires nothing over 4 ms on the UI isolate and names a "GeoWorker".
+  The heavy paths (Overpass decode+parse, GeoJSON build/simplify, routing, snapping, route stats,
+  the nearby list) are one-shot and pure, so a shared mutable worker buys nothing over a
+  short-lived isolate per call, and a single facade importing every layer would invert the layer
+  graph (core importing presentation/domain). Instead `lib/core/worker/geo_worker.dart` exposes a
+  generic `GeoWorker.run<R>(label, work)` and each layer keeps its own isolate-backed async
+  variant next to the pure function. The one stateful cache we need, decoded DEM tiles, stays on
+  the main isolate as an LRU of already-decoded grids.
+- **Terrarium DEM tiles decode via `ui.instantiateImageCodec` (engine) plus a worker, not
+  `package:image`.** Reason: the pure-Dart PNG decode plus a 65,536 element RGBA to meters loop
+  ran on the UI isolate (hypothesis H1, the single heaviest op). The engine codec decodes off the
+  UI isolate and the RGBA to meters conversion runs in `Isolate.run`. `package:image` is dropped.
+- **Overpass responses are fetched as raw text and decoded in the worker.** Reason: with Dio's
+  json response type the `jsonDecode` ran on the UI isolate before the parse. `OverpassSource` now
+  returns the response body as a String and `jsonDecode` plus `parseOverpassWays`/`parseOverpassPois`
+  run together in one isolate hop.

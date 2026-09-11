@@ -24,17 +24,18 @@ class OverpassSource {
     'https://overpass.private.coffee/api/interpreter',
   ];
 
-  Future<Map<String, dynamic>> fetchWays(List<double> bbox) =>
-      _run(waysQuery(bbox));
+  /// Returns the raw JSON response body. The caller decodes and parses it in a
+  /// worker isolate (Fix Pass 1 X1.3.1), so the JSON decode never runs on the
+  /// UI isolate.
+  Future<String> fetchWays(List<double> bbox) => _run(waysQuery(bbox));
 
-  Future<Map<String, dynamic>> fetchPois(List<double> bbox) =>
-      _run(poisQuery(bbox));
+  Future<String> fetchPois(List<double> bbox) => _run(poisQuery(bbox));
 
-  Future<Map<String, dynamic>> _run(String query) async {
+  Future<String> _run(String query) async {
     Object? lastError;
     for (final endpoint in endpoints) {
       try {
-        final response = await _dio.post<dynamic>(
+        final response = await _dio.post<String>(
           endpoint,
           data: {'data': query},
           options: Options(
@@ -43,7 +44,9 @@ class OverpassSource {
             // 1: a slow Overpass must not make the app feel frozen).
             sendTimeout: const Duration(seconds: 20),
             receiveTimeout: const Duration(seconds: 40),
-            responseType: ResponseType.json,
+            // Plain text, not decoded json: the worker decodes it off the UI
+            // isolate.
+            responseType: ResponseType.plain,
           ),
         );
         final status = response.statusCode ?? 0;
@@ -52,8 +55,8 @@ class OverpassSource {
           continue; // try the next mirror
         }
         final data = response.data;
-        if (data is Map<String, dynamic>) return data;
-        lastError = 'unexpected response type';
+        if (data != null && data.isNotEmpty) return data;
+        lastError = 'empty response';
       } on DioException catch (e) {
         lastError = e;
         // Network/timeout: try the next mirror.

@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/geo/tile_math.dart';
+import '../../core/worker/geo_worker.dart';
 import '../../domain/models/trail.dart';
 import '../../domain/repositories/trail_repository.dart';
 import '../../domain/usecases/route_between_waypoints.dart';
@@ -53,12 +54,17 @@ class TrailRepositoryImpl implements TrailRepository {
     return DateTime.now().difference(row.fetchedAt) < _trailCellTtl;
   }
 
-  /// Returns true on success, false if the network was unavailable.
+  /// Returns true on success, false if the network was unavailable or the
+  /// response could not be parsed.
   Future<bool> _ingestCell(TileXY cell) async {
     final bounds = tileBounds(cell);
     try {
-      final json = await overpass.fetchWays(bounds);
-      final parsed = parseOverpassWays(json);
+      final raw = await overpass.fetchWays(bounds);
+      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3).
+      final parsed = await GeoWorker.run(
+        'overpass-ways',
+        () => parseOverpassWays(jsonDecode(raw) as Map<String, dynamic>),
+      );
       await db.batch((b) {
         b.insertAllOnConflictUpdate(
           db.osmWays,
@@ -80,6 +86,10 @@ class TrailRepositoryImpl implements TrailRepository {
       await _enrichUsfs(bounds); // best effort, never throws
       return true;
     } on OverpassUnavailable {
+      return false;
+    } on FormatException {
+      // A mirror returned something that was not JSON (an error page); treat
+      // the cell as unfetched rather than crashing.
       return false;
     }
   }

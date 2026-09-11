@@ -70,4 +70,48 @@ void main() {
       expect(r.point.wayId, offTrailWayId);
     });
   });
+
+  group('buildRoute', () {
+    const way = RoutableWay(
+      id: 5,
+      nodeIds: [1, 2, 3],
+      coords: [
+        [46.0, -121.00],
+        [46.0, -120.99],
+        [46.0, -120.98],
+      ],
+      penalty: 1.0,
+    );
+
+    test('snaps every waypoint and joins the legs on one trail', () {
+      final built = buildRoute([way], [
+        [46.0003, -120.998],
+        [46.0003, -120.982],
+      ]);
+      expect(built.onTrail, [true, true]);
+      expect(built.offTrail, isFalse);
+      expect(built.polyline.length, greaterThanOrEqualTo(2));
+      // Runs west to east through the shared node at -120.99.
+      expect(
+        built.polyline.any((p) => (p[1] - -120.99).abs() < 1e-9),
+        isTrue,
+      );
+    });
+
+    test('a far waypoint is off-trail and flags the leg', () {
+      final built = buildRoute([way], [
+        [46.0003, -120.998],
+        [46.02, -120.98], // well beyond the snap radius
+      ]);
+      expect(built.onTrail.first, isTrue);
+      expect(built.onTrail.last, isFalse);
+      expect(built.offTrail, isTrue);
+    });
+
+    test('fewer than two waypoints is empty', () {
+      expect(buildRoute([way], [
+        [46.0, -121.0],
+      ]), same(BuiltRoute.empty));
+    });
+  });
 }

@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/geo/haversine.dart';
+import '../../core/worker/geo_worker.dart';
 import '../../data/data_providers.dart';
 import '../../domain/models/trail.dart';
 import '../map_common/map_providers.dart';
@@ -37,13 +38,33 @@ class NearbyTrail {
 }
 
 /// Named trails in the current viewport, sorted by distance from the map center
-/// and capped at 50 (Addendum A4.1). Reads only from the local DB (the map's
-/// own overlay refresh already ensured the area), so this is cheap and offline.
+/// and capped at 30 (Addendum A4.1, Fix Pass 1 X1.3.3). Reads only from the
+/// local DB (the map's own overlay refresh already ensured the area), so this
+/// is cheap and offline. The grouping and per-point distance loop run off the
+/// UI isolate (Fix Pass 1 X1.3.1, H2).
 final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
   final vp = ref.watch(viewportProvider);
   if (vp == null) return const [];
   final trails = await ref.read(trailRepositoryProvider).trailsInBbox(vp.bbox);
+  if (trails.isEmpty) return const [];
 
+  final centerLat = (vp.south + vp.north) / 2;
+  final centerLon = (vp.west + vp.east) / 2;
+
+  return GeoWorker.run(
+    'nearby-trails',
+    () => buildNearbyTrails(trails, centerLat, centerLon),
+  );
+});
+
+/// Groups named ways by name, sums their length, and finds each group's nearest
+/// point to the map center. Pure and top-level so it can run in a worker
+/// isolate.
+List<NearbyTrail> buildNearbyTrails(
+  List<Trail> trails,
+  double centerLat,
+  double centerLon,
+) {
   final byName = <String, List<Trail>>{};
   for (final t in trails) {
     final name = t.name;
@@ -54,9 +75,6 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
     if (t.highway == 'track') continue;
     (byName[name] ??= <Trail>[]).add(t);
   }
-
-  final centerLat = (vp.south + vp.north) / 2;
-  final centerLon = (vp.west + vp.east) / 2;
 
   final out = <NearbyTrail>[];
   byName.forEach((name, ways) {
@@ -88,4 +106,4 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
 
   out.sort((a, b) => a.distanceM.compareTo(b.distanceM));
   return out.take(30).toList();
-});
+}

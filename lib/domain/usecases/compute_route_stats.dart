@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import '../../core/geo/elevation_stats.dart';
 import '../../core/geo/resample.dart';
+import '../../core/worker/geo_worker.dart';
 import '../repositories/elevation_repository.dart';
 
 /// One point of the elevation profile: distance from the start and elevation.
@@ -60,13 +61,24 @@ Future<RouteStats> computeRouteStats(
   );
   if (elevs.length != samples.length) return RouteStats.empty;
 
+  // Gain/loss hysteresis, descent classification, the time estimate, and the
+  // profile build run off the UI isolate (Fix Pass 1 X1.3.1). Pass plain
+  // distances rather than the SampledPoint objects.
+  final dists = [for (final s in samples) s.distanceM];
+  return GeoWorker.run('route-stats', () => statsFromElevations(dists, elevs));
+}
+
+/// Builds [RouteStats] from parallel distance and elevation samples. Pure and
+/// top-level so it can run in a worker isolate.
+RouteStats statsFromElevations(List<double> dists, List<double> elevs) {
+  if (dists.length < 2) return RouteStats.empty;
   final stats = gainLoss(elevs);
 
   var gentleDescent = 0.0;
   var steepDescent = 0.0;
-  for (var i = 1; i < samples.length; i++) {
+  for (var i = 1; i < dists.length; i++) {
     final dh = elevs[i] - elevs[i - 1];
-    final dd = samples[i].distanceM - samples[i - 1].distanceM;
+    final dd = dists[i] - dists[i - 1];
     if (dh < 0 && dd > 0) {
       final grade = -dh / dd;
       if (grade > _steepGrade) {
@@ -77,7 +89,7 @@ Future<RouteStats> computeRouteStats(
     }
   }
 
-  final totalDistance = samples.last.distanceM;
+  final totalDistance = dists.last;
   final seconds = naismithLangmuirSeconds(
     distanceM: totalDistance,
     gainM: stats.gain,
@@ -93,8 +105,7 @@ Future<RouteStats> computeRouteStats(
     minElevM: stats.minElev,
     estimatedTime: Duration(seconds: seconds.round()),
     profile: [
-      for (var i = 0; i < samples.length; i++)
-        ProfilePoint(samples[i].distanceM, elevs[i]),
+      for (var i = 0; i < dists.length; i++) ProfilePoint(dists[i], elevs[i]),
     ],
   );
 }

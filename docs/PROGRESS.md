@@ -236,3 +236,27 @@ Shipped:
 Verified: (updated as the phase closes)
 
 Next: Phase 1 map core.
+
+## Fix Pass 1 (in progress)
+
+Blocks all feature work (docs/cairn-fix-pass-1.md). Done so far:
+
+- X1.3.5 location never blocks; X1.3.10 map loading state; X1.3.3 forest-road exclude + cap 30;
+  X1.3.6/7 overlay maxzoom + below the first Cairn layer; X2.1 route framing; X2.4 sheet title.
+- X1.3.1 off-UI compute (`lib/core/worker/geo_worker.dart`, a `GeoWorker.run` seam over
+  `Isolate.run`): terrarium DEM tiles now decode via the engine codec plus a worker (was
+  `package:image` on the UI isolate, the heaviest op); Overpass responses fetched as raw text and
+  decoded + parsed in a worker; trails GeoJSON build/simplify, the nearby-trails list, and the
+  whole snap-and-route pass plus route-stats math all run off the UI isolate. `package:image`
+  dropped. `buildRoute` unit tested.
+
+Verified: `flutter analyze` clean, `flutter test` 120 passing,
+`flutter build apk --flavor community --debug` builds.
+
+NEEDS DEVICE: re-run the locate/pan/Show route/Navigate/3D/overlay session on the physical phone
+and confirm zero ANRs and no frame over 32 ms after the first second (X1.4 budgets). Blocked
+earlier by an Overpass outage; retry when a mirror is up.
+
+Remaining: X1.3.2 viewport pipeline (debounce + generation + cancellation), X1.3.4 GeoJSON hash +
+cap, X1.3.8 crash/stall log + Diagnostics, X2.5 profile redraw, X2.2/2.6/2.7 section/follow/Show
+route, X2.8 simulator, X1.3.9 + X3 3D, X4 theme system.

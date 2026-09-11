@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../../domain/usecases/compute_route_stats.dart';
-import '../../domain/usecases/route_between_waypoints.dart';
 import '../../domain/usecases/snap_to_trail.dart';
 
 /// A tapped waypoint and whether it snapped to a trail.
@@ -149,29 +148,15 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
     await trailRepo.ensureArea(bbox);
     final ways = await trailRepo.routableWaysInBbox(bbox);
 
-    final snapped = <SnapResult>[
-      for (final w in wps) snapToTrail(w.lat, w.lon, ways),
-    ];
-
-    final polyline = <List<double>>[];
-    var offTrail = false;
-    for (var i = 0; i < snapped.length - 1; i++) {
-      final leg = routeBetweenWaypoints(
-        ways,
-        snapped[i].point,
-        snapped[i + 1].point,
-      );
-      if (leg.offTrail) offTrail = true;
-      final pts = leg.polyline;
-      if (i == 0) {
-        polyline.addAll(pts);
-      } else if (pts.isNotEmpty) {
-        polyline.addAll(pts.skip(1)); // avoid duplicating the shared vertex
-      }
-    }
+    // Snap every waypoint and route each leg in one worker isolate (Fix Pass 1
+    // X1.3.1), so the ways list crosses the isolate boundary once.
+    final built = await buildRouteAsync(
+      ways,
+      [for (final w in wps) [w.lat, w.lon]],
+    );
 
     final stats = await computeRouteStats(
-      polyline,
+      built.polyline,
       ref.read(elevationRepositoryProvider),
     );
 
@@ -181,12 +166,12 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
           EditorWaypoint(
             lat: wps[i].lat,
             lon: wps[i].lon,
-            onTrail: snapped[i].onTrail,
+            onTrail: i < built.onTrail.length ? built.onTrail[i] : true,
           ),
       ],
-      polyline: polyline,
+      polyline: built.polyline,
       stats: stats,
-      hasOffTrailLeg: offTrail,
+      hasOffTrailLeg: built.offTrail,
       computing: false,
     );
   }

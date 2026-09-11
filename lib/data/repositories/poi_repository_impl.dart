@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/geo/tile_math.dart';
+import '../../core/worker/geo_worker.dart';
 import '../../domain/models/poi.dart';
 import '../../domain/repositories/poi_repository.dart';
 import '../db/app_database.dart';
@@ -39,8 +40,12 @@ class PoiRepositoryImpl implements PoiRepository {
   Future<void> _ingestCell(TileXY cell) async {
     final bounds = tileBounds(cell);
     try {
-      final json = await overpass.fetchPois(bounds);
-      final pois = parseOverpassPois(json);
+      final raw = await overpass.fetchPois(bounds);
+      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3).
+      final pois = await GeoWorker.run(
+        'overpass-pois',
+        () => parseOverpassPois(jsonDecode(raw) as Map<String, dynamic>),
+      );
       await db.batch((b) {
         b.insertAllOnConflictUpdate(
           db.pois,
@@ -67,6 +72,8 @@ class PoiRepositoryImpl implements PoiRepository {
           );
     } on OverpassUnavailable {
       // Keep whatever is cached; POIs are non-critical.
+    } on FormatException {
+      // A non-JSON response (error page); keep whatever is cached.
     }
   }
 

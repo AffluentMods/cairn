@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import '../../core/geo/nearest_point.dart';
+import '../../core/worker/geo_worker.dart';
 import 'route_between_waypoints.dart';
 
 /// The outcome of snapping a tapped point to the nearest trail.
@@ -64,3 +65,60 @@ SnapResult snapToTrail(
     snapDistanceM: best?.distanceM ?? double.infinity,
   );
 }
+
+/// A route built across a whole waypoint list: the joined polyline, whether any
+/// leg went off-trail, and whether each input waypoint snapped to a trail
+/// (aligned with the input order).
+class BuiltRoute {
+  const BuiltRoute({
+    required this.polyline,
+    required this.offTrail,
+    required this.onTrail,
+  });
+
+  final List<List<double>> polyline; // [[lat, lon], ...]
+  final bool offTrail;
+  final List<bool> onTrail;
+
+  static const empty =
+      BuiltRoute(polyline: [], offTrail: false, onTrail: []);
+}
+
+/// Snaps every `[lat, lon]` waypoint to [ways] and routes each leg, joining the
+/// legs into one polyline. Pure and self-contained so the whole snap-and-route
+/// pass runs in a single worker isolate, copying [ways] once (Fix Pass 1
+/// X1.3.1, H3).
+BuiltRoute buildRoute(List<RoutableWay> ways, List<List<double>> waypoints) {
+  if (waypoints.length < 2) return BuiltRoute.empty;
+  final snapped = <SnapResult>[
+    for (final w in waypoints) snapToTrail(w[0], w[1], ways),
+  ];
+  final polyline = <List<double>>[];
+  var offTrail = false;
+  for (var i = 0; i < snapped.length - 1; i++) {
+    final leg = routeBetweenWaypoints(
+      ways,
+      snapped[i].point,
+      snapped[i + 1].point,
+    );
+    if (leg.offTrail) offTrail = true;
+    final pts = leg.polyline;
+    if (i == 0) {
+      polyline.addAll(pts);
+    } else if (pts.isNotEmpty) {
+      polyline.addAll(pts.skip(1)); // avoid duplicating the shared vertex
+    }
+  }
+  return BuiltRoute(
+    polyline: polyline,
+    offTrail: offTrail,
+    onTrail: [for (final s in snapped) s.onTrail],
+  );
+}
+
+/// [buildRoute] on a worker isolate.
+Future<BuiltRoute> buildRouteAsync(
+  List<RoutableWay> ways,
+  List<List<double>> waypoints,
+) =>
+    GeoWorker.run('route', () => buildRoute(ways, waypoints));

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'dart:io';
+import 'dart:isolate';
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:dio/dio.dart';
-import 'package:image/image.dart' as img;
 import 'package:path/path.dart' as p;
 
 import '../../core/geo/terrarium.dart';
@@ -42,7 +43,7 @@ class TerrainTileSource {
     }
     if (bytes == null) return null;
 
-    final grid = _decode(bytes);
+    final grid = await _decode(bytes);
     if (grid != null) _memory[t.key] = grid;
     return grid;
   }
@@ -63,19 +64,38 @@ class TerrainTileSource {
     }
   }
 
-  Float32List? _decode(Uint8List bytes) {
-    final image = img.decodePng(bytes);
-    if (image == null || image.width != 256 || image.height != 256) return null;
+  /// Decodes a terrarium PNG to a Float32 meters grid. The PNG is decoded by
+  /// the engine (`ui.instantiateImageCodec`, off the UI isolate) rather than
+  /// package:image on the UI isolate, and the RGBA to meters conversion (a
+  /// 65,536 element loop) runs in a worker isolate. This keeps the whole decode
+  /// off the UI isolate (Fix Pass 1 X1.3.1, hypothesis H1).
+  Future<Float32List?> _decode(Uint8List bytes) async {
+    ui.Codec? codec;
+    ui.Image? image;
+    try {
+      codec = await ui.instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      image = frame.image;
+      if (image.width != 256 || image.height != 256) return null;
+      final rgba = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      if (rgba == null) return null;
+      final pixels = rgba.buffer.asUint8List();
+      return await Isolate.run(() => _rgbaToMeters(pixels));
+    } on Exception {
+      return null;
+    } finally {
+      image?.dispose();
+      codec?.dispose();
+    }
+  }
+
+  /// Converts a 256x256 RGBA buffer to a row-major Float32 meters grid. Static
+  /// and pure so it can run in a worker isolate.
+  static Float32List _rgbaToMeters(Uint8List rgba) {
     final grid = Float32List(256 * 256);
-    for (var y = 0; y < 256; y++) {
-      for (var x = 0; x < 256; x++) {
-        final pixel = image.getPixel(x, y);
-        grid[y * 256 + x] = terrariumToMeters(
-          pixel.r.toInt(),
-          pixel.g.toInt(),
-          pixel.b.toInt(),
-        );
-      }
+    for (var i = 0; i < 256 * 256; i++) {
+      final o = i * 4;
+      grid[i] = terrariumToMeters(rgba[o], rgba[o + 1], rgba[o + 2]);
     }
     return grid;
   }

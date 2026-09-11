@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import '../../core/geo/polyline_simplify.dart';
+import '../../core/worker/geo_worker.dart';
 import '../../domain/models/fire_incident.dart';
 import '../../domain/models/land_unit.dart';
 import '../../domain/models/poi.dart';
@@ -48,6 +49,23 @@ Map<String, dynamic> trailsToGeoJson(
   }
   return {'type': 'FeatureCollection', 'features': features};
 }
+
+/// [trailsToGeoJson] on a worker isolate (Fix Pass 1 X1.3.1). Douglas-Peucker
+/// simplification over every trail is the cost, so it never runs on the UI
+/// isolate.
+Future<Map<String, dynamic>> trailsToGeoJsonAsync(
+  List<Trail> trails, {
+  double zoom = 14,
+  double fullGeometryZoom = 15,
+}) =>
+    GeoWorker.run(
+      'trails-geojson',
+      () => trailsToGeoJson(
+        trails,
+        zoom: zoom,
+        fullGeometryZoom: fullGeometryZoom,
+      ),
+    );
 
 /// The sprite image name for a POI kind (registered at runtime, see poi_icons).
 String iconForKind(String kind) => switch (kind) {
