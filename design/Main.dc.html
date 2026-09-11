@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root {
+      --bg:#0E1412; --surface:#15201B; --raised:#1E2C25;
+      --larch:#D9A441; --glacier:#3FB8AF; --fire:#E5484D; --smoke:#F5A524;
+      --text:#F1EEE6; --dim:#A9B0AB; --trail:#6B4F2A; --line:#243029;
+    }
+    body { margin:0; background:var(--bg); color:var(--text);
+      font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing:antialiased; }
+    .mono { font-family:'JetBrains Mono', ui-monospace, monospace; font-variant-numeric:tabular-nums; }
+    a { color: var(--glacier); } a:hover { color:#67cfc6; }
+    .pill { background:rgba(21,32,27,.92); border:1px solid var(--line);
+      border-radius:20px; padding:7px 12px; display:flex; align-items:center; gap:6px; font-size:13px; }
+    .rnd { background:rgba(21,32,27,.92); border:1px solid var(--line);
+      width:38px; height:38px; border-radius:19px; display:flex; align-items:center; justify-content:center; }
+    .badge { display:flex; align-items:center; gap:7px; background:var(--raised);
+      border-radius:16px; padding:6px 11px; font-size:12px; }
+    .dot { width:8px; height:8px; border-radius:4px; }
+    .navitem { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; color:var(--dim); flex:1; }
+  </style>
+</helmet>
+<div style="height:844px; width:390px; position:relative; overflow:hidden; background:var(--bg);">
+
+  <!-- MAP CANVAS -->
+  <svg viewBox="0 0 390 620" width="390" height="620" style="position:absolute; top:0; left:0; display:block;">
+    <rect width="390" height="620" fill="#111a16"/>
+    <!-- contour lines -->
+    <g fill="none" stroke="#2a3a30" stroke-width="1.2">
+      <path d="M-20,120 C80,80 160,150 250,110 340,75 400,120 420,100"/>
+      <path d="M-20,170 C80,130 170,200 260,160 350,125 400,165 420,150"/>
+      <path d="M-20,230 C90,190 180,255 270,215 360,180 405,220 420,205"/>
+      <path d="M-20,300 C100,255 190,320 280,280 360,245 405,285 420,270"/>
+      <path d="M-20,380 C110,335 200,395 290,355 365,320 405,360 420,345"/>
+      <path d="M-20,470 C120,430 210,485 300,450 370,420 405,455 420,445"/>
+      <path d="M-20,560 C130,520 220,575 310,545 375,520 405,548 420,540"/>
+    </g>
+    <g fill="none" stroke="#26332b" stroke-width="1">
+      <path d="M40,-10 C60,120 30,300 90,430 130,520 110,600 130,640"/>
+      <path d="M320,-10 C300,120 350,280 300,430 270,520 300,600 285,640"/>
+    </g>
+    <!-- fire perimeter -->
+    <path d="M250,150 C300,140 330,180 325,225 318,270 275,285 240,270 210,255 205,200 250,150 Z"
+      fill="#E5484D" fill-opacity="0.18" stroke="#E5484D" stroke-width="2"/>
+    <!-- recorded track (teal) -->
+    <path d="M120,540 C150,470 130,430 170,380 205,338 190,300 150,250" fill="none"
+      stroke="#3FB8AF" stroke-width="3.5" stroke-linecap="round" opacity="0.9"/>
+    <!-- route casing + route (gold) -->
+    <path d="M96,470 C150,430 150,360 210,330 270,300 250,220 300,190" fill="none"
+      stroke="#0E1412" stroke-width="7.5" stroke-linecap="round" opacity="0.55"/>
+    <path d="M96,470 C150,430 150,360 210,330 270,300 250,220 300,190" fill="none"
+      stroke="#D9A441" stroke-width="4" stroke-linecap="round"/>
+    <!-- waypoints -->
+    <g font-family="'JetBrains Mono',monospace" font-size="11" font-weight="700" fill="#0E1412">
+      <circle cx="96" cy="470" r="10" fill="#D9A441"/><text x="96" y="474" text-anchor="middle">1</text>
+      <circle cx="210" cy="330" r="10" fill="#D9A441"/><text x="210" y="334" text-anchor="middle">2</text>
+      <circle cx="300" cy="190" r="10" fill="#D9A441"/><text x="300" y="194" text-anchor="middle">3</text>
+    </g>
+    <!-- POIs -->
+    <g>
+      <circle cx="150" cy="250" r="6" fill="#4A90E2" stroke="#fff" stroke-width="1.5"/>
+      <path d="M235,205 l8,14 h-16 Z" fill="#6B4F2A" stroke="#fff" stroke-width="1"/>
+      <circle cx="120" cy="540" r="5.5" fill="#D9A441" stroke="#fff" stroke-width="1.5"/>
+    </g>
+    <text x="60" y="150" fill="#cbbfa6" font-size="11" font-style="italic" font-family="system-ui">Snowgrass Trail #96</text>
+    <text x="252" y="120" fill="#E5484D" font-size="11" font-family="system-ui">Skyo Fire</text>
+    <text x="248" y="215" fill="#cbbfa6" font-size="10.5" font-family="system-ui">▲ Old Snowy</text>
+  </svg>
+
+  <!-- TOP CONTROLS -->
+  <div style="position:absolute; top:52px; left:14px; right:14px; display:flex; justify-content:space-between; align-items:flex-start;">
+    <div class="pill"><span style="color:var(--larch)">▣</span> Topo <span style="color:var(--dim)">▾</span></div>
+    <div style="display:flex; gap:8px;">
+      <div class="rnd">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EEE6" stroke-width="2"><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><path d="M12 5l4 12-4-2-4 2z" fill="#E5484D" stroke="none"/></svg>
+      </div>
+      <div class="rnd">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F1EEE6" stroke-width="2"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"/><path d="M9 4v13M15 7v13"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOCATION FAB -->
+  <div style="position:absolute; right:18px; bottom:290px; width:52px; height:52px; border-radius:26px; background:var(--larch); display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,.4);">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0E1412" stroke-width="2.2"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+  </div>
+
+  <!-- BOTTOM SHEET -->
+  <div style="position:absolute; left:0; right:0; bottom:66px; background:var(--surface); border-top:1px solid var(--line); border-radius:16px 16px 0 0; padding:12px 18px 16px;">
+    <div style="width:36px; height:4px; border-radius:2px; background:#3a4a40; margin:0 auto 12px;"></div>
+    <div style="display:flex; align-items:baseline; gap:10px;">
+      <div style="font-size:16px; font-weight:600;">Goat Rocks loop</div>
+      <div class="mono" style="margin-left:auto; font-size:15px;">12.4 mi</div>
+      <div class="mono" style="font-size:15px; color:var(--larch);">+2,706 ft</div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:12px;">
+      <div class="badge"><span class="dot" style="background:var(--fire)"></span><span>Skyo Fire</span><span class="mono" style="color:var(--dim)">6.1 mi</span></div>
+      <div class="badge"><span class="dot" style="background:#3EC46D"></span><span>AQI</span><span class="mono">42</span><span style="color:var(--dim)">Good</span></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <div style="position:absolute; left:0; right:0; bottom:0; height:66px; background:var(--surface); border-top:1px solid var(--line); display:flex; align-items:center; padding:0 6px;">
+    <div class="navitem" style="color:var(--larch)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D9A441" stroke-width="2"><path d="M3 7l6-3 6 3 6-3v13l-6 3-6-3-6 3z"/><path d="M9 4v13M15 7v13"/></svg>Map</div>
+    <div class="navitem">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A9B0AB" stroke-width="2"><path d="M4 18 L10 6 L14 16 L20 5"/></svg>Plan</div>
+    <div class="navitem">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A9B0AB" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="#A9B0AB"/></svg>Record</div>
+    <div class="navitem">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#A9B0AB" stroke-width="2"><path d="M3 7h6l2 2h10v10H3z"/></svg>Library</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

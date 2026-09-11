@@ -55,3 +55,6 @@ debug-symbols/
 # The pub lockfile IS committed for the app (spec 9.5).
 !pubspec.lock
 
+
+# Design canvas: keep the .dc.html sources + canvas.json, not the seeded payload (~2MB)
+design/cairn-screens.html

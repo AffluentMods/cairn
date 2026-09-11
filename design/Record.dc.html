@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    :root{--bg:#0E1412;--surface:#15201B;--raised:#1E2C25;--larch:#D9A441;--glacier:#3FB8AF;
+      --fire:#E5484D;--text:#F1EEE6;--dim:#A9B0AB;--line:#243029;}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;}
+    .mono{font-family:'JetBrains Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums;}
+    a{color:var(--glacier);}
+    .cell{flex:1;text-align:center;padding:18px 4px;}
+    .cell .n{font-size:26px;font-weight:600;} .cell .l{font-size:11px;color:var(--dim);margin-top:4px;}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border-radius:14px;overflow:hidden;border:1px solid var(--line);}
+    .grid .cell{background:var(--surface);}
+    .btn{flex:1;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;}
+  </style>
+</helmet>
+<div style="height:844px;width:390px;position:relative;overflow:hidden;background:var(--bg);">
+  <!-- MAP with teal track -->
+  <svg viewBox="0 0 390 300" width="390" height="300" style="display:block;">
+    <rect width="390" height="300" fill="#111a16"/>
+    <g fill="none" stroke="#2a3a30" stroke-width="1"><path d="M0,90 C120,60 240,110 390,80"/><path d="M0,160 C120,130 240,180 390,150"/><path d="M0,235 C120,205 240,250 390,220"/></g>
+    <path d="M70,250 C120,200 100,150 160,120 220,92 200,60 270,60" fill="none" stroke="#3FB8AF" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="270" cy="60" r="7" fill="#3FB8AF" stroke="#0E1412" stroke-width="2"/>
+    <text x="60" y="278" fill="#7d8a83" font-size="11" font-family="system-ui" font-style="italic">recording…</text>
+  </svg>
+
+  <div style="padding:20px 18px;">
+    <!-- LIVE STATS GRID -->
+    <div class="grid">
+      <div class="cell"><div class="mono n" style="color:var(--larch)">6.26</div><div class="l">mi · distance</div></div>
+      <div class="cell"><div class="mono n">2:58:53</div><div class="l">moving</div></div>
+      <div class="cell"><div class="mono n">26:28</div><div class="l">/mi · pace</div></div>
+      <div class="cell"><div class="mono n">1,913</div><div class="l">ft · gain</div></div>
+      <div class="cell"><div class="mono n">2.3</div><div class="l">mph · speed</div></div>
+      <div class="cell"><div class="mono n">5,480</div><div class="l">ft · elev</div></div>
+    </div>
+
+    <!-- ON ROUTE -->
+    <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:16px;font-size:13px;">
+      <span style="width:9px;height:9px;border-radius:5px;background:#3EC46D;"></span>
+      <span>On route</span><span class="mono" style="color:var(--dim)">· 12.1 mi to go · ETA 4:40 PM</span>
+    </div>
+
+    <!-- CONTROLS -->
+    <div style="display:flex;gap:12px;margin-top:26px;">
+      <div class="btn" style="border:1px solid var(--line);color:var(--text);">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#F1EEE6"><rect x="6" y="5" width="4" height="14"/><rect x="14" y="5" width="4" height="14"/></svg>Pause</div>
+      <div class="btn" style="background:var(--larch);color:#0E1412;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="#0E1412"><rect x="6" y="6" width="12" height="12"/></svg>Finish</div>
+    </div>
+    <div style="text-align:center;margin-top:16px;color:var(--dim);font-size:13px;">Discard</div>
+  </div>
+</div>
+</x-dc>
+</body>
+</html>

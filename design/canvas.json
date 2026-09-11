@@ -1,0 +1,10 @@
+{
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 390, "h": 844, "title": "Map" },
+    { "file": "Plan.dc.html", "x": 470, "y": 0, "w": 390, "h": 844, "title": "Plan" },
+    { "file": "Conditions.dc.html", "x": 940, "y": 0, "w": 390, "h": 844, "title": "Conditions" },
+    { "file": "Record.dc.html", "x": 1410, "y": 0, "w": 390, "h": 844, "title": "Record" },
+    { "file": "Library.dc.html", "x": 1880, "y": 0, "w": 390, "h": 844, "title": "Library" }
+  ],
+  "launch": { "view": "canvas" }
+}
