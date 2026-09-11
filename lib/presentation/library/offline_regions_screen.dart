@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings.dart';
 import '../../data/data_providers.dart';
+import '../../data/purchases/purchases.dart';
 import '../../domain/models/offline_region.dart';
 import '../../domain/usecases/offline_estimate.dart';
 import '../../l10n/app_localizations.dart';
@@ -74,6 +75,28 @@ class OfflineRegionsScreen extends ConsumerWidget {
     if (viewport == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(context.l10n.locationPermissionBody)),
+      );
+      return;
+    }
+    // Summit gate: free builds get one offline region (spec Section 12.4). The
+    // map, trails, and one region are never gated.
+    final unlocked = ref.read(summitUnlockedProvider);
+    final existing = ref.read(offlineRegionsProvider).valueOrNull ?? const [];
+    if (!unlocked && existing.isNotEmpty) {
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(context.l10n.summitTitle),
+          content: Text(
+            '${context.l10n.summitFeatureOffline}\n\n${context.l10n.summitOneTime}',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text(context.l10n.genericOk),
+            ),
+          ],
+        ),
       );
       return;
     }

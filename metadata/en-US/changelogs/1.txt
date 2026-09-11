@@ -1,0 +1,1 @@
+First release. Offline trail maps for Washington with fire, smoke, and closure overlays, route planning, recording, GPX, and optional end-to-end encrypted sync.

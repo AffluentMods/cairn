@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features_flags.dart';
+
 /// Purchase gateway abstraction. The community flavor must not link any Google
 /// Play billing library (F-Droid scans the binary), so the real RevenueCat
 /// implementation is a store-only artifact wired in Phase 9. Until then, and
@@ -43,4 +45,13 @@ final purchaseGatewayProvider = Provider<PurchaseGateway>(
 final summitEntitlementProvider = FutureProvider<bool>((ref) async {
   final gateway = ref.watch(purchaseGatewayProvider);
   return gateway.hasSummit();
+});
+
+/// The single gate read at each Summit entry point (unlimited offline regions,
+/// water and campsite helpers, follow-route mode, AirNow monitor). Community and
+/// self-compiled builds are always unlocked; safety features are never gated.
+final summitUnlockedProvider = Provider<bool>((ref) {
+  if (!kStoreBuild) return true;
+  final ent = ref.watch(summitEntitlementProvider);
+  return Summit.unlocked(hasEntitlement: ent.valueOrNull ?? false);
 });

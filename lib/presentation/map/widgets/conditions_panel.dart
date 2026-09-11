@@ -9,6 +9,7 @@ import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../data/data_providers.dart';
+import '../../../data/purchases/purchases.dart';
 import '../../../domain/models/air_quality.dart';
 import '../../../domain/models/fire_incident.dart';
 import '../../../domain/models/land_unit.dart';
@@ -238,6 +239,17 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
     dynamic fmt,
   ) {
     if (water.isEmpty) return const [];
+    // Summit gate: the water and campsite helper (spec Section 12.4).
+    if (!ref.read(summitUnlockedProvider)) {
+      return [
+        const Divider(),
+        Text(l10n.planWaterHeader, style: Theme.of(c).textTheme.titleSmall),
+        Text(
+          '${l10n.summitFeatureWater} (${l10n.summitTitle})',
+          style: Theme.of(c).textTheme.bodySmall,
+        ),
+      ];
+    }
     return [
       const Divider(),
       Text(l10n.planWaterHeader, style: Theme.of(c).textTheme.titleSmall),

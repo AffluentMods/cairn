@@ -36,6 +36,37 @@ file. Nothing below blocked the build; each has a shipped default.
 - Both flag the same transitive `qs` moderate advisory via Express 4 (query parser). Not a
   runtime risk here (JSON bodies, not query strings). A Question for you: bump to Express 5.
 
+## Multi-device sync (client)  (DONE, code complete)
+
+E2E crypto (Argon2id, AES-256-GCM, DEK indirection, verification hash), tombstone +
+newest-wins merge (DB v2), gather/restore, sync client matching the cairn-sync contract,
+sync service (enable/join/sync/disconnect/purge), sync screen, credentials in secure
+storage. 12 sync tests (merge cases, crypto round-trip, tombstone propagation, newest-wins).
+NEEDS DEVICE: end-to-end against a live cairn-sync server.
+
+## Phase 9: settings, entitlements, privacy, hardening  (DONE, code complete)
+
+Full Settings screen (units, theme, default map, weights, terrain cache clear, sync, proxy
+URL, data sources, privacy, licenses, version). Data sources and privacy pages (privacy from
+a bundled asset). Summit entitlement gate: summitUnlockedProvider (community and debug always
+unlocked), wired at the offline-region limit and the water helper; the map, trails, planner,
+recording, fires, weather, and one offline region are never gated. docs/LICENSES.md (all
+direct deps GPL-3 compatible). F-Droid metadata/en-US (descriptions, changelog, title).
+
+Security checklist (spec Section 9.5), status here (device/APK-scan items marked):
+- [x] usesCleartextTraffic=false; network security config blocks HTTP (strict main config,
+      localhost-only debug override).
+- [x] allowBackup=false.
+- [x] Only the seven declared permissions; background location requested at recording start.
+- [x] No API keys in the app (keyed sources go through the optional proxy).
+- [x] Dio logging is debug-only and never logs URLs (they carry coordinates).
+- [x] flutter_secure_storage for sync credentials; shared_preferences only for settings.
+- [x] GPX deep-link import validates size (20 MB cap) and parses as XML before acting.
+- [x] Sync is E2E encrypted; server stores only ciphertext + verification hashes.
+- [ ] NEEDS RELEASE BUILD: --obfuscate --split-debug-info; strings scan of the release APK
+      for keys; debuggable=false; apkanalyzer confirms no Play/Firebase in the community APK.
+- [ ] NEEDS USER: RevenueCat wiring + flavor-clean purchases_flutter (store only).
+
 ## Phase 3: route planner  (DONE, code complete)
 
 Shipped, all unit tested: generic Dijkstra (binary heap), nearest-point-on-polyline,
