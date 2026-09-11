@@ -100,30 +100,6 @@ abstract class AppLocalizations {
   /// **'Cairn'**
   String get appName;
 
-  /// No description provided for @tabMap.
-  ///
-  /// In en, this message translates to:
-  /// **'Map'**
-  String get tabMap;
-
-  /// No description provided for @tabPlan.
-  ///
-  /// In en, this message translates to:
-  /// **'Plan'**
-  String get tabPlan;
-
-  /// No description provided for @tabRecord.
-  ///
-  /// In en, this message translates to:
-  /// **'Record'**
-  String get tabRecord;
-
-  /// No description provided for @tabLibrary.
-  ///
-  /// In en, this message translates to:
-  /// **'Library'**
-  String get tabLibrary;
-
   /// Temporary body for screens not built yet.
   ///
   /// In en, this message translates to:
@@ -148,12 +124,6 @@ abstract class AppLocalizations {
   /// **'Satellite'**
   String get styleSatellite;
 
-  /// No description provided for @layersTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Layers'**
-  String get layersTitle;
-
   /// No description provided for @layerTrails.
   ///
   /// In en, this message translates to:
@@ -177,12 +147,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Wilderness and park boundaries'**
   String get layerLand;
-
-  /// No description provided for @layerHillshade.
-  ///
-  /// In en, this message translates to:
-  /// **'Hillshade'**
-  String get layerHillshade;
 
   /// No description provided for @layerConditions.
   ///
@@ -543,36 +507,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not recording. Start a hike to see live stats.'**
   String get recordIdle;
-
-  /// No description provided for @libraryRoutes.
-  ///
-  /// In en, this message translates to:
-  /// **'Routes'**
-  String get libraryRoutes;
-
-  /// No description provided for @libraryTracks.
-  ///
-  /// In en, this message translates to:
-  /// **'Tracks'**
-  String get libraryTracks;
-
-  /// No description provided for @libraryOffline.
-  ///
-  /// In en, this message translates to:
-  /// **'Offline'**
-  String get libraryOffline;
-
-  /// No description provided for @libraryEmptyRoutes.
-  ///
-  /// In en, this message translates to:
-  /// **'No saved routes. Plan one from the map.'**
-  String get libraryEmptyRoutes;
-
-  /// No description provided for @libraryEmptyTracks.
-  ///
-  /// In en, this message translates to:
-  /// **'No recordings yet.'**
-  String get libraryEmptyTracks;
 
   /// No description provided for @libraryEmptyOffline.
   ///

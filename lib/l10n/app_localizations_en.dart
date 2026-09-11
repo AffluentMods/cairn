@@ -12,18 +12,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appName => 'Cairn';
 
   @override
-  String get tabMap => 'Map';
-
-  @override
-  String get tabPlan => 'Plan';
-
-  @override
-  String get tabRecord => 'Record';
-
-  @override
-  String get tabLibrary => 'Library';
-
-  @override
   String get phase0Placeholder =>
       'Under construction. Building this screen next.';
 
@@ -37,9 +25,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get styleSatellite => 'Satellite';
 
   @override
-  String get layersTitle => 'Layers';
-
-  @override
   String get layerTrails => 'Trails';
 
   @override
@@ -50,9 +35,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get layerLand => 'Wilderness and park boundaries';
-
-  @override
-  String get layerHillshade => 'Hillshade';
 
   @override
   String get layerConditions => 'Conditions';
@@ -254,21 +236,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recordIdle => 'Not recording. Start a hike to see live stats.';
-
-  @override
-  String get libraryRoutes => 'Routes';
-
-  @override
-  String get libraryTracks => 'Tracks';
-
-  @override
-  String get libraryOffline => 'Offline';
-
-  @override
-  String get libraryEmptyRoutes => 'No saved routes. Plan one from the map.';
-
-  @override
-  String get libraryEmptyTracks => 'No recordings yet.';
 
   @override
   String get libraryEmptyOffline =>

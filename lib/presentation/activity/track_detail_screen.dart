@@ -125,7 +125,11 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
     final prefs = ref.read(sharedPreferencesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.tabLibrary)),
+      appBar: AppBar(
+        title: Text(widget.kind == DetailKind.route
+            ? l10n.savedRoutes
+            : l10n.tabActivity),
+      ),
       body: FutureBuilder<_DetailData?>(
         future: _future,
         builder: (context, snapshot) {
@@ -133,7 +137,9 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
             if (snapshot.connectionState == ConnectionState.done) {
               return EmptyState(
                 icon: Icons.error_outline,
-                title: l10n.libraryEmptyRoutes,
+                title: widget.kind == DetailKind.route
+                    ? l10n.savedRoutes
+                    : l10n.tabActivity,
               );
             }
             return const Center(child: CircularProgressIndicator());

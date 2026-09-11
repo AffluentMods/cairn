@@ -3,23 +3,16 @@
   "appName": "Cairn",
   "@appName": { "description": "The app name, shown in the launcher and About." },
 
-  "tabMap": "Map",
-  "tabPlan": "Plan",
-  "tabRecord": "Record",
-  "tabLibrary": "Library",
-
   "phase0Placeholder": "Under construction. Building this screen next.",
   "@phase0Placeholder": { "description": "Temporary body for screens not built yet." },
 
   "styleOutdoors": "Outdoors",
   "styleTopo": "Topo",
   "styleSatellite": "Satellite",
-  "layersTitle": "Layers",
   "layerTrails": "Trails",
   "layerPois": "Water, camps, peaks",
   "layerFires": "Active fires",
   "layerLand": "Wilderness and park boundaries",
-  "layerHillshade": "Hillshade",
   "layerConditions": "Conditions",
 
   "locationPermissionTitle": "Turn on location",
@@ -95,11 +88,6 @@
   "recordPackPrompt": "Pack weight for this hike",
   "recordIdle": "Not recording. Start a hike to see live stats.",
 
-  "libraryRoutes": "Routes",
-  "libraryTracks": "Tracks",
-  "libraryOffline": "Offline",
-  "libraryEmptyRoutes": "No saved routes. Plan one from the map.",
-  "libraryEmptyTracks": "No recordings yet.",
   "libraryEmptyOffline": "No offline regions. Download one so the map works with no signal.",
   "libraryDelete": "Delete",
   "libraryUndo": "Undo",
