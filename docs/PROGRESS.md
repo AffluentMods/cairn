@@ -16,10 +16,45 @@ to confirm. The verification gate used here is:
 - `dart run build_runner build` succeeds
 - `flutter build apk --flavor community --debug` succeeds (full Android compile)
 
+## Status at handoff
+
+Phases 0 through 9 are code-complete, plus the multi-device sync you asked for (client and
+an accountless E2E server), both API backends, a security audit, and a design mockup canvas.
+`flutter analyze` is clean, 115 tests pass, both flavors build a debug APK. Everything is
+committed locally on branch `main`; nothing has been pushed to a remote (see Q9).
+
 ## Questions for you
 
-Collected here so you can answer them all at once when you are back. See the bottom of this
-file. Nothing below blocked the build; each has a shipped default.
+Answer whenever. Nothing below blocked the build; each has a shipped default I chose.
+
+1. **Name.** Kept "Cairn", package `cairn`, bundle id `com.affluentlabs.cairn`. You said you
+   were unsure. Rename is a find-and-replace when you decide.
+2. **Push to a public GitHub repo?** The spec says public from day one, but pushing is
+   outward-facing so I did not create a remote or push. Say the word (and the org/repo name)
+   and I will create it and push, with the CI workflow already in place.
+3. **Sync + proxy hosting.** cairn-sync and cairn-proxy are built and tested but not deployed.
+   Where do they go (your Linux box, same as zestssh-api)? Once deployed, put the sync URL in
+   the app's sync screen and the proxy URL in Settings.
+4. **Proxy API keys.** cairn-proxy needs AirNow, developer.nps.gov, and ridb.recreation.gov
+   keys in its `.env`. Without them those routes return 503 and the app falls back to no-key
+   sources.
+5. **RevenueCat / store flavor.** The Summit gate is wired (community always unlocked), but
+   the real purchase needs your RevenueCat account, product `cairn_summit_lifetime` (USD
+   9.99), and a store-only, F-Droid-clean wiring of `purchases_flutter`. Deferred; see
+   docs/DECISIONS.md.
+6. **Summit feature split.** I used spec Section 12.4 (unlimited offline, water/campsite
+   helpers, follow-route, AirNow monitor). Confirm before Play launch.
+7. **Express 5 for the backends.** Both flag a transitive `qs` advisory via Express 4. Low
+   risk (JSON bodies, not query strings). Bump at a maintenance window?
+8. **On-device QA.** I cannot drive a phone here, so all device-only acceptance items are
+   unverified (marked NEEDS DEVICE per phase): map rendering and 60fps, GPS recording and
+   screen-off survival, real offline behavior, the MapLibre offline basemap download (may
+   need the style served over http), and an end-to-end sync between two devices.
+9. **Follow-route picker UI** and a live-track map on the Record screen are the two known
+   feature gaps (the recording provider already supports follow-route; only the picker is
+   missing). Small follow-ups.
+10. **Design canvas.** A mockup of the five hero screens is published (link in the chat). It
+   is my read of the spec's design system; tell me what to adjust and I will update it.
 
 ---
 
