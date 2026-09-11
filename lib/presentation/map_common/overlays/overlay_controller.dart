@@ -7,6 +7,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../map_providers.dart';
 import 'overlay_registry.dart';
+import 'tile_proxy.dart';
 
 const _kOverlayPref = 'map.overlays';
 
@@ -64,16 +65,23 @@ class OverlayController extends Notifier<Set<String>> {
   }
 
   Future<void> _install(MapLibreMapController c, OverlayDef def) async {
-    final url = def.tileUrl;
-    if (url == null) return;
+    final source = def.tileUrl;
+    if (source == null) return;
     await _remove(c, def); // clear any stale copy (style reload or refresh)
-    final bust = def.refresh != null
-        ? '&_ts=${DateTime.now().millisecondsSinceEpoch}'
-        : '';
+    // ArcGIS export overlays use the {bbox-epsg-3857} token, which MapLibre
+    // Native does not substitute; serve those through the on-device tile proxy.
+    var tileUrl = source;
+    if (source.contains('{bbox-epsg-3857}')) {
+      tileUrl = await TileProxy.instance.register(def.key, source);
+    }
+    if (def.refresh != null) {
+      final sep = tileUrl.contains('?') ? '&' : '?';
+      tileUrl = '$tileUrl${sep}t=${DateTime.now().millisecondsSinceEpoch}';
+    }
     try {
       await c.addSource(
         def.sourceId,
-        RasterSourceProperties(tiles: ['$url$bust'], tileSize: 256),
+        RasterSourceProperties(tiles: [tileUrl], tileSize: 256),
       );
       await c.addLayer(
         def.sourceId,

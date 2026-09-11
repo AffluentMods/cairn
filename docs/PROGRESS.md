@@ -72,12 +72,15 @@ colored pins, tap to edit); the real 3D terrain WebView (bundled MapLibre GL JS,
 services); the dead l10n keys removed; LICENSES updated. The community APK is confirmed free of
 Play services, Firebase, and billing.
 
+Overlay raster tiles now render: MapLibre Native does not substitute `{bbox-epsg-3857}`, so the
+ArcGIS overlays are served through an on-device localhost tile proxy (`tile_proxy.dart`, A5.3).
+The slope-angle overlay (USGS 3DEP) is verified rendering on the emulator; the NWS weather
+service URLs (radar/temperature/snow) are best-effort and may need per-service path checks
+(API_NOTES).
+
 Remaining follow-ups (documented, not blockers):
-- Overlay raster tiles: the toggle/badge/persistence work, but the ArcGIS export overlays
-  (radar, temperature, snow, slope, lidar) did not visibly render on the emulator, most likely
-  because MapLibre Native does not substitute `{bbox-epsg-3857}`. The fix is the A5.3 localhost
-  tile proxy. Logged in API_NOTES.
 - User waypoints: route attachment and GPX `<wpt>` export.
+- NWS overlay service paths: verify radar/temperature/snow with `?f=json` on a device.
 - Optional: before/after screenshots for F1 to F3 under docs/screens/phase-r/.
 
 ## Questions for you

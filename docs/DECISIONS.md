@@ -76,6 +76,13 @@ option that ships fastest and record it here.
   (MapLibre Native) throws UnsupportedError on setTerrain; 3D terrain is not shipped on
   Android/iOS yet. Native gets a 2.5D "Tilt" (pitch + hillshade bump, offline); real 3D is an
   online WebView using pinned MapLibre GL JS. Replace with native when it lands.
+- **On-device tile proxy for ArcGIS overlays, and loopback cleartext allowed in release.**
+  Reason: MapLibre Native does not substitute the `{bbox-epsg-3857}` token in a raster source's
+  tile URL, so the radar/temperature/snow/slope/lidar overlays could not fetch tiles. A tiny
+  `HttpServer` on `127.0.0.1` (`tile_proxy.dart`) turns `{z}/{x}/{y}` into a Web Mercator bbox,
+  fills the token in the upstream URL, and forwards the request. The release network security
+  config now permits cleartext to `127.0.0.1`/`localhost` only; loopback never touches the
+  network, so transport security for real endpoints is unchanged.
 - **Follow-route Summit gate pending the user's decision.** Reason: Section 12.4 gates follow
   mode behind Summit, but Navigate's Start uses follow mode. Built ungated for now (gates land
   in Phase 9 regardless); open item in PROGRESS: is follow-route free?

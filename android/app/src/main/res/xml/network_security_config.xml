@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Release policy: no cleartext HTTP anywhere. All Cairn network calls are HTTPS
-     (spec Section 9.5 security checklist). -->
+<!-- Release policy: no cleartext HTTP over the network. Every Cairn network call
+     is HTTPS (spec Section 9.5). The one exception is loopback (127.0.0.1): the
+     on-device tile proxy (Addendum A5.3) serves overlay tiles from localhost,
+     which never leaves the device, so this does not weaken transport security. -->
 <network-security-config>
     <base-config cleartextTrafficPermitted="false"/>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">127.0.0.1</domain>
+        <domain includeSubdomains="true">localhost</domain>
+    </domain-config>
 </network-security-config>

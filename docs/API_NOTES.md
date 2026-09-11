@@ -49,14 +49,16 @@ update the parser plus this note if they differ:
   roads and labels at normal prominence. Both keep every cairn-* source and layer. If a
   positron or bright snapshot is preferred later, regenerate these two files from it and
   preserve the same cairn-* sources and layers.
-- 2026-09-11: **Overlay raster tiles (A5.3), observed on the Pixel_3a API 36 emulator.** The
-  overlay system (toggle, layers-button badge, persistence, install/reinstall on style load)
-  works. But the ArcGIS `export`/`exportImage` overlays (precipitation radar, temperature,
-  snow depth, slope angle, lidar hillshade) did not visibly render when toggled on. Most
-  likely MapLibre Native does not substitute the `{bbox-epsg-3857}` token in a raster source's
-  tile URL (the addendum anticipated this). The fix is the localhost tile proxy in A5.3: a
-  `127.0.0.1` `HttpServer` that turns `{z}/{x}/{y}` into a bbox with `tile_math.dart` and
-  forwards the request. Until then, treat these overlay URLs as unverified. OSM GPS traces
-  (`gps.tile.openstreetmap.org`, standard XYZ) installs cleanly but is sparse in the Goat
-  Rocks area, so nothing obvious appeared. Verify each service's exact path/layer ids/render
-  rules with `?f=json` when wiring the proxy.
+- 2026-09-11: **Overlay raster tiles (A5.3), on the Pixel_3a API 36 emulator.** Confirmed that
+  MapLibre Native does not substitute the `{bbox-epsg-3857}` token in a raster source's tile
+  URL, so the ArcGIS `export`/`exportImage` overlays were blank when added directly. Fixed with
+  the localhost tile proxy (`tile_proxy.dart`): a `127.0.0.1` `HttpServer` turns `{z}/{x}/{y}`
+  into a Web Mercator bbox, fills the token in the upstream URL, and forwards the request; the
+  overlay controller routes any `{bbox-epsg-3857}` overlay through it. The **slope-angle**
+  overlay (USGS 3DEP Slope Map) now renders correctly through the proxy (verified at z13 over
+  Goat Rocks). The other 3DEP overlay (lidar hillshade) uses the same shape. The NWS weather
+  overlays (radar / temperature / snow) go through the same proxy but their exact service
+  paths / layer ids / render rules are best-effort; confirm each with `?f=json` and fix the URL
+  in `overlay_registry.dart` if a given one comes back blank. OSM GPS traces
+  (`gps.tile.openstreetmap.org`, standard XYZ) installs directly (no proxy) and is just sparse
+  in this area.
