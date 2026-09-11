@@ -20,9 +20,21 @@ option that ships fastest and record it here.
 - **Generated files (`*.g.dart`, `*.freezed.dart`) are committed and excluded from analysis.**
   Reason: keeps CI able to analyze without running codegen, and keeps analyzer output clean
   since generated style is not ours to lint.
-- **`require_trailing_commas` and strict casts on.** Reason: spec analysis_options plus the
-  Affluent Labs "zero warnings" bar. Generated files are excluded so codegen churn does not
-  fight the rule.
+- **Dropped `require_trailing_commas`; enforce `dart format` in CI instead.** Reason: the
+  spec listed the lint, but Dart 3.7+ shipped a new formatter that manages commas itself, so
+  the lint and `dart format` fight (format wraps a call without a trailing comma, the lint
+  then flags it). The modern equivalent is to let the formatter be the authority: CI runs
+  `dart format --set-exit-if-changed`, which enforces the same consistency the lint intended.
+  Strict casts and strict raw types stay on.
+- **Manual Riverpod providers, not `@riverpod` codegen.** Reason: fewer build_runner cycles
+  and faster iteration during the build. freezed, drift, and json_serializable still use
+  codegen. The generator remains a dev dependency if we want it later.
+- **OSM ids stored as `integer()` (native 64-bit int), not `int64()`/BigInt.** Reason: Cairn
+  is mobile only (spec Q&A), where Dart int and SQLite INTEGER are 64-bit and current OSM ids
+  are far below 2^53. Avoids BigInt friction across the codebase.
+- **USFS trail enrichment is name-based, not geometry/proximity.** Reason: the spec's
+  proximity-match-in-an-isolate is heavy and network dependent; a cheap name match ships now
+  and is non-blocking. A geometry match is a later improvement (tracked in API_NOTES).
 
 ## Sync server (addition beyond the spec's Phase 0 to 9)
 

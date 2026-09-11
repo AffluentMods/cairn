@@ -15,7 +15,8 @@ part 'app_database.g.dart';
 /// OSM ways: one row per way. Geometry is a compact JSON array of [lat, lon]
 /// pairs so rendering needs no join. Bbox columns are indexed for viewport
 /// queries (spec Section 7).
-@TableIndex(name: 'idx_ways_bbox', columns: {#minLat, #maxLat, #minLon, #maxLon})
+@TableIndex(
+    name: 'idx_ways_bbox', columns: {#minLat, #maxLat, #minLon, #maxLon})
 class OsmWays extends Table {
   IntColumn get id => integer()(); // OSM way id
   TextColumn get name => text().nullable()();
@@ -156,8 +157,7 @@ class OfflineRegions extends Table {
   IntColumn get minZoom => integer()();
   IntColumn get maxZoom => integer()();
   DateTimeColumn get createdAt => dateTime()();
-  IntColumn get status =>
-      integer()(); // 0 pending 1 downloading 2 done 3 error
+  IntColumn get status => integer()(); // 0 pending 1 downloading 2 done 3 error
   IntColumn get tileCount => integer().nullable()();
   IntColumn get bytes => integer().nullable()();
 

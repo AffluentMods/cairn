@@ -4,7 +4,8 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// The live map controller, set in onMapCreated. Null until the map exists.
-final mapControllerProvider = StateProvider<MapLibreMapController?>((ref) => null);
+final mapControllerProvider =
+    StateProvider<MapLibreMapController?>((ref) => null);
 
 /// The visible map area and zoom, updated when the camera settles. Data layers
 /// (Phase 2 onward) watch this to decide which cells to load.

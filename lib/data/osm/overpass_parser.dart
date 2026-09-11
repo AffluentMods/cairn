@@ -115,8 +115,9 @@ OverpassWays parseOverpassWays(Map<String, dynamic> json) {
     final tags = _tags(el);
     final highway = tags['highway'];
     if (highway == null) continue; // skeleton ways carry no tags; skip.
-    final nodeIds = (el['nodes'] as List?)?.map((e) => (e as num).toInt()).toList() ??
-        const <int>[];
+    final nodeIds =
+        (el['nodes'] as List?)?.map((e) => (e as num).toInt()).toList() ??
+            const <int>[];
     final geometry = <List<double>>[];
     for (final nid in nodeIds) {
       final c = nodeCoords[nid];

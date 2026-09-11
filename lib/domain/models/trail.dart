@@ -19,6 +19,7 @@ class Trail with _$Trail {
     String? surface,
     String? usfsName,
     String? usfsNumber,
+
     /// Polyline as [lat, lon] pairs. Empty when only metadata is loaded.
     @Default(<List<double>>[]) List<List<double>> geometry,
   }) = _Trail;

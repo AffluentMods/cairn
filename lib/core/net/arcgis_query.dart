@@ -29,8 +29,7 @@ class ArcGisQuery {
       'outSR': '4326',
       'f': 'geojson',
       'returnGeometry': 'true',
-      if (resultRecordCount != null)
-        'resultRecordCount': '$resultRecordCount',
+      if (resultRecordCount != null) 'resultRecordCount': '$resultRecordCount',
     };
     return Uri.parse('$baseUrl/query').replace(queryParameters: params);
   }

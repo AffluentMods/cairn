@@ -30,6 +30,9 @@ jobs:
       - name: SPDX header check
         run: bash tool/check_spdx.sh
 
+      - name: Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
       - name: Verify generated code is current
         run: |
           dart run build_runner build --delete-conflicting-outputs

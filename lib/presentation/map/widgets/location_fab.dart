@@ -40,7 +40,8 @@ class _LocationFabState extends ConsumerState<LocationFab> {
 
       ref.read(locationEnabledProvider.notifier).state = true;
       final pos = await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high),
+        locationSettings:
+            const LocationSettings(accuracy: LocationAccuracy.high),
       );
       final controller = ref.read(mapControllerProvider);
       await controller?.animateCamera(

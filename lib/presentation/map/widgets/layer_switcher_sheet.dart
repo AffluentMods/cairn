@@ -67,7 +67,8 @@ class _LayerSwitcherSheet extends ConsumerWidget {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-            child: Text(l10n.layersTitle, style: Theme.of(context).textTheme.titleMedium),
+            child: Text(l10n.layersTitle,
+                style: Theme.of(context).textTheme.titleMedium),
           ),
           _StyleTile(
             style: CairnMapStyle.outdoors,

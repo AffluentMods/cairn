@@ -23,6 +23,35 @@ file. Nothing below blocked the build; each has a shipped default.
 
 ---
 
+## Backends (built in parallel, sibling repos)
+
+- **cairn-sync** at `C:/Users/discr/StudioProjects/cairn-sync`: accountless E2E sync server
+  (Node/Express/Postgres). 27 tests pass, AGPL-3.0, own git repo. Identity is a client
+  sync_id bearer token; endpoints push/pull/status/verify-password/purge. This is the "Zest
+  sync" the user asked for, adapted to Cairn's no-account rule. The Dart client (later phase)
+  matches its wire contract exactly.
+- **cairn-proxy** at `C:/Users/discr/StudioProjects/cairn-proxy`: key-holding cache proxy
+  (Node/Express). 31 tests pass, AGPL-3.0, own git repo. Endpoints /v1/aqi, /v1/nps/alerts,
+  /v1/ridb/facilities, /v1/restrictions.json, /v1/health. Consumed by Phase 8.
+- Both flag the same transitive `qs` moderate advisory via Express 4 (query parser). Not a
+  runtime risk here (JSON bodies, not query strings). A Question for you: bump to Express 5.
+
+## Phase 2: trails and POIs  (DONE)
+
+Shipped: pure Overpass parser (ways, graph nodes, relations, POIs) with a captured real
+fixture test (Goat Rocks: PCT, Old Cascade Crest, Bypass Trail #97); Overpass HTTP source
+with mirror fallback; USFS ArcGIS source; Drift-backed trail and POI repositories with z10
+cell caching (30-day TTL), bbox queries, and name search (Drift LIKE, tested in-memory);
+best-effort name-based USFS enrichment; runtime-generated POI/fire map icons; trails and POI
+GeoJSON layers fed per viewport (debounced) with Douglas-Peucker simplification at low zoom;
+trail detail sheet (name, USFS chip, segment length, surface, SAC grade); trail name search
+sheet; non-blocking offline banner. Analyze clean, 51 tests, community APK builds.
+NEEDS DEVICE: on-device trail render latency, tap-to-open sheet, airplane-mode render.
+
+## Phase 1: map core  (DONE, committed 6452563)
+
+See commit. NEEDS DEVICE: on-device 60fps pan/rotate/tilt, hillshade at z11+, puck recenter.
+
 ## Phase 0: scaffold  (DONE, committed a90444f)
 
 Verified: `flutter analyze` clean, `flutter test` 44 passing (geo + units + widget smoke),
