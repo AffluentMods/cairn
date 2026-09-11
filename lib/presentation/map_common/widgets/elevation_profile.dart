@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/settings/settings_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../domain/usecases/compute_route_stats.dart';
 
 /// The elevation profile (spec Section 9.4): 140 dp, filled area under the line,
 /// colored by grade (green under 8 percent, amber 8 to 15, red over 15), a
 /// draggable scrubber that reports the distance so the map can move a marker.
-class ElevationProfile extends StatefulWidget {
+class ElevationProfile extends ConsumerStatefulWidget {
   const ElevationProfile({
     required this.profile,
     this.onScrub,
@@ -20,10 +22,10 @@ class ElevationProfile extends StatefulWidget {
   final ValueChanged<double?>? onScrub;
 
   @override
-  State<ElevationProfile> createState() => _ElevationProfileState();
+  ConsumerState<ElevationProfile> createState() => _ElevationProfileState();
 }
 
-class _ElevationProfileState extends State<ElevationProfile> {
+class _ElevationProfileState extends ConsumerState<ElevationProfile> {
   double? _scrubX;
 
   void _emit(double? x, double width) {
@@ -42,6 +44,7 @@ class _ElevationProfileState extends State<ElevationProfile> {
   Widget build(BuildContext context) {
     if (widget.profile.length < 2) return const SizedBox(height: 140);
     final theme = Theme.of(context);
+    final fmt = ref.watch(unitFormatterProvider);
     return SizedBox(
       height: 140,
       child: LayoutBuilder(
@@ -59,6 +62,7 @@ class _ElevationProfileState extends State<ElevationProfile> {
                 profile: widget.profile,
                 scrubX: _scrubX,
                 textColor: theme.colorScheme.onSurfaceVariant,
+                formatElev: fmt.elevation,
               ),
             ),
           );
@@ -73,11 +77,13 @@ class _ProfilePainter extends CustomPainter {
     required this.profile,
     required this.scrubX,
     required this.textColor,
+    required this.formatElev,
   });
 
   final List<ProfilePoint> profile;
   final double? scrubX;
   final Color textColor;
+  final String Function(double meters) formatElev;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -123,8 +129,8 @@ class _ProfilePainter extends CustomPainter {
       );
     }
 
-    _label(canvas, size, '${maxE.round()} m', yOf(maxE), true);
-    _label(canvas, size, '${minE.round()} m', yOf(minE), false);
+    _label(canvas, size, formatElev(maxE), yOf(maxE), true);
+    _label(canvas, size, formatElev(minE), yOf(minE), false);
 
     if (scrubX != null) {
       final x = scrubX!.clamp(0.0, size.width);
