@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import '../models/trail.dart';
+import '../usecases/route_between_waypoints.dart';
 
 /// Outcome of ensuring an area is cached.
 class TrailLoadResult {
@@ -27,4 +28,7 @@ abstract interface class TrailRepository {
 
   /// Name search over cached ways and route relations (Drift LIKE).
   Future<List<Trail>> searchByName(String query, {int limit = 30});
+
+  /// Cached ways in [bbox] as routing graph input (node ids, coords, penalty).
+  Future<List<RoutableWay>> routableWaysInBbox(List<double> bbox);
 }

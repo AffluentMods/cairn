@@ -64,6 +64,14 @@ class $OsmWaysTable extends OsmWays with TableInfo<$OsmWaysTable, OsmWay> {
   late final GeneratedColumn<String> geomJson = GeneratedColumn<String>(
       'geom_json', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nodeIdsJsonMeta =
+      const VerificationMeta('nodeIdsJson');
+  @override
+  late final GeneratedColumn<String> nodeIdsJson = GeneratedColumn<String>(
+      'node_ids_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
   static const VerificationMeta _firstNodeIdMeta =
       const VerificationMeta('firstNodeId');
   @override
@@ -125,6 +133,7 @@ class $OsmWaysTable extends OsmWays with TableInfo<$OsmWaysTable, OsmWay> {
         informal,
         tagsJson,
         geomJson,
+        nodeIdsJson,
         firstNodeId,
         lastNodeId,
         lengthM,
@@ -187,6 +196,12 @@ class $OsmWaysTable extends OsmWays with TableInfo<$OsmWaysTable, OsmWay> {
           geomJson.isAcceptableOrUnknown(data['geom_json']!, _geomJsonMeta));
     } else if (isInserting) {
       context.missing(_geomJsonMeta);
+    }
+    if (data.containsKey('node_ids_json')) {
+      context.handle(
+          _nodeIdsJsonMeta,
+          nodeIdsJson.isAcceptableOrUnknown(
+              data['node_ids_json']!, _nodeIdsJsonMeta));
     }
     if (data.containsKey('first_node_id')) {
       context.handle(
@@ -271,6 +286,8 @@ class $OsmWaysTable extends OsmWays with TableInfo<$OsmWaysTable, OsmWay> {
           .read(DriftSqlType.string, data['${effectivePrefix}tags_json'])!,
       geomJson: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}geom_json'])!,
+      nodeIdsJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}node_ids_json'])!,
       firstNodeId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}first_node_id'])!,
       lastNodeId: attachedDatabase.typeMapping
@@ -308,6 +325,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
   final bool informal;
   final String tagsJson;
   final String geomJson;
+  final String nodeIdsJson;
   final int firstNodeId;
   final int lastNodeId;
   final double lengthM;
@@ -327,6 +345,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       required this.informal,
       required this.tagsJson,
       required this.geomJson,
+      required this.nodeIdsJson,
       required this.firstNodeId,
       required this.lastNodeId,
       required this.lengthM,
@@ -356,6 +375,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
     map['informal'] = Variable<bool>(informal);
     map['tags_json'] = Variable<String>(tagsJson);
     map['geom_json'] = Variable<String>(geomJson);
+    map['node_ids_json'] = Variable<String>(nodeIdsJson);
     map['first_node_id'] = Variable<int>(firstNodeId);
     map['last_node_id'] = Variable<int>(lastNodeId);
     map['length_m'] = Variable<double>(lengthM);
@@ -389,6 +409,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       informal: Value(informal),
       tagsJson: Value(tagsJson),
       geomJson: Value(geomJson),
+      nodeIdsJson: Value(nodeIdsJson),
       firstNodeId: Value(firstNodeId),
       lastNodeId: Value(lastNodeId),
       lengthM: Value(lengthM),
@@ -418,6 +439,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       informal: serializer.fromJson<bool>(json['informal']),
       tagsJson: serializer.fromJson<String>(json['tagsJson']),
       geomJson: serializer.fromJson<String>(json['geomJson']),
+      nodeIdsJson: serializer.fromJson<String>(json['nodeIdsJson']),
       firstNodeId: serializer.fromJson<int>(json['firstNodeId']),
       lastNodeId: serializer.fromJson<int>(json['lastNodeId']),
       lengthM: serializer.fromJson<double>(json['lengthM']),
@@ -442,6 +464,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       'informal': serializer.toJson<bool>(informal),
       'tagsJson': serializer.toJson<String>(tagsJson),
       'geomJson': serializer.toJson<String>(geomJson),
+      'nodeIdsJson': serializer.toJson<String>(nodeIdsJson),
       'firstNodeId': serializer.toJson<int>(firstNodeId),
       'lastNodeId': serializer.toJson<int>(lastNodeId),
       'lengthM': serializer.toJson<double>(lengthM),
@@ -464,6 +487,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
           bool? informal,
           String? tagsJson,
           String? geomJson,
+          String? nodeIdsJson,
           int? firstNodeId,
           int? lastNodeId,
           double? lengthM,
@@ -485,6 +509,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
         informal: informal ?? this.informal,
         tagsJson: tagsJson ?? this.tagsJson,
         geomJson: geomJson ?? this.geomJson,
+        nodeIdsJson: nodeIdsJson ?? this.nodeIdsJson,
         firstNodeId: firstNodeId ?? this.firstNodeId,
         lastNodeId: lastNodeId ?? this.lastNodeId,
         lengthM: lengthM ?? this.lengthM,
@@ -508,6 +533,8 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       informal: data.informal.present ? data.informal.value : this.informal,
       tagsJson: data.tagsJson.present ? data.tagsJson.value : this.tagsJson,
       geomJson: data.geomJson.present ? data.geomJson.value : this.geomJson,
+      nodeIdsJson:
+          data.nodeIdsJson.present ? data.nodeIdsJson.value : this.nodeIdsJson,
       firstNodeId:
           data.firstNodeId.present ? data.firstNodeId.value : this.firstNodeId,
       lastNodeId:
@@ -535,6 +562,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
           ..write('informal: $informal, ')
           ..write('tagsJson: $tagsJson, ')
           ..write('geomJson: $geomJson, ')
+          ..write('nodeIdsJson: $nodeIdsJson, ')
           ..write('firstNodeId: $firstNodeId, ')
           ..write('lastNodeId: $lastNodeId, ')
           ..write('lengthM: $lengthM, ')
@@ -559,6 +587,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
       informal,
       tagsJson,
       geomJson,
+      nodeIdsJson,
       firstNodeId,
       lastNodeId,
       lengthM,
@@ -581,6 +610,7 @@ class OsmWay extends DataClass implements Insertable<OsmWay> {
           other.informal == this.informal &&
           other.tagsJson == this.tagsJson &&
           other.geomJson == this.geomJson &&
+          other.nodeIdsJson == this.nodeIdsJson &&
           other.firstNodeId == this.firstNodeId &&
           other.lastNodeId == this.lastNodeId &&
           other.lengthM == this.lengthM &&
@@ -602,6 +632,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
   final Value<bool> informal;
   final Value<String> tagsJson;
   final Value<String> geomJson;
+  final Value<String> nodeIdsJson;
   final Value<int> firstNodeId;
   final Value<int> lastNodeId;
   final Value<double> lengthM;
@@ -621,6 +652,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
     this.informal = const Value.absent(),
     this.tagsJson = const Value.absent(),
     this.geomJson = const Value.absent(),
+    this.nodeIdsJson = const Value.absent(),
     this.firstNodeId = const Value.absent(),
     this.lastNodeId = const Value.absent(),
     this.lengthM = const Value.absent(),
@@ -641,6 +673,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
     this.informal = const Value.absent(),
     required String tagsJson,
     required String geomJson,
+    this.nodeIdsJson = const Value.absent(),
     required int firstNodeId,
     required int lastNodeId,
     required double lengthM,
@@ -670,6 +703,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
     Expression<bool>? informal,
     Expression<String>? tagsJson,
     Expression<String>? geomJson,
+    Expression<String>? nodeIdsJson,
     Expression<int>? firstNodeId,
     Expression<int>? lastNodeId,
     Expression<double>? lengthM,
@@ -690,6 +724,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
       if (informal != null) 'informal': informal,
       if (tagsJson != null) 'tags_json': tagsJson,
       if (geomJson != null) 'geom_json': geomJson,
+      if (nodeIdsJson != null) 'node_ids_json': nodeIdsJson,
       if (firstNodeId != null) 'first_node_id': firstNodeId,
       if (lastNodeId != null) 'last_node_id': lastNodeId,
       if (lengthM != null) 'length_m': lengthM,
@@ -712,6 +747,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
       Value<bool>? informal,
       Value<String>? tagsJson,
       Value<String>? geomJson,
+      Value<String>? nodeIdsJson,
       Value<int>? firstNodeId,
       Value<int>? lastNodeId,
       Value<double>? lengthM,
@@ -731,6 +767,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
       informal: informal ?? this.informal,
       tagsJson: tagsJson ?? this.tagsJson,
       geomJson: geomJson ?? this.geomJson,
+      nodeIdsJson: nodeIdsJson ?? this.nodeIdsJson,
       firstNodeId: firstNodeId ?? this.firstNodeId,
       lastNodeId: lastNodeId ?? this.lastNodeId,
       lengthM: lengthM ?? this.lengthM,
@@ -772,6 +809,9 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
     }
     if (geomJson.present) {
       map['geom_json'] = Variable<String>(geomJson.value);
+    }
+    if (nodeIdsJson.present) {
+      map['node_ids_json'] = Variable<String>(nodeIdsJson.value);
     }
     if (firstNodeId.present) {
       map['first_node_id'] = Variable<int>(firstNodeId.value);
@@ -815,6 +855,7 @@ class OsmWaysCompanion extends UpdateCompanion<OsmWay> {
           ..write('informal: $informal, ')
           ..write('tagsJson: $tagsJson, ')
           ..write('geomJson: $geomJson, ')
+          ..write('nodeIdsJson: $nodeIdsJson, ')
           ..write('firstNodeId: $firstNodeId, ')
           ..write('lastNodeId: $lastNodeId, ')
           ..write('lengthM: $lengthM, ')
@@ -4775,6 +4816,7 @@ typedef $$OsmWaysTableCreateCompanionBuilder = OsmWaysCompanion Function({
   Value<bool> informal,
   required String tagsJson,
   required String geomJson,
+  Value<String> nodeIdsJson,
   required int firstNodeId,
   required int lastNodeId,
   required double lengthM,
@@ -4795,6 +4837,7 @@ typedef $$OsmWaysTableUpdateCompanionBuilder = OsmWaysCompanion Function({
   Value<bool> informal,
   Value<String> tagsJson,
   Value<String> geomJson,
+  Value<String> nodeIdsJson,
   Value<int> firstNodeId,
   Value<int> lastNodeId,
   Value<double> lengthM,
@@ -4842,6 +4885,9 @@ class $$OsmWaysTableFilterComposer
 
   ColumnFilters<String> get geomJson => $composableBuilder(
       column: $table.geomJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get nodeIdsJson => $composableBuilder(
+      column: $table.nodeIdsJson, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get firstNodeId => $composableBuilder(
       column: $table.firstNodeId, builder: (column) => ColumnFilters(column));
@@ -4908,6 +4954,9 @@ class $$OsmWaysTableOrderingComposer
   ColumnOrderings<String> get geomJson => $composableBuilder(
       column: $table.geomJson, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get nodeIdsJson => $composableBuilder(
+      column: $table.nodeIdsJson, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get firstNodeId => $composableBuilder(
       column: $table.firstNodeId, builder: (column) => ColumnOrderings(column));
 
@@ -4972,6 +5021,9 @@ class $$OsmWaysTableAnnotationComposer
   GeneratedColumn<String> get geomJson =>
       $composableBuilder(column: $table.geomJson, builder: (column) => column);
 
+  GeneratedColumn<String> get nodeIdsJson => $composableBuilder(
+      column: $table.nodeIdsJson, builder: (column) => column);
+
   GeneratedColumn<int> get firstNodeId => $composableBuilder(
       column: $table.firstNodeId, builder: (column) => column);
 
@@ -5032,6 +5084,7 @@ class $$OsmWaysTableTableManager extends RootTableManager<
             Value<bool> informal = const Value.absent(),
             Value<String> tagsJson = const Value.absent(),
             Value<String> geomJson = const Value.absent(),
+            Value<String> nodeIdsJson = const Value.absent(),
             Value<int> firstNodeId = const Value.absent(),
             Value<int> lastNodeId = const Value.absent(),
             Value<double> lengthM = const Value.absent(),
@@ -5052,6 +5105,7 @@ class $$OsmWaysTableTableManager extends RootTableManager<
             informal: informal,
             tagsJson: tagsJson,
             geomJson: geomJson,
+            nodeIdsJson: nodeIdsJson,
             firstNodeId: firstNodeId,
             lastNodeId: lastNodeId,
             lengthM: lengthM,
@@ -5072,6 +5126,7 @@ class $$OsmWaysTableTableManager extends RootTableManager<
             Value<bool> informal = const Value.absent(),
             required String tagsJson,
             required String geomJson,
+            Value<String> nodeIdsJson = const Value.absent(),
             required int firstNodeId,
             required int lastNodeId,
             required double lengthM,
@@ -5092,6 +5147,7 @@ class $$OsmWaysTableTableManager extends RootTableManager<
             informal: informal,
             tagsJson: tagsJson,
             geomJson: geomJson,
+            nodeIdsJson: nodeIdsJson,
             firstNodeId: firstNodeId,
             lastNodeId: lastNodeId,
             lengthM: lengthM,

@@ -27,6 +27,9 @@ class OsmWays extends Table {
   BoolColumn get informal => boolean().withDefault(const Constant(false))();
   TextColumn get tagsJson => text()();
   TextColumn get geomJson => text()(); // [[lat,lon],...]
+  // OSM node ids aligned to geomJson, so the routing graph can connect ways at
+  // shared nodes (spec Section 8, Phase 3).
+  TextColumn get nodeIdsJson => text().withDefault(const Constant('[]'))();
   IntColumn get firstNodeId => integer()();
   IntColumn get lastNodeId => integer()();
   RealColumn get lengthM => real()();

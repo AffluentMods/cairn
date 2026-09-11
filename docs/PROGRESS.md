@@ -36,6 +36,26 @@ file. Nothing below blocked the build; each has a shipped default.
 - Both flag the same transitive `qs` moderate advisory via Express 4 (query parser). Not a
   runtime risk here (JSON bodies, not query strings). A Question for you: bump to Express 5.
 
+## Phase 3: route planner  (DONE, code complete)
+
+Shipped, all unit tested: generic Dijkstra (binary heap), nearest-point-on-polyline,
+snap-to-trail (40 m), leg routing over the OSM graph with tag penalties (informal 1.4,
+difficult alpine 3.0, private impassable) and off-trail straight-line fallback, resample,
+terrain terrarium tile source (fetch + disk cache + bilinear decode) and elevation
+repository with gap-fill, compute_route_stats (20 m resample, hysteresis gain/loss,
+Naismith/Langmuir time, profile). Plan screen: own MapLibre map, tap to add waypoints,
+snapped route rendered gold (dashed off-trail), numbered waypoint symbols, live stats bar,
+grade-colored elevation profile with a scrubber that drops a marker on the map, waypoint
+list with swipe-to-delete, undo, clear, and save to Drift (name dialog). Route persistence
+repository (save/load/delete + waypoints).
+
+Tests: dijkstra (5-node fixture), nearest-point, routing (through shared node, same segment,
+disconnected fallback), route penalties, route stats (hill gain/loss + profile), snap
+in/out of range. 69 tests total, analyze clean.
+NEEDS DEVICE: the Goat Rocks distance/gain acceptance (needs live Overpass + terrain tiles
+and a device), profile-scrubber-to-map-marker interaction, dragging a waypoint (add/delete/
+undo shipped; drag and mid-leg insert are follow-ups noted below).
+
 ## Phase 2: trails and POIs  (DONE)
 
 Shipped: pure Overpass parser (ways, graph nodes, relations, POIs) with a captured real

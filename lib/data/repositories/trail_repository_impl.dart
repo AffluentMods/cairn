@@ -6,6 +6,7 @@ import 'package:drift/drift.dart';
 import '../../core/geo/tile_math.dart';
 import '../../domain/models/trail.dart';
 import '../../domain/repositories/trail_repository.dart';
+import '../../domain/usecases/route_between_waypoints.dart';
 import '../db/app_database.dart';
 import '../osm/overpass_parser.dart';
 import '../sources/overpass_source.dart';
@@ -98,6 +99,7 @@ class TrailRepositoryImpl implements TrailRepository {
         highway: w.highway,
         tagsJson: jsonEncode(w.tags),
         geomJson: jsonEncode(w.geometry),
+        nodeIdsJson: Value(jsonEncode(w.nodeIds)),
         firstNodeId: w.firstNodeId,
         lastNodeId: w.lastNodeId,
         lengthM: w.lengthM,
@@ -203,6 +205,44 @@ class TrailRepositoryImpl implements TrailRepository {
           ..limit(limit))
         .get();
     return rows.map(_toTrail).toList();
+  }
+
+  @override
+  Future<List<RoutableWay>> routableWaysInBbox(List<double> bbox) async {
+    final rows = await (db.select(db.osmWays)
+          ..where(
+            (t) =>
+                t.minLat.isSmallerOrEqualValue(bbox[2]) &
+                t.maxLat.isBiggerOrEqualValue(bbox[0]) &
+                t.minLon.isSmallerOrEqualValue(bbox[3]) &
+                t.maxLon.isBiggerOrEqualValue(bbox[1]),
+          ))
+        .get();
+    final out = <RoutableWay>[];
+    for (final row in rows) {
+      final coords = (jsonDecode(row.geomJson) as List)
+          .map((e) => (e as List).map((n) => (n as num).toDouble()).toList())
+          .toList();
+      final nodeIds = (jsonDecode(row.nodeIdsJson) as List)
+          .map((e) => (e as num).toInt())
+          .toList();
+      // Older cached rows may predate node ids; skip them for routing.
+      if (nodeIds.length != coords.length || nodeIds.length < 2) continue;
+      final tags = (jsonDecode(row.tagsJson) as Map).cast<String, dynamic>();
+      out.add(
+        RoutableWay(
+          id: row.id,
+          nodeIds: nodeIds,
+          coords: coords,
+          penalty: routePenalty(
+            informal: row.informal,
+            sacScale: row.sacScale,
+            access: tags['access'] as String?,
+          ),
+        ),
+      );
+    }
+    return out;
   }
 
   Trail _toTrail(OsmWay row) {
