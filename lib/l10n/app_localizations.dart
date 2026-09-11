@@ -1468,6 +1468,48 @@ abstract class AppLocalizations {
   /// **'The map did not load.'**
   String get mapLoadFailed;
 
+  /// No description provided for @settingsDiagnostics.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get settingsDiagnostics;
+
+  /// No description provided for @diagnosticsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'On-device crash and stall log'**
+  String get diagnosticsSubtitle;
+
+  /// No description provided for @diagnosticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagnostics'**
+  String get diagnosticsTitle;
+
+  /// No description provided for @diagnosticsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No issues logged. Crashes and slow frames appear here.'**
+  String get diagnosticsEmpty;
+
+  /// No description provided for @diagnosticsExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'This log stays on your device. It never contains your location, and nothing is sent anywhere unless you share it.'**
+  String get diagnosticsExplainer;
+
+  /// No description provided for @diagnosticsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get diagnosticsShare;
+
+  /// No description provided for @diagnosticsClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get diagnosticsClear;
+
   /// No description provided for @layersMapType.
   ///
   /// In en, this message translates to:

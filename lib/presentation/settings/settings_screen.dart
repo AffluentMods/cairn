@@ -12,6 +12,7 @@ import '../../core/settings/settings_providers.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
 import 'about_screen.dart';
+import 'diagnostics_screen.dart';
 
 /// Settings (spec Phase 9): units, theme, default map, weights, terrain cache,
 /// sync, data sources, privacy, licenses, version.
@@ -122,6 +123,14 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.privacy_tip_outlined),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute<void>(builder: (_) => const PrivacyScreen()),
+            ),
+          ),
+          ListTile(
+            title: Text(l10n.settingsDiagnostics),
+            subtitle: Text(l10n.diagnosticsSubtitle),
+            leading: const Icon(Icons.bug_report_outlined),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(builder: (_) => const DiagnosticsScreen()),
             ),
           ),
           ListTile(

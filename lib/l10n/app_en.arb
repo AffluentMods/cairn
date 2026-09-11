@@ -277,6 +277,14 @@
   "mapLoading": "Loading map",
   "mapLoadFailed": "The map did not load.",
 
+  "settingsDiagnostics": "Diagnostics",
+  "diagnosticsSubtitle": "On-device crash and stall log",
+  "diagnosticsTitle": "Diagnostics",
+  "diagnosticsEmpty": "No issues logged. Crashes and slow frames appear here.",
+  "diagnosticsExplainer": "This log stays on your device. It never contains your location, and nothing is sent anywhere unless you share it.",
+  "diagnosticsShare": "Share",
+  "diagnosticsClear": "Clear",
+
   "layersMapType": "Map type",
   "layersOverlays": "Overlays",
   "layersHillshade": "Hillshade",

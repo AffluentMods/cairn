@@ -765,6 +765,29 @@ class AppLocalizationsEn extends AppLocalizations {
   String get mapLoadFailed => 'The map did not load.';
 
   @override
+  String get settingsDiagnostics => 'Diagnostics';
+
+  @override
+  String get diagnosticsSubtitle => 'On-device crash and stall log';
+
+  @override
+  String get diagnosticsTitle => 'Diagnostics';
+
+  @override
+  String get diagnosticsEmpty =>
+      'No issues logged. Crashes and slow frames appear here.';
+
+  @override
+  String get diagnosticsExplainer =>
+      'This log stays on your device. It never contains your location, and nothing is sent anywhere unless you share it.';
+
+  @override
+  String get diagnosticsShare => 'Share';
+
+  @override
+  String get diagnosticsClear => 'Clear';
+
+  @override
   String get layersMapType => 'Map type';
 
   @override
