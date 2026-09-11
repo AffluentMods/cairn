@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/net/dio_client.dart';
 import '../domain/repositories/elevation_repository.dart';
+import '../domain/repositories/offline_repository.dart';
 import '../domain/repositories/poi_repository.dart';
 import '../domain/repositories/route_repository.dart';
 import '../domain/repositories/track_repository.dart';
@@ -13,6 +14,7 @@ import '../domain/repositories/trail_repository.dart';
 import 'db/app_database.dart';
 import 'gpx/gpx_importer.dart';
 import 'repositories/elevation_repository_impl.dart';
+import 'repositories/offline_repository_impl.dart';
 import 'repositories/poi_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
 import 'repositories/track_repository_impl.dart';
@@ -81,6 +83,15 @@ final routeRepositoryProvider = Provider<RouteRepository>(
 
 final trackRepositoryProvider = Provider<TrackRepository>(
   (ref) => TrackRepositoryImpl(ref.watch(appDatabaseProvider)),
+);
+
+final offlineRepositoryProvider = Provider<OfflineRepository>(
+  (ref) => OfflineRepositoryImpl(
+    db: ref.watch(appDatabaseProvider),
+    trails: ref.watch(trailRepositoryProvider),
+    pois: ref.watch(poiRepositoryProvider),
+    terrain: ref.watch(terrainTileSourceProvider),
+  ),
 );
 
 final gpxImporterProvider = Provider<GpxImporter>(

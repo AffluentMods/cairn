@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
+import '../../domain/models/offline_region.dart';
 import '../../domain/models/route_plan.dart';
 import '../../domain/models/track.dart';
 
@@ -20,4 +21,9 @@ final savedRoutesProvider = FutureProvider<List<SavedRoute>>((ref) {
 final savedTracksProvider = FutureProvider<List<TrackSummary>>((ref) {
   ref.watch(libraryRefreshProvider);
   return ref.watch(trackRepositoryProvider).allTracks();
+});
+
+final offlineRegionsProvider = FutureProvider<List<OfflineRegionModel>>((ref) {
+  ref.watch(libraryRefreshProvider);
+  return ref.watch(offlineRepositoryProvider).all();
 });
