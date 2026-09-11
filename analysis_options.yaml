@@ -1,0 +1,29 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  exclude:
+    # Generated code (drift, freezed, json_serializable, riverpod). Their style
+    # is not ours to lint, and they regenerate on every build.
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/*.mocks.dart"
+    # Generated localizations (gen-l10n output into the source tree).
+    - "lib/l10n/app_localizations*.dart"
+  language:
+    strict-casts: true
+    strict-raw-types: true
+  errors:
+    # Missing SPDX or trailing comma should never silently pass, but keep the
+    # analyzer at warnings for style rules so codegen churn does not block.
+    invalid_annotation_target: ignore
+
+linter:
+  rules:
+    prefer_const_constructors: true
+    prefer_const_constructors_in_immutables: true
+    prefer_const_declarations: true
+    prefer_final_locals: true
+    avoid_print: true
+    require_trailing_commas: true
+    directives_ordering: true
+    unnecessary_await_in_return: true

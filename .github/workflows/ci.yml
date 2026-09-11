@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+
+env:
+  FLUTTER_VERSION: "3.38.9"
+
+jobs:
+  analyze-and-test:
+    name: Analyze and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: SPDX header check
+        run: bash tool/check_spdx.sh
+
+      - name: Verify generated code is current
+        run: |
+          dart run build_runner build --delete-conflicting-outputs
+          if ! git diff --quiet; then
+            echo "Generated code is out of date. Run: dart run build_runner build --delete-conflicting-outputs"
+            git diff --stat
+            exit 1
+          fi
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+  build-community-apk:
+    name: Build community APK
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: analyze-and-test
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Build community APK
+        run: flutter build apk --release --flavor community
+
+      - name: Compute SHA-256
+        id: sha
+        run: |
+          APK=build/app/outputs/flutter-apk/app-community-release.apk
+          sha256sum "$APK" | tee "$APK.sha256"
+
+      - name: Attach to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/app/outputs/flutter-apk/app-community-release.apk
+            build/app/outputs/flutter-apk/app-community-release.apk.sha256

@@ -1,0 +1,1333 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_en.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+    delegate,
+    GlobalMaterialLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+  ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+
+  /// The app name, shown in the launcher and About.
+  ///
+  /// In en, this message translates to:
+  /// **'Cairn'**
+  String get appName;
+
+  /// No description provided for @tabMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map'**
+  String get tabMap;
+
+  /// No description provided for @tabPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get tabPlan;
+
+  /// No description provided for @tabRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'Record'**
+  String get tabRecord;
+
+  /// No description provided for @tabLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get tabLibrary;
+
+  /// Temporary body for screens not built yet.
+  ///
+  /// In en, this message translates to:
+  /// **'Under construction. Building this screen next.'**
+  String get phase0Placeholder;
+
+  /// No description provided for @styleOutdoors.
+  ///
+  /// In en, this message translates to:
+  /// **'Outdoors'**
+  String get styleOutdoors;
+
+  /// No description provided for @styleTopo.
+  ///
+  /// In en, this message translates to:
+  /// **'Topo'**
+  String get styleTopo;
+
+  /// No description provided for @styleSatellite.
+  ///
+  /// In en, this message translates to:
+  /// **'Satellite'**
+  String get styleSatellite;
+
+  /// No description provided for @layersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Layers'**
+  String get layersTitle;
+
+  /// No description provided for @layerTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'Trails'**
+  String get layerTrails;
+
+  /// No description provided for @layerPois.
+  ///
+  /// In en, this message translates to:
+  /// **'Water, camps, peaks'**
+  String get layerPois;
+
+  /// No description provided for @layerFires.
+  ///
+  /// In en, this message translates to:
+  /// **'Active fires'**
+  String get layerFires;
+
+  /// No description provided for @layerLand.
+  ///
+  /// In en, this message translates to:
+  /// **'Wilderness and park boundaries'**
+  String get layerLand;
+
+  /// No description provided for @layerHillshade.
+  ///
+  /// In en, this message translates to:
+  /// **'Hillshade'**
+  String get layerHillshade;
+
+  /// No description provided for @layerConditions.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions'**
+  String get layerConditions;
+
+  /// No description provided for @locationPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location'**
+  String get locationPermissionTitle;
+
+  /// No description provided for @locationPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on location to see where you are on the map.'**
+  String get locationPermissionBody;
+
+  /// No description provided for @backgroundLocationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Cairn records your hike with the screen off. Choose Allow all the time so the track does not stop when you lock your phone.'**
+  String get backgroundLocationBody;
+
+  /// No description provided for @locationOpenSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get locationOpenSettings;
+
+  /// No description provided for @trailUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Unnamed path'**
+  String get trailUnnamed;
+
+  /// No description provided for @trailSegmentLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} segment'**
+  String trailSegmentLength(String distance);
+
+  /// No description provided for @trailUsfsNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'#{number} USFS'**
+  String trailUsfsNumber(String number);
+
+  /// No description provided for @trailPlanFromHere.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan a route from here'**
+  String get trailPlanFromHere;
+
+  /// No description provided for @trailShowRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Show route'**
+  String get trailShowRoute;
+
+  /// No description provided for @trailsOfflineBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Trail data could not load. Showing saved trails.'**
+  String get trailsOfflineBanner;
+
+  /// No description provided for @sacHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T1 hiking'**
+  String get sacHiking;
+
+  /// No description provided for @sacMountainHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T2 mountain hiking'**
+  String get sacMountainHiking;
+
+  /// No description provided for @sacDemandingMountainHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T3 demanding'**
+  String get sacDemandingMountainHiking;
+
+  /// No description provided for @sacAlpineHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T4 alpine'**
+  String get sacAlpineHiking;
+
+  /// No description provided for @sacDemandingAlpineHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T5 demanding alpine'**
+  String get sacDemandingAlpineHiking;
+
+  /// No description provided for @sacDifficultAlpineHiking.
+  ///
+  /// In en, this message translates to:
+  /// **'T6 difficult alpine'**
+  String get sacDifficultAlpineHiking;
+
+  /// No description provided for @trailInformal.
+  ///
+  /// In en, this message translates to:
+  /// **'Informal path'**
+  String get trailInformal;
+
+  /// No description provided for @planTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan'**
+  String get planTitle;
+
+  /// No description provided for @planSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get planSave;
+
+  /// No description provided for @planUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get planUndo;
+
+  /// No description provided for @planRedo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get planRedo;
+
+  /// No description provided for @planClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get planClear;
+
+  /// No description provided for @planNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Route name'**
+  String get planNameHint;
+
+  /// No description provided for @planOffTrail.
+  ///
+  /// In en, this message translates to:
+  /// **'Off trail'**
+  String get planOffTrail;
+
+  /// No description provided for @planEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the map to drop a waypoint. Cairn snaps it to the nearest trail.'**
+  String get planEmpty;
+
+  /// No description provided for @planEstTime.
+  ///
+  /// In en, this message translates to:
+  /// **'est. {time}'**
+  String planEstTime(String time);
+
+  /// No description provided for @planPackWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'pack {weight}'**
+  String planPackWeight(String weight);
+
+  /// No description provided for @planWaterHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get planWaterHeader;
+
+  /// No description provided for @planWaterLastBeforeClimb.
+  ///
+  /// In en, this message translates to:
+  /// **'last before the climb'**
+  String get planWaterLastBeforeClimb;
+
+  /// No description provided for @planWaterSeasonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonal streams may be dry in late summer.'**
+  String get planWaterSeasonal;
+
+  /// No description provided for @planDeleteWaypoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete waypoint'**
+  String get planDeleteWaypoint;
+
+  /// No description provided for @statDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'distance'**
+  String get statDistance;
+
+  /// No description provided for @statGain.
+  ///
+  /// In en, this message translates to:
+  /// **'gain'**
+  String get statGain;
+
+  /// No description provided for @statLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'loss'**
+  String get statLoss;
+
+  /// No description provided for @statHighPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'high point'**
+  String get statHighPoint;
+
+  /// No description provided for @statMoving.
+  ///
+  /// In en, this message translates to:
+  /// **'moving'**
+  String get statMoving;
+
+  /// No description provided for @statPace.
+  ///
+  /// In en, this message translates to:
+  /// **'pace'**
+  String get statPace;
+
+  /// No description provided for @statSpeed.
+  ///
+  /// In en, this message translates to:
+  /// **'speed'**
+  String get statSpeed;
+
+  /// No description provided for @statElevation.
+  ///
+  /// In en, this message translates to:
+  /// **'elevation'**
+  String get statElevation;
+
+  /// No description provided for @statTotalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'total'**
+  String get statTotalTime;
+
+  /// No description provided for @statCalories.
+  ///
+  /// In en, this message translates to:
+  /// **'calories'**
+  String get statCalories;
+
+  /// No description provided for @recordStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get recordStart;
+
+  /// No description provided for @recordPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get recordPause;
+
+  /// No description provided for @recordResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get recordResume;
+
+  /// No description provided for @recordFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get recordFinish;
+
+  /// No description provided for @recordDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get recordDiscard;
+
+  /// No description provided for @recordDiscardConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this recording? It cannot be recovered.'**
+  String get recordDiscardConfirm;
+
+  /// No description provided for @recordSavedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved: {distance}, {gain}.'**
+  String recordSavedSummary(String distance, String gain);
+
+  /// No description provided for @recordNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get recordNotificationTitle;
+
+  /// No description provided for @recordNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance}, {time}'**
+  String recordNotificationBody(String distance, String time);
+
+  /// No description provided for @recordOnRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'On route'**
+  String get recordOnRoute;
+
+  /// No description provided for @recordOffRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Off route'**
+  String get recordOffRoute;
+
+  /// No description provided for @recordToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} to go'**
+  String recordToGo(String distance);
+
+  /// No description provided for @recordEta.
+  ///
+  /// In en, this message translates to:
+  /// **'ETA {time}'**
+  String recordEta(String time);
+
+  /// No description provided for @recordAutoPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-paused'**
+  String get recordAutoPaused;
+
+  /// No description provided for @recordFollowRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow a route'**
+  String get recordFollowRoute;
+
+  /// No description provided for @recordNoRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'No route'**
+  String get recordNoRoute;
+
+  /// No description provided for @recordPackPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Pack weight for this hike'**
+  String get recordPackPrompt;
+
+  /// No description provided for @recordIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Not recording. Start a hike to see live stats.'**
+  String get recordIdle;
+
+  /// No description provided for @libraryRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes'**
+  String get libraryRoutes;
+
+  /// No description provided for @libraryTracks.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracks'**
+  String get libraryTracks;
+
+  /// No description provided for @libraryOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get libraryOffline;
+
+  /// No description provided for @libraryEmptyRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved routes. Plan one from the map.'**
+  String get libraryEmptyRoutes;
+
+  /// No description provided for @libraryEmptyTracks.
+  ///
+  /// In en, this message translates to:
+  /// **'No recordings yet.'**
+  String get libraryEmptyTracks;
+
+  /// No description provided for @libraryEmptyOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'No offline regions. Download one so the map works with no signal.'**
+  String get libraryEmptyOffline;
+
+  /// No description provided for @libraryDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get libraryDelete;
+
+  /// No description provided for @libraryUndo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get libraryUndo;
+
+  /// No description provided for @libraryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Deleted'**
+  String get libraryDeleted;
+
+  /// No description provided for @gpxImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import GPX'**
+  String get gpxImport;
+
+  /// No description provided for @gpxExport.
+  ///
+  /// In en, this message translates to:
+  /// **'Export GPX'**
+  String get gpxExport;
+
+  /// No description provided for @gpxImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That file could not be read as GPX.'**
+  String get gpxImportFailed;
+
+  /// No description provided for @gpxImportedRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported route'**
+  String get gpxImportedRoute;
+
+  /// No description provided for @gpxImportedTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported track'**
+  String get gpxImportedTrack;
+
+  /// No description provided for @offlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline maps'**
+  String get offlineTitle;
+
+  /// No description provided for @offlineNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New region'**
+  String get offlineNew;
+
+  /// No description provided for @offlineEstimate.
+  ///
+  /// In en, this message translates to:
+  /// **'about {size}'**
+  String offlineEstimate(String size);
+
+  /// No description provided for @offlineLargeWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This region is over 1 GB. Lower the max zoom or shrink the area.'**
+  String get offlineLargeWarning;
+
+  /// No description provided for @offlineDownloading.
+  ///
+  /// In en, this message translates to:
+  /// **'downloading {percent}%'**
+  String offlineDownloading(int percent);
+
+  /// No description provided for @offlineIncomplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Incomplete'**
+  String get offlineIncomplete;
+
+  /// No description provided for @offlineResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get offlineResume;
+
+  /// No description provided for @offlineRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh conditions'**
+  String get offlineRefresh;
+
+  /// No description provided for @offlineMaxZoom.
+  ///
+  /// In en, this message translates to:
+  /// **'Max zoom'**
+  String get offlineMaxZoom;
+
+  /// No description provided for @offlineStyles.
+  ///
+  /// In en, this message translates to:
+  /// **'Styles'**
+  String get offlineStyles;
+
+  /// No description provided for @offlineName.
+  ///
+  /// In en, this message translates to:
+  /// **'Region name'**
+  String get offlineName;
+
+  /// No description provided for @offlineDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get offlineDownload;
+
+  /// No description provided for @condTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Conditions for {name}'**
+  String condTitle(String name);
+
+  /// No description provided for @condUpdatedAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'updated {ago}'**
+  String condUpdatedAgo(String ago);
+
+  /// No description provided for @condStale.
+  ///
+  /// In en, this message translates to:
+  /// **'stale'**
+  String get condStale;
+
+  /// No description provided for @condFireCrosses.
+  ///
+  /// In en, this message translates to:
+  /// **'Route crosses the {name} perimeter'**
+  String condFireCrosses(String name);
+
+  /// No description provided for @condFireDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is {distance} from the route'**
+  String condFireDistance(String name, String distance);
+
+  /// No description provided for @condFireNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No active fires within 50 mi'**
+  String get condFireNone;
+
+  /// No description provided for @condFireAcres.
+  ///
+  /// In en, this message translates to:
+  /// **'{acres} ac'**
+  String condFireAcres(String acres);
+
+  /// No description provided for @condFireContained.
+  ///
+  /// In en, this message translates to:
+  /// **'{percent}% contained'**
+  String condFireContained(int percent);
+
+  /// No description provided for @condFireUncontained.
+  ///
+  /// In en, this message translates to:
+  /// **'0% contained'**
+  String get condFireUncontained;
+
+  /// No description provided for @condFirePrescribed.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescribed burn'**
+  String get condFirePrescribed;
+
+  /// No description provided for @condOpenInciweb.
+  ///
+  /// In en, this message translates to:
+  /// **'Open on InciWeb'**
+  String get condOpenInciweb;
+
+  /// No description provided for @condAqi.
+  ///
+  /// In en, this message translates to:
+  /// **'Air quality'**
+  String get condAqi;
+
+  /// No description provided for @condAqiModel.
+  ///
+  /// In en, this message translates to:
+  /// **'Model estimate. Monitor data in a later update.'**
+  String get condAqiModel;
+
+  /// No description provided for @condAqiMonitor.
+  ///
+  /// In en, this message translates to:
+  /// **'EPA AirNow monitor'**
+  String get condAqiMonitor;
+
+  /// No description provided for @aqiGood.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get aqiGood;
+
+  /// No description provided for @aqiModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get aqiModerate;
+
+  /// No description provided for @aqiUsg.
+  ///
+  /// In en, this message translates to:
+  /// **'Unhealthy for sensitive groups'**
+  String get aqiUsg;
+
+  /// No description provided for @aqiUnhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unhealthy'**
+  String get aqiUnhealthy;
+
+  /// No description provided for @aqiVeryUnhealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Very unhealthy'**
+  String get aqiVeryUnhealthy;
+
+  /// No description provided for @aqiHazardous.
+  ///
+  /// In en, this message translates to:
+  /// **'Hazardous'**
+  String get aqiHazardous;
+
+  /// No description provided for @condWeather.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather'**
+  String get condWeather;
+
+  /// No description provided for @condTrailhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailhead'**
+  String get condTrailhead;
+
+  /// No description provided for @condHighPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'High point'**
+  String get condHighPoint;
+
+  /// No description provided for @condDaylight.
+  ///
+  /// In en, this message translates to:
+  /// **'Daylight'**
+  String get condDaylight;
+
+  /// No description provided for @condDaylightRange.
+  ///
+  /// In en, this message translates to:
+  /// **'{sunrise} to {sunset} ({length})'**
+  String condDaylightRange(String sunrise, String sunset, String length);
+
+  /// No description provided for @condMoon.
+  ///
+  /// In en, this message translates to:
+  /// **'moon {percent}% {phase}'**
+  String condMoon(int percent, String phase);
+
+  /// No description provided for @moonNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get moonNew;
+
+  /// No description provided for @moonWaxingCrescent.
+  ///
+  /// In en, this message translates to:
+  /// **'waxing crescent'**
+  String get moonWaxingCrescent;
+
+  /// No description provided for @moonFirstQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'first quarter'**
+  String get moonFirstQuarter;
+
+  /// No description provided for @moonWaxingGibbous.
+  ///
+  /// In en, this message translates to:
+  /// **'waxing gibbous'**
+  String get moonWaxingGibbous;
+
+  /// No description provided for @moonFull.
+  ///
+  /// In en, this message translates to:
+  /// **'full'**
+  String get moonFull;
+
+  /// No description provided for @moonWaningGibbous.
+  ///
+  /// In en, this message translates to:
+  /// **'waning gibbous'**
+  String get moonWaningGibbous;
+
+  /// No description provided for @moonLastQuarter.
+  ///
+  /// In en, this message translates to:
+  /// **'last quarter'**
+  String get moonLastQuarter;
+
+  /// No description provided for @moonWaningCrescent.
+  ///
+  /// In en, this message translates to:
+  /// **'waning crescent'**
+  String get moonWaningCrescent;
+
+  /// No description provided for @condLand.
+  ///
+  /// In en, this message translates to:
+  /// **'Land'**
+  String get condLand;
+
+  /// No description provided for @condParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get condParking;
+
+  /// No description provided for @condWildernessPermit.
+  ///
+  /// In en, this message translates to:
+  /// **'Free self-issue permit at the trailhead'**
+  String get condWildernessPermit;
+
+  /// No description provided for @condWildernessEnters.
+  ///
+  /// In en, this message translates to:
+  /// **'Enters {name}'**
+  String condWildernessEnters(String name);
+
+  /// No description provided for @condNpsFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Park entrance fee or America the Beautiful pass'**
+  String get condNpsFee;
+
+  /// No description provided for @condNwForestPass.
+  ///
+  /// In en, this message translates to:
+  /// **'Northwest Forest Pass or America the Beautiful'**
+  String get condNwForestPass;
+
+  /// No description provided for @condDiscoverPass.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover Pass'**
+  String get condDiscoverPass;
+
+  /// No description provided for @condRestrictionStage.
+  ///
+  /// In en, this message translates to:
+  /// **'Stage {stage} fire restrictions'**
+  String condRestrictionStage(int stage);
+
+  /// No description provided for @condNwsAlert.
+  ///
+  /// In en, this message translates to:
+  /// **'{event}'**
+  String condNwsAlert(String event);
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsUnits.
+  ///
+  /// In en, this message translates to:
+  /// **'Units'**
+  String get settingsUnits;
+
+  /// No description provided for @unitsImperial.
+  ///
+  /// In en, this message translates to:
+  /// **'Miles, feet, degrees F'**
+  String get unitsImperial;
+
+  /// No description provided for @unitsMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Kilometers, meters, degrees C'**
+  String get unitsMetric;
+
+  /// No description provided for @settingsTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme'**
+  String get settingsTheme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @settingsDefaultStyle.
+  ///
+  /// In en, this message translates to:
+  /// **'Default map'**
+  String get settingsDefaultStyle;
+
+  /// No description provided for @settingsBodyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight (for calorie estimates)'**
+  String get settingsBodyWeight;
+
+  /// No description provided for @settingsPackWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Default pack weight'**
+  String get settingsPackWeight;
+
+  /// No description provided for @settingsTerrainCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain cache'**
+  String get settingsTerrainCache;
+
+  /// No description provided for @settingsClearCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get settingsClearCache;
+
+  /// No description provided for @settingsSources.
+  ///
+  /// In en, this message translates to:
+  /// **'Data sources and attribution'**
+  String get settingsSources;
+
+  /// No description provided for @settingsPrivacy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy'**
+  String get settingsPrivacy;
+
+  /// No description provided for @settingsLicenses.
+  ///
+  /// In en, this message translates to:
+  /// **'Open source licenses'**
+  String get settingsLicenses;
+
+  /// No description provided for @settingsVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Version {version}'**
+  String settingsVersion(String version);
+
+  /// No description provided for @settingsSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-device sync'**
+  String get settingsSync;
+
+  /// No description provided for @settingsSyncOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get settingsSyncOff;
+
+  /// No description provided for @settingsSyncOn.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get settingsSyncOn;
+
+  /// No description provided for @syncTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-device sync'**
+  String get syncTitle;
+
+  /// No description provided for @syncIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync your routes and tracks across devices, end to end encrypted. Off by default. Nothing leaves this device readable.'**
+  String get syncIntro;
+
+  /// No description provided for @syncEnable.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up sync'**
+  String get syncEnable;
+
+  /// No description provided for @syncServerUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Server URL'**
+  String get syncServerUrl;
+
+  /// No description provided for @syncPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'Passphrase'**
+  String get syncPassphrase;
+
+  /// No description provided for @syncPassphraseHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You will need this on every device. It cannot be recovered.'**
+  String get syncPassphraseHint;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @syncStatusIdle.
+  ///
+  /// In en, this message translates to:
+  /// **'Up to date'**
+  String get syncStatusIdle;
+
+  /// No description provided for @syncStatusSyncing.
+  ///
+  /// In en, this message translates to:
+  /// **'Syncing'**
+  String get syncStatusSyncing;
+
+  /// No description provided for @syncStatusError.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync could not finish. Your data is safe on this device.'**
+  String get syncStatusError;
+
+  /// No description provided for @syncLastSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'Last synced {ago}'**
+  String syncLastSynced(String ago);
+
+  /// No description provided for @syncDisconnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Disconnect sync'**
+  String get syncDisconnect;
+
+  /// No description provided for @syncPurge.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete synced data'**
+  String get syncPurge;
+
+  /// No description provided for @syncWrongPassphrase.
+  ///
+  /// In en, this message translates to:
+  /// **'That passphrase does not match the synced data.'**
+  String get syncWrongPassphrase;
+
+  /// No description provided for @syncRecoveryCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync code'**
+  String get syncRecoveryCode;
+
+  /// No description provided for @syncRecoveryCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter this on your other devices to join the same sync.'**
+  String get syncRecoveryCodeHint;
+
+  /// No description provided for @summitTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Cairn Summit'**
+  String get summitTitle;
+
+  /// No description provided for @summitOneTime.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time purchase. No subscription.'**
+  String get summitOneTime;
+
+  /// No description provided for @summitRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchase'**
+  String get summitRestore;
+
+  /// No description provided for @summitBuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock for {price}'**
+  String summitBuy(String price);
+
+  /// No description provided for @summitFeatureOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited offline regions'**
+  String get summitFeatureOffline;
+
+  /// No description provided for @summitFeatureWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water and campsite planning'**
+  String get summitFeatureWater;
+
+  /// No description provided for @summitFeatureFollow.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow a route while recording'**
+  String get summitFeatureFollow;
+
+  /// No description provided for @summitFeatureAirnow.
+  ///
+  /// In en, this message translates to:
+  /// **'EPA monitor air quality'**
+  String get summitFeatureAirnow;
+
+  /// No description provided for @attributionOsm.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenStreetMap contributors'**
+  String get attributionOsm;
+
+  /// No description provided for @attributionOpenFreeMap.
+  ///
+  /// In en, this message translates to:
+  /// **'OpenFreeMap, OpenMapTiles'**
+  String get attributionOpenFreeMap;
+
+  /// No description provided for @attributionUsgs.
+  ///
+  /// In en, this message translates to:
+  /// **'USGS The National Map'**
+  String get attributionUsgs;
+
+  /// No description provided for @attributionTerrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain: Mapzen, AWS Terrain Tiles'**
+  String get attributionTerrain;
+
+  /// No description provided for @attributionNifc.
+  ///
+  /// In en, this message translates to:
+  /// **'Fire data: NIFC WFIGS'**
+  String get attributionNifc;
+
+  /// No description provided for @attributionNws.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather: NOAA National Weather Service'**
+  String get attributionNws;
+
+  /// No description provided for @attributionOpenMeteo.
+  ///
+  /// In en, this message translates to:
+  /// **'Air quality: Open-Meteo'**
+  String get attributionOpenMeteo;
+
+  /// No description provided for @genericRetry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get genericRetry;
+
+  /// No description provided for @genericCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get genericCancel;
+
+  /// No description provided for @genericOk.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get genericOk;
+
+  /// No description provided for @genericSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get genericSave;
+
+  /// No description provided for @genericDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get genericDelete;
+
+  /// No description provided for @genericClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get genericClose;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['en'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'en':
+      return AppLocalizationsEn();
+  }
+
+  throw FlutterError(
+      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'an issue with the localizations generation tool. Please file an issue '
+      'on GitHub with a reproducible sample app and the gen-l10n configuration '
+      'that was used.');
+}

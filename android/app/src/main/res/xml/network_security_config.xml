@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release policy: no cleartext HTTP anywhere. All Cairn network calls are HTTPS
+     (spec Section 9.5 security checklist). -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false"/>
+</network-security-config>

@@ -1,0 +1,21 @@
+# Normalize line endings. Source is LF in the repo; Git converts on checkout.
+* text=auto eol=lf
+
+# Shell scripts must stay LF so they run on Linux CI and F-Droid builders.
+*.sh text eol=lf
+
+# Gradle wrapper and batch files.
+*.bat text eol=crlf
+gradlew text eol=lf
+
+# Binary assets: never touch.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ttf binary
+*.otf binary
+*.keystore binary
+*.jks binary
+*.apk binary
+*.aab binary

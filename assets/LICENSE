@@ -1,0 +1,12 @@
+Cairn hand-drawn assets (map sprite icons in assets/icons, generated sprite in
+assets/map_styles/sprite) are licensed under Creative Commons Attribution-ShareAlike 4.0
+International (CC-BY-SA 4.0).
+
+https://creativecommons.org/licenses/by-sa/4.0/
+
+Bundled data files under assets/data that Affluent Labs authored (for example
+wa_parks.json) are released under CC0 1.0 (public domain dedication). Where a data file
+carries content from an upstream source, that source's license applies and is noted in the
+file or in docs/API_NOTES.md.
+
+Copyright Affluent Labs.
