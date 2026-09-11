@@ -13,6 +13,7 @@ import '../../domain/usecases/offline_estimate.dart';
 import '../../l10n/app_localizations.dart';
 import '../map/map_providers.dart';
 import '../map/map_style.dart';
+import '../settings/summit_sheet.dart';
 import '../shared/empty_state.dart';
 import 'library_providers.dart';
 
@@ -83,21 +84,8 @@ class OfflineRegionsScreen extends ConsumerWidget {
     final unlocked = ref.read(summitUnlockedProvider);
     final existing = ref.read(offlineRegionsProvider).valueOrNull ?? const [];
     if (!unlocked && existing.isNotEmpty) {
-      await showDialog<void>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(context.l10n.summitTitle),
-          content: Text(
-            '${context.l10n.summitFeatureOffline}\n\n${context.l10n.summitOneTime}',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(context.l10n.genericOk),
-            ),
-          ],
-        ),
-      );
+      await showSummit(context);
+      // If they unlocked, they can tap New again; keep this action simple.
       return;
     }
     await showModalBottomSheet<void>(

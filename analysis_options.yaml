@@ -9,6 +9,9 @@ analyzer:
     - "**/*.mocks.dart"
     # Generated localizations (gen-l10n output into the source tree).
     - "lib/l10n/app_localizations*.dart"
+    # Store-only RevenueCat template (imports purchases_flutter, which is not a
+    # default dependency; only the store build adds it). See docs/REVENUECAT.md.
+    - "tool/store-build/**"
   language:
     strict-casts: true
     strict-raw-types: true

@@ -2,6 +2,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features_flags.dart';
+import 'store_gateway.dart';
 
 /// Purchase gateway abstraction. The community flavor must not link any Google
 /// Play billing library (F-Droid scans the binary), so the real RevenueCat
@@ -36,9 +37,16 @@ class NoopPurchaseGateway implements PurchaseGateway {
   Future<bool> buySummit() async => true;
 }
 
-final purchaseGatewayProvider = Provider<PurchaseGateway>(
-  (ref) => const NoopPurchaseGateway(),
-);
+final purchaseGatewayProvider = Provider<PurchaseGateway>((ref) {
+  // Store builds get the real RevenueCat gateway (createStoreGateway is swapped
+  // in by tool/store_prebuild.sh); every other build uses the always-entitled
+  // no-op, so no billing library is linked.
+  if (kStoreBuild) {
+    final store = createStoreGateway();
+    if (store != null) return store;
+  }
+  return const NoopPurchaseGateway();
+});
 
 /// Whether Summit features are unlocked for this session. Community and debug:
 /// always true. Store release: gated on the entitlement (Phase 9).
