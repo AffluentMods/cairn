@@ -667,6 +667,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get genericSkip => 'Skip';
 
   @override
+  String get genericDone => 'Done';
+
+  @override
+  String get genericCopy => 'Copy';
+
+  @override
+  String get designerTitle => 'Theme Designer';
+
+  @override
+  String get designerNewTitle => 'New theme';
+
+  @override
+  String get designerName => 'Name';
+
+  @override
+  String get designerNameHint => 'My theme';
+
+  @override
+  String get designerStartFrom => 'Start from';
+
+  @override
+  String get designerColors => 'Colors';
+
+  @override
+  String get designerExportFile => 'Export as file';
+
+  @override
+  String get designerExportCode => 'Copy theme code';
+
+  @override
+  String get designerImport => 'Import a theme';
+
+  @override
+  String get designerImportHint => 'Paste a cairn-theme code or file contents';
+
+  @override
+  String get designerCopied => 'Theme code copied';
+
+  @override
+  String get designerImported => 'Theme imported';
+
+  @override
+  String get designerImportFailed => 'That is not a valid theme';
+
+  @override
+  String get designerDeleteConfirm => 'Delete this theme?';
+
+  @override
+  String get designerUnnamed => 'Untitled theme';
+
+  @override
+  String get tokenAccent => 'Accent';
+
+  @override
+  String get tokenBackground => 'Background';
+
+  @override
+  String get tokenSurface => 'Surface';
+
+  @override
+  String get tokenRaised => 'Raised';
+
+  @override
+  String get tokenOutline => 'Outline';
+
+  @override
+  String get tokenText => 'Text';
+
+  @override
+  String get tokenSecondary => 'Secondary text';
+
+  @override
+  String get tokenRoute => 'Route';
+
+  @override
+  String get tokenTrack => 'Track';
+
+  @override
   String get tabExplore => 'Explore';
 
   @override

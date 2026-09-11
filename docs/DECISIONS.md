@@ -111,3 +111,7 @@ option that ships fastest and record it here.
   json response type the `jsonDecode` ran on the UI isolate before the parse. `OverpassSource` now
   returns the response body as a String and `jsonDecode` plus `parseOverpassWays`/`parseOverpassPois`
   run together in one isolate hop.
+- **Theme Designer custom themes land in Drift schema v4.** Reason: Fix Pass 1 X4.4 needs
+  persistent user themes. `CustomThemes` (nine ARGB color ints plus name/mode) ships in a v3 to v4
+  migration. Themes import and export as a `.cairntheme` JSON file and a `cairn-theme-1:` base64
+  code; import validates the schema and rejects anything else.

@@ -1282,6 +1282,162 @@ abstract class AppLocalizations {
   /// **'Skip'**
   String get genericSkip;
 
+  /// No description provided for @genericDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get genericDone;
+
+  /// No description provided for @genericCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get genericCopy;
+
+  /// No description provided for @designerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme Designer'**
+  String get designerTitle;
+
+  /// No description provided for @designerNewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'New theme'**
+  String get designerNewTitle;
+
+  /// No description provided for @designerName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get designerName;
+
+  /// No description provided for @designerNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'My theme'**
+  String get designerNameHint;
+
+  /// No description provided for @designerStartFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Start from'**
+  String get designerStartFrom;
+
+  /// No description provided for @designerColors.
+  ///
+  /// In en, this message translates to:
+  /// **'Colors'**
+  String get designerColors;
+
+  /// No description provided for @designerExportFile.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as file'**
+  String get designerExportFile;
+
+  /// No description provided for @designerExportCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy theme code'**
+  String get designerExportCode;
+
+  /// No description provided for @designerImport.
+  ///
+  /// In en, this message translates to:
+  /// **'Import a theme'**
+  String get designerImport;
+
+  /// No description provided for @designerImportHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a cairn-theme code or file contents'**
+  String get designerImportHint;
+
+  /// No description provided for @designerCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme code copied'**
+  String get designerCopied;
+
+  /// No description provided for @designerImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme imported'**
+  String get designerImported;
+
+  /// No description provided for @designerImportFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'That is not a valid theme'**
+  String get designerImportFailed;
+
+  /// No description provided for @designerDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this theme?'**
+  String get designerDeleteConfirm;
+
+  /// No description provided for @designerUnnamed.
+  ///
+  /// In en, this message translates to:
+  /// **'Untitled theme'**
+  String get designerUnnamed;
+
+  /// No description provided for @tokenAccent.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent'**
+  String get tokenAccent;
+
+  /// No description provided for @tokenBackground.
+  ///
+  /// In en, this message translates to:
+  /// **'Background'**
+  String get tokenBackground;
+
+  /// No description provided for @tokenSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface'**
+  String get tokenSurface;
+
+  /// No description provided for @tokenRaised.
+  ///
+  /// In en, this message translates to:
+  /// **'Raised'**
+  String get tokenRaised;
+
+  /// No description provided for @tokenOutline.
+  ///
+  /// In en, this message translates to:
+  /// **'Outline'**
+  String get tokenOutline;
+
+  /// No description provided for @tokenText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get tokenText;
+
+  /// No description provided for @tokenSecondary.
+  ///
+  /// In en, this message translates to:
+  /// **'Secondary text'**
+  String get tokenSecondary;
+
+  /// No description provided for @tokenRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Route'**
+  String get tokenRoute;
+
+  /// No description provided for @tokenTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Track'**
+  String get tokenTrack;
+
   /// No description provided for @tabExplore.
   ///
   /// In en, this message translates to:

@@ -5812,6 +5812,632 @@ class UserWaypointsCompanion extends UpdateCompanion<UserWaypoint> {
   }
 }
 
+class $CustomThemesTable extends CustomThemes
+    with TableInfo<$CustomThemesTable, CustomTheme> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CustomThemesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDarkMeta = const VerificationMeta('isDark');
+  @override
+  late final GeneratedColumn<bool> isDark = GeneratedColumn<bool>(
+      'is_dark', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_dark" IN (0, 1))'));
+  static const VerificationMeta _accentMeta = const VerificationMeta('accent');
+  @override
+  late final GeneratedColumn<int> accent = GeneratedColumn<int>(
+      'accent', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _backgroundMeta =
+      const VerificationMeta('background');
+  @override
+  late final GeneratedColumn<int> background = GeneratedColumn<int>(
+      'background', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _surfaceMeta =
+      const VerificationMeta('surface');
+  @override
+  late final GeneratedColumn<int> surface = GeneratedColumn<int>(
+      'surface', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _raisedMeta = const VerificationMeta('raised');
+  @override
+  late final GeneratedColumn<int> raised = GeneratedColumn<int>(
+      'raised', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _outlineMeta =
+      const VerificationMeta('outline');
+  @override
+  late final GeneratedColumn<int> outline = GeneratedColumn<int>(
+      'outline', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _textPrimaryMeta =
+      const VerificationMeta('textPrimary');
+  @override
+  late final GeneratedColumn<int> textPrimary = GeneratedColumn<int>(
+      'text_primary', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _textSecondaryMeta =
+      const VerificationMeta('textSecondary');
+  @override
+  late final GeneratedColumn<int> textSecondary = GeneratedColumn<int>(
+      'text_secondary', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _routeMeta = const VerificationMeta('route');
+  @override
+  late final GeneratedColumn<int> route = GeneratedColumn<int>(
+      'route', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _trackMeta = const VerificationMeta('track');
+  @override
+  late final GeneratedColumn<int> track = GeneratedColumn<int>(
+      'track', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        isDark,
+        accent,
+        background,
+        surface,
+        raised,
+        outline,
+        textPrimary,
+        textSecondary,
+        route,
+        track,
+        createdAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'custom_themes';
+  @override
+  VerificationContext validateIntegrity(Insertable<CustomTheme> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_dark')) {
+      context.handle(_isDarkMeta,
+          isDark.isAcceptableOrUnknown(data['is_dark']!, _isDarkMeta));
+    } else if (isInserting) {
+      context.missing(_isDarkMeta);
+    }
+    if (data.containsKey('accent')) {
+      context.handle(_accentMeta,
+          accent.isAcceptableOrUnknown(data['accent']!, _accentMeta));
+    } else if (isInserting) {
+      context.missing(_accentMeta);
+    }
+    if (data.containsKey('background')) {
+      context.handle(
+          _backgroundMeta,
+          background.isAcceptableOrUnknown(
+              data['background']!, _backgroundMeta));
+    } else if (isInserting) {
+      context.missing(_backgroundMeta);
+    }
+    if (data.containsKey('surface')) {
+      context.handle(_surfaceMeta,
+          surface.isAcceptableOrUnknown(data['surface']!, _surfaceMeta));
+    } else if (isInserting) {
+      context.missing(_surfaceMeta);
+    }
+    if (data.containsKey('raised')) {
+      context.handle(_raisedMeta,
+          raised.isAcceptableOrUnknown(data['raised']!, _raisedMeta));
+    } else if (isInserting) {
+      context.missing(_raisedMeta);
+    }
+    if (data.containsKey('outline')) {
+      context.handle(_outlineMeta,
+          outline.isAcceptableOrUnknown(data['outline']!, _outlineMeta));
+    } else if (isInserting) {
+      context.missing(_outlineMeta);
+    }
+    if (data.containsKey('text_primary')) {
+      context.handle(
+          _textPrimaryMeta,
+          textPrimary.isAcceptableOrUnknown(
+              data['text_primary']!, _textPrimaryMeta));
+    } else if (isInserting) {
+      context.missing(_textPrimaryMeta);
+    }
+    if (data.containsKey('text_secondary')) {
+      context.handle(
+          _textSecondaryMeta,
+          textSecondary.isAcceptableOrUnknown(
+              data['text_secondary']!, _textSecondaryMeta));
+    } else if (isInserting) {
+      context.missing(_textSecondaryMeta);
+    }
+    if (data.containsKey('route')) {
+      context.handle(
+          _routeMeta, route.isAcceptableOrUnknown(data['route']!, _routeMeta));
+    } else if (isInserting) {
+      context.missing(_routeMeta);
+    }
+    if (data.containsKey('track')) {
+      context.handle(
+          _trackMeta, track.isAcceptableOrUnknown(data['track']!, _trackMeta));
+    } else if (isInserting) {
+      context.missing(_trackMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CustomTheme map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CustomTheme(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      isDark: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_dark'])!,
+      accent: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}accent'])!,
+      background: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}background'])!,
+      surface: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}surface'])!,
+      raised: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}raised'])!,
+      outline: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}outline'])!,
+      textPrimary: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}text_primary'])!,
+      textSecondary: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}text_secondary'])!,
+      route: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}route'])!,
+      track: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}track'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $CustomThemesTable createAlias(String alias) {
+    return $CustomThemesTable(attachedDatabase, alias);
+  }
+}
+
+class CustomTheme extends DataClass implements Insertable<CustomTheme> {
+  final String id;
+  final String name;
+  final bool isDark;
+  final int accent;
+  final int background;
+  final int surface;
+  final int raised;
+  final int outline;
+  final int textPrimary;
+  final int textSecondary;
+  final int route;
+  final int track;
+  final DateTime createdAt;
+  const CustomTheme(
+      {required this.id,
+      required this.name,
+      required this.isDark,
+      required this.accent,
+      required this.background,
+      required this.surface,
+      required this.raised,
+      required this.outline,
+      required this.textPrimary,
+      required this.textSecondary,
+      required this.route,
+      required this.track,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['name'] = Variable<String>(name);
+    map['is_dark'] = Variable<bool>(isDark);
+    map['accent'] = Variable<int>(accent);
+    map['background'] = Variable<int>(background);
+    map['surface'] = Variable<int>(surface);
+    map['raised'] = Variable<int>(raised);
+    map['outline'] = Variable<int>(outline);
+    map['text_primary'] = Variable<int>(textPrimary);
+    map['text_secondary'] = Variable<int>(textSecondary);
+    map['route'] = Variable<int>(route);
+    map['track'] = Variable<int>(track);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  CustomThemesCompanion toCompanion(bool nullToAbsent) {
+    return CustomThemesCompanion(
+      id: Value(id),
+      name: Value(name),
+      isDark: Value(isDark),
+      accent: Value(accent),
+      background: Value(background),
+      surface: Value(surface),
+      raised: Value(raised),
+      outline: Value(outline),
+      textPrimary: Value(textPrimary),
+      textSecondary: Value(textSecondary),
+      route: Value(route),
+      track: Value(track),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory CustomTheme.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CustomTheme(
+      id: serializer.fromJson<String>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      isDark: serializer.fromJson<bool>(json['isDark']),
+      accent: serializer.fromJson<int>(json['accent']),
+      background: serializer.fromJson<int>(json['background']),
+      surface: serializer.fromJson<int>(json['surface']),
+      raised: serializer.fromJson<int>(json['raised']),
+      outline: serializer.fromJson<int>(json['outline']),
+      textPrimary: serializer.fromJson<int>(json['textPrimary']),
+      textSecondary: serializer.fromJson<int>(json['textSecondary']),
+      route: serializer.fromJson<int>(json['route']),
+      track: serializer.fromJson<int>(json['track']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'name': serializer.toJson<String>(name),
+      'isDark': serializer.toJson<bool>(isDark),
+      'accent': serializer.toJson<int>(accent),
+      'background': serializer.toJson<int>(background),
+      'surface': serializer.toJson<int>(surface),
+      'raised': serializer.toJson<int>(raised),
+      'outline': serializer.toJson<int>(outline),
+      'textPrimary': serializer.toJson<int>(textPrimary),
+      'textSecondary': serializer.toJson<int>(textSecondary),
+      'route': serializer.toJson<int>(route),
+      'track': serializer.toJson<int>(track),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  CustomTheme copyWith(
+          {String? id,
+          String? name,
+          bool? isDark,
+          int? accent,
+          int? background,
+          int? surface,
+          int? raised,
+          int? outline,
+          int? textPrimary,
+          int? textSecondary,
+          int? route,
+          int? track,
+          DateTime? createdAt}) =>
+      CustomTheme(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        isDark: isDark ?? this.isDark,
+        accent: accent ?? this.accent,
+        background: background ?? this.background,
+        surface: surface ?? this.surface,
+        raised: raised ?? this.raised,
+        outline: outline ?? this.outline,
+        textPrimary: textPrimary ?? this.textPrimary,
+        textSecondary: textSecondary ?? this.textSecondary,
+        route: route ?? this.route,
+        track: track ?? this.track,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  CustomTheme copyWithCompanion(CustomThemesCompanion data) {
+    return CustomTheme(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      isDark: data.isDark.present ? data.isDark.value : this.isDark,
+      accent: data.accent.present ? data.accent.value : this.accent,
+      background:
+          data.background.present ? data.background.value : this.background,
+      surface: data.surface.present ? data.surface.value : this.surface,
+      raised: data.raised.present ? data.raised.value : this.raised,
+      outline: data.outline.present ? data.outline.value : this.outline,
+      textPrimary:
+          data.textPrimary.present ? data.textPrimary.value : this.textPrimary,
+      textSecondary: data.textSecondary.present
+          ? data.textSecondary.value
+          : this.textSecondary,
+      route: data.route.present ? data.route.value : this.route,
+      track: data.track.present ? data.track.value : this.track,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomTheme(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isDark: $isDark, ')
+          ..write('accent: $accent, ')
+          ..write('background: $background, ')
+          ..write('surface: $surface, ')
+          ..write('raised: $raised, ')
+          ..write('outline: $outline, ')
+          ..write('textPrimary: $textPrimary, ')
+          ..write('textSecondary: $textSecondary, ')
+          ..write('route: $route, ')
+          ..write('track: $track, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, isDark, accent, background, surface,
+      raised, outline, textPrimary, textSecondary, route, track, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CustomTheme &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.isDark == this.isDark &&
+          other.accent == this.accent &&
+          other.background == this.background &&
+          other.surface == this.surface &&
+          other.raised == this.raised &&
+          other.outline == this.outline &&
+          other.textPrimary == this.textPrimary &&
+          other.textSecondary == this.textSecondary &&
+          other.route == this.route &&
+          other.track == this.track &&
+          other.createdAt == this.createdAt);
+}
+
+class CustomThemesCompanion extends UpdateCompanion<CustomTheme> {
+  final Value<String> id;
+  final Value<String> name;
+  final Value<bool> isDark;
+  final Value<int> accent;
+  final Value<int> background;
+  final Value<int> surface;
+  final Value<int> raised;
+  final Value<int> outline;
+  final Value<int> textPrimary;
+  final Value<int> textSecondary;
+  final Value<int> route;
+  final Value<int> track;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const CustomThemesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isDark = const Value.absent(),
+    this.accent = const Value.absent(),
+    this.background = const Value.absent(),
+    this.surface = const Value.absent(),
+    this.raised = const Value.absent(),
+    this.outline = const Value.absent(),
+    this.textPrimary = const Value.absent(),
+    this.textSecondary = const Value.absent(),
+    this.route = const Value.absent(),
+    this.track = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CustomThemesCompanion.insert({
+    required String id,
+    required String name,
+    required bool isDark,
+    required int accent,
+    required int background,
+    required int surface,
+    required int raised,
+    required int outline,
+    required int textPrimary,
+    required int textSecondary,
+    required int route,
+    required int track,
+    required DateTime createdAt,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        name = Value(name),
+        isDark = Value(isDark),
+        accent = Value(accent),
+        background = Value(background),
+        surface = Value(surface),
+        raised = Value(raised),
+        outline = Value(outline),
+        textPrimary = Value(textPrimary),
+        textSecondary = Value(textSecondary),
+        route = Value(route),
+        track = Value(track),
+        createdAt = Value(createdAt);
+  static Insertable<CustomTheme> custom({
+    Expression<String>? id,
+    Expression<String>? name,
+    Expression<bool>? isDark,
+    Expression<int>? accent,
+    Expression<int>? background,
+    Expression<int>? surface,
+    Expression<int>? raised,
+    Expression<int>? outline,
+    Expression<int>? textPrimary,
+    Expression<int>? textSecondary,
+    Expression<int>? route,
+    Expression<int>? track,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (isDark != null) 'is_dark': isDark,
+      if (accent != null) 'accent': accent,
+      if (background != null) 'background': background,
+      if (surface != null) 'surface': surface,
+      if (raised != null) 'raised': raised,
+      if (outline != null) 'outline': outline,
+      if (textPrimary != null) 'text_primary': textPrimary,
+      if (textSecondary != null) 'text_secondary': textSecondary,
+      if (route != null) 'route': route,
+      if (track != null) 'track': track,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CustomThemesCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? name,
+      Value<bool>? isDark,
+      Value<int>? accent,
+      Value<int>? background,
+      Value<int>? surface,
+      Value<int>? raised,
+      Value<int>? outline,
+      Value<int>? textPrimary,
+      Value<int>? textSecondary,
+      Value<int>? route,
+      Value<int>? track,
+      Value<DateTime>? createdAt,
+      Value<int>? rowid}) {
+    return CustomThemesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isDark: isDark ?? this.isDark,
+      accent: accent ?? this.accent,
+      background: background ?? this.background,
+      surface: surface ?? this.surface,
+      raised: raised ?? this.raised,
+      outline: outline ?? this.outline,
+      textPrimary: textPrimary ?? this.textPrimary,
+      textSecondary: textSecondary ?? this.textSecondary,
+      route: route ?? this.route,
+      track: track ?? this.track,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isDark.present) {
+      map['is_dark'] = Variable<bool>(isDark.value);
+    }
+    if (accent.present) {
+      map['accent'] = Variable<int>(accent.value);
+    }
+    if (background.present) {
+      map['background'] = Variable<int>(background.value);
+    }
+    if (surface.present) {
+      map['surface'] = Variable<int>(surface.value);
+    }
+    if (raised.present) {
+      map['raised'] = Variable<int>(raised.value);
+    }
+    if (outline.present) {
+      map['outline'] = Variable<int>(outline.value);
+    }
+    if (textPrimary.present) {
+      map['text_primary'] = Variable<int>(textPrimary.value);
+    }
+    if (textSecondary.present) {
+      map['text_secondary'] = Variable<int>(textSecondary.value);
+    }
+    if (route.present) {
+      map['route'] = Variable<int>(route.value);
+    }
+    if (track.present) {
+      map['track'] = Variable<int>(track.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CustomThemesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isDark: $isDark, ')
+          ..write('accent: $accent, ')
+          ..write('background: $background, ')
+          ..write('surface: $surface, ')
+          ..write('raised: $raised, ')
+          ..write('outline: $outline, ')
+          ..write('textPrimary: $textPrimary, ')
+          ..write('textSecondary: $textSecondary, ')
+          ..write('route: $route, ')
+          ..write('track: $track, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5830,6 +6456,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TombstonesTable tombstones = $TombstonesTable(this);
   late final $FavoriteTrailsTable favoriteTrails = $FavoriteTrailsTable(this);
   late final $UserWaypointsTable userWaypoints = $UserWaypointsTable(this);
+  late final $CustomThemesTable customThemes = $CustomThemesTable(this);
   late final Index idxWaysBbox = Index('idx_ways_bbox',
       'CREATE INDEX idx_ways_bbox ON osm_ways (min_lat, max_lat, min_lon, max_lon)');
   late final Index idxPoisLatlon = Index(
@@ -5853,6 +6480,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         tombstones,
         favoriteTrails,
         userWaypoints,
+        customThemes,
         idxWaysBbox,
         idxPoisLatlon
       ];
@@ -9339,6 +9967,300 @@ typedef $$UserWaypointsTableProcessedTableManager = ProcessedTableManager<
     (UserWaypoint, $$UserWaypointsTableReferences),
     UserWaypoint,
     PrefetchHooks Function({bool routeId})>;
+typedef $$CustomThemesTableCreateCompanionBuilder = CustomThemesCompanion
+    Function({
+  required String id,
+  required String name,
+  required bool isDark,
+  required int accent,
+  required int background,
+  required int surface,
+  required int raised,
+  required int outline,
+  required int textPrimary,
+  required int textSecondary,
+  required int route,
+  required int track,
+  required DateTime createdAt,
+  Value<int> rowid,
+});
+typedef $$CustomThemesTableUpdateCompanionBuilder = CustomThemesCompanion
+    Function({
+  Value<String> id,
+  Value<String> name,
+  Value<bool> isDark,
+  Value<int> accent,
+  Value<int> background,
+  Value<int> surface,
+  Value<int> raised,
+  Value<int> outline,
+  Value<int> textPrimary,
+  Value<int> textSecondary,
+  Value<int> route,
+  Value<int> track,
+  Value<DateTime> createdAt,
+  Value<int> rowid,
+});
+
+class $$CustomThemesTableFilterComposer
+    extends Composer<_$AppDatabase, $CustomThemesTable> {
+  $$CustomThemesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDark => $composableBuilder(
+      column: $table.isDark, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get accent => $composableBuilder(
+      column: $table.accent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get background => $composableBuilder(
+      column: $table.background, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get surface => $composableBuilder(
+      column: $table.surface, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get raised => $composableBuilder(
+      column: $table.raised, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get outline => $composableBuilder(
+      column: $table.outline, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get textPrimary => $composableBuilder(
+      column: $table.textPrimary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get textSecondary => $composableBuilder(
+      column: $table.textSecondary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get route => $composableBuilder(
+      column: $table.route, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get track => $composableBuilder(
+      column: $table.track, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$CustomThemesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CustomThemesTable> {
+  $$CustomThemesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDark => $composableBuilder(
+      column: $table.isDark, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get accent => $composableBuilder(
+      column: $table.accent, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get background => $composableBuilder(
+      column: $table.background, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get surface => $composableBuilder(
+      column: $table.surface, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get raised => $composableBuilder(
+      column: $table.raised, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get outline => $composableBuilder(
+      column: $table.outline, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get textPrimary => $composableBuilder(
+      column: $table.textPrimary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get textSecondary => $composableBuilder(
+      column: $table.textSecondary,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get route => $composableBuilder(
+      column: $table.route, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get track => $composableBuilder(
+      column: $table.track, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$CustomThemesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CustomThemesTable> {
+  $$CustomThemesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDark =>
+      $composableBuilder(column: $table.isDark, builder: (column) => column);
+
+  GeneratedColumn<int> get accent =>
+      $composableBuilder(column: $table.accent, builder: (column) => column);
+
+  GeneratedColumn<int> get background => $composableBuilder(
+      column: $table.background, builder: (column) => column);
+
+  GeneratedColumn<int> get surface =>
+      $composableBuilder(column: $table.surface, builder: (column) => column);
+
+  GeneratedColumn<int> get raised =>
+      $composableBuilder(column: $table.raised, builder: (column) => column);
+
+  GeneratedColumn<int> get outline =>
+      $composableBuilder(column: $table.outline, builder: (column) => column);
+
+  GeneratedColumn<int> get textPrimary => $composableBuilder(
+      column: $table.textPrimary, builder: (column) => column);
+
+  GeneratedColumn<int> get textSecondary => $composableBuilder(
+      column: $table.textSecondary, builder: (column) => column);
+
+  GeneratedColumn<int> get route =>
+      $composableBuilder(column: $table.route, builder: (column) => column);
+
+  GeneratedColumn<int> get track =>
+      $composableBuilder(column: $table.track, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$CustomThemesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $CustomThemesTable,
+    CustomTheme,
+    $$CustomThemesTableFilterComposer,
+    $$CustomThemesTableOrderingComposer,
+    $$CustomThemesTableAnnotationComposer,
+    $$CustomThemesTableCreateCompanionBuilder,
+    $$CustomThemesTableUpdateCompanionBuilder,
+    (
+      CustomTheme,
+      BaseReferences<_$AppDatabase, $CustomThemesTable, CustomTheme>
+    ),
+    CustomTheme,
+    PrefetchHooks Function()> {
+  $$CustomThemesTableTableManager(_$AppDatabase db, $CustomThemesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CustomThemesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CustomThemesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CustomThemesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<bool> isDark = const Value.absent(),
+            Value<int> accent = const Value.absent(),
+            Value<int> background = const Value.absent(),
+            Value<int> surface = const Value.absent(),
+            Value<int> raised = const Value.absent(),
+            Value<int> outline = const Value.absent(),
+            Value<int> textPrimary = const Value.absent(),
+            Value<int> textSecondary = const Value.absent(),
+            Value<int> route = const Value.absent(),
+            Value<int> track = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomThemesCompanion(
+            id: id,
+            name: name,
+            isDark: isDark,
+            accent: accent,
+            background: background,
+            surface: surface,
+            raised: raised,
+            outline: outline,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            route: route,
+            track: track,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String name,
+            required bool isDark,
+            required int accent,
+            required int background,
+            required int surface,
+            required int raised,
+            required int outline,
+            required int textPrimary,
+            required int textSecondary,
+            required int route,
+            required int track,
+            required DateTime createdAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              CustomThemesCompanion.insert(
+            id: id,
+            name: name,
+            isDark: isDark,
+            accent: accent,
+            background: background,
+            surface: surface,
+            raised: raised,
+            outline: outline,
+            textPrimary: textPrimary,
+            textSecondary: textSecondary,
+            route: route,
+            track: track,
+            createdAt: createdAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$CustomThemesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $CustomThemesTable,
+    CustomTheme,
+    $$CustomThemesTableFilterComposer,
+    $$CustomThemesTableOrderingComposer,
+    $$CustomThemesTableAnnotationComposer,
+    $$CustomThemesTableCreateCompanionBuilder,
+    $$CustomThemesTableUpdateCompanionBuilder,
+    (
+      CustomTheme,
+      BaseReferences<_$AppDatabase, $CustomThemesTable, CustomTheme>
+    ),
+    CustomTheme,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9370,4 +10292,6 @@ class $AppDatabaseManager {
       $$FavoriteTrailsTableTableManager(_db, _db.favoriteTrails);
   $$UserWaypointsTableTableManager get userWaypoints =>
       $$UserWaypointsTableTableManager(_db, _db.userWaypoints);
+  $$CustomThemesTableTableManager get customThemes =>
+      $$CustomThemesTableTableManager(_db, _db.customThemes);
 }

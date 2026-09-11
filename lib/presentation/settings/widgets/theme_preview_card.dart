@@ -11,6 +11,7 @@ class ThemePreviewCard extends StatelessWidget {
     required this.spec,
     required this.selected,
     required this.onTap,
+    this.onLongPress,
     this.width = 150,
     super.key,
   });
@@ -18,12 +19,14 @@ class ThemePreviewCard extends StatelessWidget {
   final CairnThemeSpec spec;
   final bool selected;
   final VoidCallback onTap;
+  final VoidCallback? onLongPress;
   final double width;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
+      onLongPress: onLongPress,
       borderRadius: BorderRadius.circular(16),
       child: Container(
         width: width,

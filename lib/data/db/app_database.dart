@@ -224,6 +224,27 @@ class UserWaypoints extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// A user-made theme from the Theme Designer (Fix Pass 1 X4.4). Colors are
+/// stored as ARGB ints. Mirrors CairnThemeSpec's nine editable colors.
+class CustomThemes extends Table {
+  TextColumn get id => text()();
+  TextColumn get name => text()();
+  BoolColumn get isDark => boolean()();
+  IntColumn get accent => integer()();
+  IntColumn get background => integer()();
+  IntColumn get surface => integer()();
+  IntColumn get raised => integer()();
+  IntColumn get outline => integer()();
+  IntColumn get textPrimary => integer()();
+  IntColumn get textSecondary => integer()();
+  IntColumn get route => integer()();
+  IntColumn get track => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(
   tables: [
     OsmWays,
@@ -240,6 +261,7 @@ class UserWaypoints extends Table {
     Tombstones,
     FavoriteTrails,
     UserWaypoints,
+    CustomThemes,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -249,7 +271,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -266,6 +288,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(favoriteTrails);
             await m.createTable(userWaypoints);
+          }
+          // v4: Theme Designer custom themes (Fix Pass 1 X4.4).
+          if (from < 4) {
+            await m.createTable(customThemes);
           }
         },
       );

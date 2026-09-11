@@ -4,8 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/router/app_router.dart';
 import 'core/settings/settings_providers.dart';
-import 'core/theme/theme_providers.dart';
 import 'l10n/app_localizations.dart';
+import 'presentation/theme_providers.dart';
 
 /// Root widget: MaterialApp.router with the selected light and dark themes,
 /// following the system setting by default (spec Section 2), and the

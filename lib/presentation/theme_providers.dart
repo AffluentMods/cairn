@@ -2,14 +2,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../settings/settings_providers.dart';
-import 'cairn_theme.dart';
+import '../core/settings/settings_providers.dart';
+import '../core/theme/cairn_theme.dart';
+import '../data/data_providers.dart';
 
-/// Every theme the pickers can choose from. The built-ins now; the Theme
-/// Designer's custom themes are appended here once they land (Fix Pass 1 X4.4).
-final availableThemesProvider = Provider<List<CairnThemeSpec>>(
-  (ref) => cairnBuiltInThemes,
-);
+/// Every theme the pickers can choose from: the seven built-ins plus any Theme
+/// Designer custom themes (Fix Pass 1 X4.3, X4.4).
+final availableThemesProvider = Provider<List<CairnThemeSpec>>((ref) {
+  final custom = ref.watch(customThemesProvider).valueOrNull ?? const [];
+  return [...cairnBuiltInThemes, ...custom];
+});
 
 CairnThemeSpec _resolve(List<CairnThemeSpec> all, String id, bool dark) {
   for (final t in all) {

@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../core/net/dio_client.dart';
 import '../core/settings/settings_providers.dart';
+import '../core/theme/cairn_theme.dart';
 import '../domain/repositories/conditions_repository.dart';
 import '../domain/repositories/elevation_repository.dart';
 import '../domain/repositories/offline_repository.dart';
@@ -17,6 +18,7 @@ import '../domain/repositories/trail_repository.dart';
 import 'db/app_database.dart';
 import 'gpx/gpx_importer.dart';
 import 'repositories/conditions_repository_impl.dart';
+import 'repositories/custom_theme_repository.dart';
 import 'repositories/elevation_repository_impl.dart';
 import 'repositories/favorites_repository.dart';
 import 'repositories/offline_repository_impl.dart';
@@ -163,4 +165,13 @@ final favoritesRepositoryProvider = Provider<FavoritesRepository>(
 
 final userWaypointsRepositoryProvider = Provider<UserWaypointsRepository>(
   (ref) => UserWaypointsRepository(ref.watch(appDatabaseProvider)),
+);
+
+/// Theme Designer custom themes, stored in Drift (Fix Pass 1 X4.4).
+final customThemeRepositoryProvider = Provider<CustomThemeRepository>(
+  (ref) => CustomThemeRepository(ref.watch(appDatabaseProvider)),
+);
+
+final customThemesProvider = StreamProvider<List<CairnThemeSpec>>(
+  (ref) => ref.watch(customThemeRepositoryProvider).watchAll(),
 );
