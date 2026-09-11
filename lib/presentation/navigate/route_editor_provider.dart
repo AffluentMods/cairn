@@ -102,11 +102,8 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
       state = const RouteEditorState();
       return;
     }
-    state = const RouteEditorState(computing: true);
-    final stats = await computeRouteStats(
-      geometry,
-      ref.read(elevationRepositoryProvider),
-    );
+    // Set the polyline immediately so the route draws and the camera can frame
+    // it right away; the stats fill in after (Fix Pass 1 X2.1).
     state = RouteEditorState(
       waypoints: [
         EditorWaypoint(
@@ -115,9 +112,13 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
             lat: geometry.last[0], lon: geometry.last[1], onTrail: true),
       ],
       polyline: geometry,
-      stats: stats,
-      hasOffTrailLeg: false,
+      computing: true,
     );
+    final stats = await computeRouteStats(
+      geometry,
+      ref.read(elevationRepositoryProvider),
+    );
+    state = state.copyWith(stats: stats, computing: false);
   }
 
   Future<void> recompute() async {

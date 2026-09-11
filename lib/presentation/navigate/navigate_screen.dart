@@ -55,8 +55,31 @@ class NavigateScreen extends ConsumerStatefulWidget {
 class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   Circle? _scrubMarker;
   bool _downloading = false;
+  bool _pendingFit = false;
 
   MapLibreMapController? get _c => ref.read(mapControllerProvider);
+
+  Future<void> _tryFit() async {
+    final c = _c;
+    if (c == null || !mounted) return;
+    final bbox = routeBboxOf(ref.read(routeEditorProvider).polyline);
+    if (bbox == null) return;
+    _pendingFit = false;
+    final media = MediaQuery.of(context);
+    await c.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(bbox[0], bbox[1]),
+          northeast: LatLng(bbox[2], bbox[3]),
+        ),
+        left: 50,
+        right: 50,
+        top: media.padding.top + 60,
+        bottom: media.size.height * 0.44,
+      ),
+      duration: const Duration(milliseconds: 600),
+    );
+  }
 
   Future<void> _syncRoute() async {
     final c = _c;
@@ -112,6 +135,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   Future<void> _onStyleLoaded(MapLibreMapController c) async {
     await _syncRoute();
     await _installUserWaypoints(c);
+    if (_pendingFit) await _tryFit();
   }
 
   Future<void> _installUserWaypoints(MapLibreMapController c) async {
@@ -194,6 +218,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   void _clearRoute() {
     ref.read(routeEditorProvider.notifier).clear();
     ref.read(editModeProvider.notifier).state = false;
+    ref.read(activeRouteNameProvider.notifier).state = null;
     _syncRoute();
   }
 
@@ -509,6 +534,10 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
     ref.listen(userWaypointsProvider, (_, __) => _refreshUserWaypoints());
+    ref.listen(fitRouteProvider, (_, __) {
+      _pendingFit = true;
+      _tryFit();
+    });
 
     return Scaffold(
       body: Stack(
@@ -869,8 +898,10 @@ class _LoadedSheet extends ConsumerWidget {
               children: [
                 Expanded(
                   child: Text(
-                    l10n.tabNavigate,
+                    ref.watch(activeRouteNameProvider) ?? l10n.routeUnnamed,
                     style: Theme.of(context).textTheme.titleMedium,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 IconButton(

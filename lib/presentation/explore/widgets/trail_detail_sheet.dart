@@ -10,6 +10,7 @@ import '../../../data/data_providers.dart';
 import '../../../domain/models/trail.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map_common/map_providers.dart';
+import '../../navigate/navigate_providers.dart';
 import '../../navigate/route_editor_provider.dart';
 import '../../saved/library_providers.dart';
 import '../../shared/stat_tile.dart';
@@ -143,6 +144,9 @@ class _TrailDetailSheet extends ConsumerWidget {
                         ref
                             .read(routeEditorProvider.notifier)
                             .loadPolyline(trail.geometry);
+                        ref.read(activeRouteNameProvider.notifier).state =
+                            trail.name ?? l10n.trailUnnamed;
+                        ref.read(fitRouteProvider.notifier).state++;
                         Navigator.of(context).pop();
                         context.go('/navigate');
                       },

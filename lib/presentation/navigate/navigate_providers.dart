@@ -20,6 +20,15 @@ final userWaypointsProvider = StreamProvider<List<UserWaypoint>>(
   (ref) => ref.watch(userWaypointsRepositoryProvider).watchAll(),
 );
 
+/// Bumped to ask Navigate to frame the current route (Fix Pass 1 X2.1). Every
+/// entry point (Navigate this trail, opening a saved route, GPX import, Done in
+/// Customize) increments it after loading the route.
+final fitRouteProvider = StateProvider<int>((ref) => 0);
+
+/// The active route's display name for the Navigate sheet title (Fix Pass 1
+/// X2.4); null for an untouched or freshly drawn route.
+final activeRouteNameProvider = StateProvider<String?>((ref) => null);
+
 /// The route's bounding box as [minLat, minLon, maxLat, maxLon], or null when
 /// there is no route.
 List<double>? routeBboxOf(List<List<double>> poly) {
