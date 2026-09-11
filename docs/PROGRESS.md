@@ -16,12 +16,30 @@ to confirm. The verification gate used here is:
 - `dart run build_runner build` succeeds
 - `flutter build apk --flavor community --debug` succeeds (full Android compile)
 
-## Status at handoff
+## Status
 
-Phases 0 through 9 are code-complete, plus the multi-device sync you asked for (client and
-an accountless E2E server), both API backends, a security audit, and a design mockup canvas.
-`flutter analyze` is clean, 115 tests pass, both flavors build a debug APK. Everything is
-committed locally on branch `main`; nothing has been pushed to a remote (see Q9).
+Phases 0 through 9 code-complete, plus multi-device sync (client + accountless E2E server),
+both API backends, a security audit, a design mockup canvas, and now (morning session) a
+homelab deploy bundle, RevenueCat store wiring, on-device verification, and a public GitHub
+push. `flutter analyze` clean, 115 tests, both flavors build.
+
+### Morning session (done)
+
+- **Pushed to GitHub, public**: https://github.com/AffluentMods/cairn (branch `main`, CI
+  active). Secret-scanned tree and full history first: nothing sensitive is exposed;
+  .gitignore covers keystores, .env, key.properties, debug-symbols, the seeded design payload.
+- **Device-verified on the Pixel_3a API 36 emulator**: Map renders with hillshade (Rainier,
+  Packwood, US-12), the three styles, controls, and the gold FAB; system light/dark theme
+  switches live; Plan, Record (idle), and Library screens render in the dark hero look; real
+  Overpass and USFS requests fire. Fixed a stat-tile overflow spotted on device. NOT yet
+  exercised on device: live GPS recording, offline basemap download, two-device sync (need
+  real GPS and a deployed server).
+- **Backend deploy bundle**: `C:/Users/discr/StudioProjects/cairn-backend` (Postgres + sync +
+  proxy + Caddy TLS, one `docker compose up -d --build`). See its DEPLOY.md for the exact
+  homelab steps. `docker compose config` validates; the services' own suites pass (27 + 31).
+- **RevenueCat**: F-Droid-clean store wiring (purchases_flutter is not a default dependency;
+  tool/store_prebuild.sh swaps it in for the store build only), a Summit purchase sheet, and
+  docs/REVENUECAT.md with the exact Play Console + RevenueCat + build steps.
 
 ## Questions for you
 
