@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/theme/cairn_colors.dart';
 import '../shell/shell_providers.dart';
 import 'basemaps/basemap_registry.dart';
 import 'camera_provider.dart';
@@ -104,7 +105,7 @@ class _CairnMapState extends ConsumerState<CairnMap> {
   @override
   Widget build(BuildContext context) {
     final active = ref.watch(shellIndexProvider) == widget.tabIndex;
-    if (!active) return const ColoredBox(color: Color(0xFF0E1412));
+    if (!active) return ColoredBox(color: context.cairn.background);
     // A base-map switch reloads the style: show the loading state again.
     ref.listen(basemapProvider, (_, __) {
       setState(() {
