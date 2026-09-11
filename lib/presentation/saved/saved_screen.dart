@@ -174,11 +174,40 @@ class _TrailsTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    // Saved trails (FavoriteTrails) land with Drift schema v2 in a later slice.
-    return EmptyState(
-      icon: Icons.favorite_border,
-      title: l10n.savedTrails,
-      message: l10n.savedEmptyTrails,
+    final fmt = ref.watch(unitFormatterProvider);
+    final saved = ref.watch(savedTrailListProvider);
+    return saved.when(
+      loading: () => const Center(child: CircularProgressIndicator()),
+      error: (_, __) =>
+          EmptyState(icon: Icons.error_outline, title: l10n.savedTrails),
+      data: (items) {
+        if (items.isEmpty) {
+          return EmptyState(
+            icon: Icons.favorite_border,
+            title: l10n.savedTrails,
+            message: l10n.savedEmptyTrails,
+          );
+        }
+        return ListView(
+          children: [
+            for (final t in items)
+              Dismissible(
+                key: ValueKey('fav_${t.trailId}'),
+                direction: DismissDirection.endToStart,
+                background: const _DeleteBg(),
+                onDismissed: (_) =>
+                    ref.read(favoritesRepositoryProvider).remove(t.trailId),
+                child: ListTile(
+                  leading: const Icon(Icons.favorite),
+                  title: Text(t.name),
+                  subtitle: t.lengthM == null
+                      ? null
+                      : Text(fmt.distance(t.lengthM!)),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

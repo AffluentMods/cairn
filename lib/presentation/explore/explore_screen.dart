@@ -7,9 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/l10n/l10n_ext.dart';
-import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
-import '../../domain/models/trail.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
@@ -17,6 +15,8 @@ import '../map_common/map_providers.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
 import '../shell/shell_providers.dart';
+import 'nearby_trails_provider.dart';
+import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
 import 'widgets/trail_search.dart';
 
@@ -36,7 +36,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   bool _refreshing = false;
   bool _pending = false;
   bool _showOfflineBanner = false;
-  List<Trail> _nearby = const [];
 
   MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
@@ -62,12 +61,11 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     _refreshing = true;
     try {
       final layers = ref.read(mapLayersProvider);
-      var trails = const <Trail>[];
 
       if (layers.contains(MapOverlay.trails)) {
         final repo = ref.read(trailRepositoryProvider);
         final result = await repo.ensureArea(viewport.bbox);
-        trails = await repo.trailsInBbox(viewport.bbox);
+        final trails = await repo.trailsInBbox(viewport.bbox);
         await controller.setGeoJsonSource(
           'cairn-trails',
           trailsToGeoJson(trails, zoom: viewport.zoom),
@@ -109,7 +107,6 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         await controller.setGeoJsonSource('cairn-land', emptyFeatureCollection());
       }
 
-      if (mounted) setState(() => _nearby = trails);
     } finally {
       _refreshing = false;
       if (_pending) {
@@ -184,10 +181,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                 onDismiss: () => setState(() => _showOfflineBanner = false),
               ),
             ),
-          _NearbyTrailsSheet(
-            trails: _nearby,
-            onTap: (t) => showTrailDetail(context, t),
-          ),
+          const _NearbyTrailsSheet(),
         ],
       ),
     );
@@ -195,17 +189,14 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 }
 
 class _NearbyTrailsSheet extends ConsumerWidget {
-  const _NearbyTrailsSheet({required this.trails, required this.onTap});
-
-  final List<Trail> trails;
-  final void Function(Trail) onTap;
+  const _NearbyTrailsSheet();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final fmt = ref.read(unitFormatterProvider);
     final scheme = Theme.of(context).colorScheme;
-    final named = trails.where((t) => (t.name ?? '').isNotEmpty).take(50).toList();
+    final trails =
+        ref.watch(nearbyTrailsProvider).valueOrNull ?? const <NearbyTrail>[];
     return DraggableScrollableSheet(
       initialChildSize: 0.18,
       minChildSize: 0.18,
@@ -240,12 +231,12 @@ class _NearbyTrailsSheet extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
-                  Text('${named.length}',
+                  Text('${trails.length}',
                       style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
             ),
-            if (named.isEmpty)
+            if (trails.isEmpty)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
                 child: Text(
@@ -255,16 +246,13 @@ class _NearbyTrailsSheet extends ConsumerWidget {
                       ),
                 ),
               ),
-            for (final t in named)
-              ListTile(
-                leading: const Icon(Icons.route_outlined),
-                title: Text(t.name ?? l10n.trailUnnamed),
-                subtitle: Text(
-                  t.usfsNumber != null
-                      ? l10n.trailUsfsNumber('${t.usfsNumber}')
-                      : l10n.trailSegmentLength(fmt.distance(t.lengthM)),
+            for (final t in trails)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: TrailCard(
+                  trail: t,
+                  onTap: () => showTrailDetail(context, t.trail),
                 ),
-                onTap: () => onTap(t),
               ),
           ],
         ),
