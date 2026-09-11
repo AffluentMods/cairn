@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
@@ -8,6 +9,7 @@ import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../data/data_providers.dart';
 import '../../../domain/models/trail.dart';
+import '../../../domain/usecases/select_route_section.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map_common/map_providers.dart';
 import '../../navigate/navigate_providers.dart';
@@ -141,15 +143,32 @@ class _TrailDetailSheet extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: FilledButton(
-                      onPressed: () {
+                      onPressed: () async {
+                        // Pick a sensible section and orient it to start near
+                        // the user (Fix Pass 1 X2.2).
+                        final vp = ref.read(viewportProvider);
+                        final navigator = Navigator.of(context);
+                        final router = GoRouter.of(context);
+                        Position? last;
+                        try {
+                          last = await Geolocator.getLastKnownPosition();
+                        } on Object {
+                          last = null;
+                        }
+                        final section = selectRouteSection(
+                          trail.geometry,
+                          viewportBbox: vp?.bbox,
+                          userLat: last?.latitude,
+                          userLon: last?.longitude,
+                        );
                         ref
                             .read(routeEditorProvider.notifier)
-                            .loadPolyline(trail.geometry);
+                            .loadPolyline(section);
                         ref.read(activeRouteNameProvider.notifier).state =
                             trail.name ?? l10n.trailUnnamed;
                         ref.read(fitRouteProvider.notifier).state++;
-                        Navigator.of(context).pop();
-                        context.go('/navigate');
+                        navigator.pop();
+                        router.go('/navigate');
                       },
                       child: Text(l10n.trailNavigate),
                     ),
