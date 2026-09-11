@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+import 'package:flutter/material.dart' show ThemeMode;
+
+import '../units/unit_formatter.dart';
+
+/// The three basemap styles (spec Section 8). Outdoors is the default hero.
+enum CairnMapStyle { outdoors, topo, satellite }
+
+/// All user settings, persisted (spec Section 9, Phase 9). Immutable; the
+/// notifier writes each change to SharedPreferences.
+class Settings {
+  const Settings({
+    this.mapStyle = CairnMapStyle.outdoors,
+    this.units = UnitSystem.imperial,
+    this.themeMode = ThemeMode.system,
+    this.bodyWeightKg,
+    this.defaultPackKg,
+    this.showConditions = true,
+  });
+
+  final CairnMapStyle mapStyle;
+  final UnitSystem units;
+  final ThemeMode themeMode;
+  final double? bodyWeightKg;
+  final double? defaultPackKg;
+  final bool showConditions;
+
+  Settings copyWith({
+    CairnMapStyle? mapStyle,
+    UnitSystem? units,
+    ThemeMode? themeMode,
+    double? bodyWeightKg,
+    double? defaultPackKg,
+    bool? showConditions,
+  }) {
+    return Settings(
+      mapStyle: mapStyle ?? this.mapStyle,
+      units: units ?? this.units,
+      themeMode: themeMode ?? this.themeMode,
+      bodyWeightKg: bodyWeightKg ?? this.bodyWeightKg,
+      defaultPackKg: defaultPackKg ?? this.defaultPackKg,
+      showConditions: showConditions ?? this.showConditions,
+    );
+  }
+}

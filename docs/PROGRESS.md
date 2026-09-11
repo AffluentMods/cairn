@@ -23,7 +23,20 @@ file. Nothing below blocked the build; each has a shipped default.
 
 ---
 
-## Phase 0: scaffold  (in progress)
+## Phase 0: scaffold  (DONE, committed a90444f)
+
+Verified: `flutter analyze` clean, `flutter test` 44 passing (geo + units + widget smoke),
+`flutter build apk --flavor community --debug` built (193 MB debug APK), `flutter build apk
+--flavor store --debug --dart-define=CAIRN_STORE=true` built, `tool/check_spdx.sh` passes.
+NEEDS DEVICE: on-device render of the shell, live system-theme switch (both themes compile
+and are wired to ThemeMode.system).
+
+Beyond Phase 0, the pure-Dart geo core (Phases 1/3/7 foundation) is done and unit tested:
+haversine, tile math, terrarium decode + bilinear, Douglas-Peucker, gain/loss hysteresis
+(corrected from the spec's buggy snippet), Naismith/Langmuir time, NOAA solar (verified to
+~30 s against api.sunrise-sunset.org), Meeus moon, and the SI-to-display UnitFormatter.
+
+## Phase 0 detail (as built)
 
 Shipped:
 - `flutter create` Android project, org com.affluentlabs, package cairn.
