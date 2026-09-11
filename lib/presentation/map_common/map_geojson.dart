@@ -12,25 +12,39 @@ Map<String, dynamic> emptyFeatureCollection() => {
       'features': <dynamic>[],
     };
 
+/// The most trail line features we ever hand MapLibre in one update (Fix Pass 1
+/// X1.3.4). Past this the platform-channel transfer and render cost is not worth
+/// the detail at any readable zoom.
+const int maxTrailFeatures = 2000;
+
+/// The simplification bucket for a zoom: the tolerance in meters and whether to
+/// drop unnamed ways. Buckets keep [trailsSignature] and [trailsToGeoJson] in
+/// step, so the signature fully predicts the built geometry.
+({double tolerance, bool namedOnly}) _trailBucket(double zoom) =>
+    switch (zoom) {
+      < 11 => (tolerance: 60.0, namedOnly: true),
+      < 13 => (tolerance: 25.0, namedOnly: false),
+      < 15 => (tolerance: 8.0, namedOnly: false),
+      _ => (tolerance: 0.0, namedOnly: false),
+    };
+
 /// Trails as a GeoJSON FeatureCollection of LineStrings. GeoJSON is [lon, lat];
 /// our geometry is stored [lat, lon], so coordinates are swapped here. Below
-/// [fullGeometryZoom] the lines are simplified to stay under the feature budget.
+/// [fullGeometryZoom] the lines are simplified to stay under the feature budget;
+/// below z11 only named ways render, and the collection is capped at
+/// [maxTrailFeatures] (Fix Pass 1 X1.3.4).
 Map<String, dynamic> trailsToGeoJson(
   List<Trail> trails, {
   double zoom = 14,
   double fullGeometryZoom = 15,
 }) {
-  final simplifyTolerance = switch (zoom) {
-    < 11 => 60.0,
-    < 13 => 25.0,
-    < 15 => 8.0,
-    _ => 0.0,
-  };
+  final bucket = _trailBucket(zoom);
   final features = <Map<String, dynamic>>[];
   for (final t in trails) {
-    final geom = zoom >= fullGeometryZoom || simplifyTolerance == 0
+    if (bucket.namedOnly && (t.name == null || t.name!.isEmpty)) continue;
+    final geom = zoom >= fullGeometryZoom || bucket.tolerance == 0
         ? t.geometry
-        : simplifyDouglasPeucker(t.geometry, simplifyTolerance);
+        : simplifyDouglasPeucker(t.geometry, bucket.tolerance);
     if (geom.length < 2) continue;
     features.add({
       'type': 'Feature',
@@ -46,8 +60,32 @@ Map<String, dynamic> trailsToGeoJson(
         ],
       },
     });
+    if (features.length >= maxTrailFeatures) break;
   }
   return {'type': 'FeatureCollection', 'features': features};
+}
+
+/// A cheap FNV-1a signature of the trail set as it will render at [zoom]: the
+/// simplification bucket plus every trail id. Geometry is immutable per id in
+/// our cache, so the bucket and the id set fully determine [trailsToGeoJson]'s
+/// output. If the signature is unchanged the caller skips rebuilding and
+/// re-sending the source (Fix Pass 1 X1.3.4). This is a light integer fold, so
+/// it stays on the UI isolate.
+int trailsSignature(List<Trail> trails, double zoom) {
+  final bucket = switch (zoom) {
+    < 11 => 0,
+    < 13 => 1,
+    < 15 => 2,
+    _ => 3,
+  };
+  var hash = 0x811c9dc5;
+  hash = (hash ^ bucket) * 0x01000193 & 0xFFFFFFFF;
+  for (final t in trails) {
+    final id = t.id;
+    hash = (hash ^ (id & 0xFFFF)) * 0x01000193 & 0xFFFFFFFF;
+    hash = (hash ^ ((id >> 16) & 0xFFFF)) * 0x01000193 & 0xFFFFFFFF;
+  }
+  return hash;
 }
 
 /// [trailsToGeoJson] on a worker isolate (Fix Pass 1 X1.3.1). Douglas-Peucker
@@ -80,6 +118,18 @@ String iconForKind(String kind) => switch (kind) {
       'trailhead' => 'trailhead',
       _ => 'water',
     };
+
+/// FNV-1a signature of a POI set by id, so an unchanged set is not rebuilt and
+/// re-sent (Fix Pass 1 X1.3.4).
+int poisSignature(List<PoiPoint> pois) {
+  var hash = 0x811c9dc5;
+  for (final p in pois) {
+    final id = p.id.hashCode;
+    hash = (hash ^ (id & 0xFFFF)) * 0x01000193 & 0xFFFFFFFF;
+    hash = (hash ^ ((id >> 16) & 0xFFFF)) * 0x01000193 & 0xFFFFFFFF;
+  }
+  return hash;
+}
 
 Map<String, dynamic> poisToGeoJson(List<PoiPoint> pois) {
   return {

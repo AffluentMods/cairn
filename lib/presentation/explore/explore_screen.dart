@@ -37,11 +37,23 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   bool _pending = false;
   bool _showOfflineBanner = false;
 
+  /// Bumped whenever the viewport or layer set changes. A refresh captures the
+  /// value at its start and abandons its result the moment this moves on, so a
+  /// slow fetch never paints a stale viewport (Fix Pass 1 X1.3.2).
+  int _generation = 0;
+
+  /// Last applied source signatures, so an unchanged set is not rebuilt and
+  /// re-sent over the platform channel (Fix Pass 1 X1.3.4). Null means the
+  /// source is currently cleared.
+  int? _trailsSig;
+  int? _poisSig;
+
   MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
   Future<void> _onStyleLoaded(MapLibreMapController c) => _refreshOverlays();
 
   Future<void> _onCameraIdle(MapLibreMapController c) async {
+    _generation++;
     _scheduleRefresh();
   }
 
@@ -59,43 +71,58 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final viewport = ref.read(viewportProvider);
     if (controller == null || viewport == null) return;
     _refreshing = true;
+    final gen = _generation;
+    // True once the viewport has moved on, so we neither paint a stale frame
+    // nor loop forever: the pending re-run picks up the new viewport.
+    bool stale() => gen != _generation;
     try {
       final layers = ref.read(mapLayersProvider);
 
       if (layers.contains(MapOverlay.trails)) {
         final repo = ref.read(trailRepositoryProvider);
         final result = await repo.ensureArea(viewport.bbox);
+        if (stale()) return;
         final trails = await repo.trailsInBbox(viewport.bbox);
-        await controller.setGeoJsonSource(
-          'cairn-trails',
-          await trailsToGeoJsonAsync(trails, zoom: viewport.zoom),
-        );
+        if (stale()) return;
+        final sig = trailsSignature(trails, viewport.zoom);
+        if (sig != _trailsSig) {
+          final geojson = await trailsToGeoJsonAsync(trails, zoom: viewport.zoom);
+          if (stale()) return;
+          await controller.setGeoJsonSource('cairn-trails', geojson);
+          _trailsSig = sig;
+        }
         // Rebuild the "Trails in view" list now that this area is cached, so a
         // cold load does not stay empty until the next pan (Fix Pass 1 X1.3.3).
         ref.invalidate(nearbyTrailsProvider);
         if (mounted && result.networkError && trails.isEmpty) {
           setState(() => _showOfflineBanner = true);
         }
-      } else {
-        await controller.setGeoJsonSource(
-          'cairn-trails',
-          emptyFeatureCollection(),
-        );
+      } else if (_trailsSig != null) {
+        await controller.setGeoJsonSource('cairn-trails', emptyFeatureCollection());
+        _trailsSig = null;
       }
 
       if (layers.contains(MapOverlay.pois)) {
         final repo = ref.read(poiRepositoryProvider);
         await repo.ensureArea(viewport.bbox);
+        if (stale()) return;
         final pois = await repo.poisInBbox(viewport.bbox);
-        await controller.setGeoJsonSource('cairn-pois', poisToGeoJson(pois));
-      } else {
+        if (stale()) return;
+        final sig = poisSignature(pois);
+        if (sig != _poisSig) {
+          await controller.setGeoJsonSource('cairn-pois', poisToGeoJson(pois));
+          _poisSig = sig;
+        }
+      } else if (_poisSig != null) {
         await controller.setGeoJsonSource('cairn-pois', emptyFeatureCollection());
+        _poisSig = null;
       }
 
       if (layers.contains(MapOverlay.fires)) {
         final fires = await ref
             .read(conditionsRepositoryProvider)
             .firesInBbox(viewport.bbox);
+        if (stale()) return;
         await controller.setGeoJsonSource('cairn-fires', firesToGeoJson(fires));
       } else {
         await controller.setGeoJsonSource('cairn-fires', emptyFeatureCollection());
@@ -105,14 +132,16 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         final land = await ref
             .read(conditionsRepositoryProvider)
             .landInBbox(viewport.bbox);
+        if (stale()) return;
         await controller.setGeoJsonSource('cairn-land', landToGeoJson(land));
       } else {
         await controller.setGeoJsonSource('cairn-land', emptyFeatureCollection());
       }
-
     } finally {
       _refreshing = false;
-      if (_pending) {
+      // Re-run if a newer viewport/layer change arrived while we were working
+      // (either flagged pending, or detected as a generation bump).
+      if (_pending || gen != _generation) {
         _pending = false;
         unawaited(_refreshOverlays());
       }
@@ -148,7 +177,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final locationEnabled = ref.watch(locationEnabledProvider);
     final topInset = MediaQuery.of(context).padding.top;
 
-    ref.listen(mapLayersProvider, (_, __) => _refreshOverlays());
+    ref.listen(mapLayersProvider, (_, __) {
+      _generation++;
+      _refreshOverlays();
+    });
 
     return Scaffold(
       body: Stack(
