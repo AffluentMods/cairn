@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +15,7 @@ import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
+import '../../data/db/app_database.dart';
 import '../../data/gpx/gpx_codec.dart';
 import '../../domain/models/offline_region.dart';
 import '../../domain/models/route_plan.dart';
@@ -32,9 +34,11 @@ import 'directions_launcher.dart';
 import 'navigate_providers.dart';
 import 'recording_provider.dart';
 import 'route_editor_provider.dart';
+import 'user_waypoints_layer.dart';
 import 'widgets/conditions_panel.dart';
 import 'widgets/edit_toolbar.dart';
 import 'widgets/live_stats_grid.dart';
+import 'widgets/waypoint_editor_sheet.dart';
 import 'widgets/waypoint_list.dart';
 
 /// The Navigate tab (Addendum A4.2 to A4.5): the active route on a full-screen
@@ -103,6 +107,81 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     } else {
       await c.updateCircle(_scrubMarker!, options);
     }
+  }
+
+  Future<void> _onStyleLoaded(MapLibreMapController c) async {
+    await _syncRoute();
+    await _installUserWaypoints(c);
+  }
+
+  Future<void> _installUserWaypoints(MapLibreMapController c) async {
+    final wps =
+        ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
+    try {
+      await c.addSource(
+        'cairn-user-waypoints',
+        GeojsonSourceProperties(data: userWaypointsGeoJson(wps)),
+      );
+      await c.addCircleLayer(
+        'cairn-user-waypoints',
+        'user-waypoints-layer',
+        const CircleLayerProperties(
+          circleColor: ['get', 'color'],
+          circleRadius: 7.0,
+          circleStrokeColor: '#0E1412',
+          circleStrokeWidth: 2.0,
+        ),
+      );
+    } catch (_) {
+      // Already installed on this style; just refresh the data.
+      await _refreshUserWaypoints();
+    }
+  }
+
+  Future<void> _refreshUserWaypoints() async {
+    final c = _c;
+    if (c == null) return;
+    final wps =
+        ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
+    try {
+      await c.setGeoJsonSource(
+          'cairn-user-waypoints', userWaypointsGeoJson(wps));
+    } catch (_) {}
+  }
+
+  Future<void> _onLongPress(math.Point<double> point, LatLng latLng) =>
+      showWaypointEditor(context, lat: latLng.latitude, lon: latLng.longitude);
+
+  Future<void> _onMapClickNav(math.Point<double> point, LatLng latLng) async {
+    final c = _c;
+    if (c == null) return;
+    if (ref.read(dropWaypointModeProvider)) {
+      ref.read(dropWaypointModeProvider.notifier).state = false;
+      await showWaypointEditor(context,
+          lat: latLng.latitude, lon: latLng.longitude);
+      return;
+    }
+    try {
+      final features =
+          await c.queryRenderedFeatures(point, ['user-waypoints-layer'], null);
+      if (features.isEmpty) return;
+      final props = (features.first as Map)['properties'];
+      final id = props is Map ? props['id'] as String? : null;
+      if (id == null) return;
+      final wps =
+          ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
+      UserWaypoint? wp;
+      for (final w in wps) {
+        if (w.id == id) {
+          wp = w;
+          break;
+        }
+      }
+      if (wp != null && mounted) {
+        await showWaypointEditor(context,
+            lat: wp.lat, lon: wp.lon, existing: wp);
+      }
+    } catch (_) {}
   }
 
   void _enterEdit() => ref.read(editModeProvider.notifier).state = true;
@@ -422,6 +501,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
+    ref.listen(userWaypointsProvider, (_, __) => _refreshUserWaypoints());
 
     return Scaffold(
       body: Stack(
@@ -429,12 +509,13 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
           CairnMap(
             tabIndex: ShellTab.navigate,
             myLocationEnabled: locationEnabled || recording,
-            onStyleLoaded: (_) => _syncRoute(),
+            onStyleLoaded: _onStyleLoaded,
             onMapClick: editing
                 ? (point, latLng) => ref
                     .read(routeEditorProvider.notifier)
                     .addWaypoint(latLng.latitude, latLng.longitude)
-                : null,
+                : (recording ? null : _onMapClickNav),
+            onMapLongClick: (editing || recording) ? null : _onLongPress,
           ),
 
           // Map controls, hidden while editing (the toolbar takes over).
@@ -456,6 +537,16 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                     icon: Icons.threed_rotation,
                     tooltip: context.l10n.nav3dView,
                     onPressed: () => context.push('/navigate/3d'),
+                  ),
+                  const SizedBox(height: 8),
+                  _RoundButton(
+                    icon: Icons.add_location_alt_outlined,
+                    tooltip: context.l10n.waypointAdd,
+                    active: ref.watch(dropWaypointModeProvider),
+                    onPressed: () => ref
+                            .read(dropWaypointModeProvider.notifier)
+                            .state =
+                        !ref.read(dropWaypointModeProvider),
                   ),
                 ],
               ),
