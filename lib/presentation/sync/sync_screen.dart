@@ -26,6 +26,11 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   bool _loading = true;
   bool _busy = false;
 
+  /// The passphrase is the only thing protecting E2E data if the sync code
+  /// leaks (the server holds the salt and wrapped key), so require some length.
+  static const _minPassphrase = 10;
+  bool get _passphraseOk => _passphrase.text.length >= _minPassphrase;
+
   @override
   void initState() {
     super.initState();
@@ -103,6 +108,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       TextField(
         controller: _passphrase,
         obscureText: true,
+        onChanged: (_) => setState(() {}),
         decoration: InputDecoration(
           labelText: l10n.syncPassphrase,
           helperText: l10n.syncPassphraseHint,
@@ -110,9 +116,17 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       ),
       const SizedBox(height: 12),
       FilledButton(
-        onPressed: _busy ? null : () => _run(_enable),
+        onPressed: _busy || !_passphraseOk ? null : () => _run(_enable),
         child: Text(l10n.syncEnable),
       ),
+      if (_passphrase.text.isNotEmpty && !_passphraseOk)
+        Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(
+            l10n.syncPassphraseTooShort,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+        ),
       const Divider(height: 40),
       Text(l10n.syncJoin, style: Theme.of(context).textTheme.titleSmall),
       const SizedBox(height: 8),
@@ -125,7 +139,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       ),
       const SizedBox(height: 12),
       OutlinedButton(
-        onPressed: _busy ? null : () => _run(_join),
+        onPressed: _busy || !_passphraseOk ? null : () => _run(_join),
         child: Text(l10n.syncJoin),
       ),
       if (_busy) ...[

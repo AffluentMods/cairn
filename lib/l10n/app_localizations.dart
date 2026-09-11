@@ -1198,6 +1198,12 @@ abstract class AppLocalizations {
   /// **'No synced data found for that code.'**
   String get syncNoData;
 
+  /// No description provided for @syncPassphraseTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Use at least 10 characters. The passphrase is the only thing protecting your data if your sync code is exposed.'**
+  String get syncPassphraseTooShort;
+
   /// No description provided for @summitTitle.
   ///
   /// In en, this message translates to:

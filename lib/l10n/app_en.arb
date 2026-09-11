@@ -224,6 +224,7 @@
   "syncCodeCopied": "Sync code copied",
   "syncEnabled": "Sync is on",
   "syncNoData": "No synced data found for that code.",
+  "syncPassphraseTooShort": "Use at least 10 characters. The passphrase is the only thing protecting your data if your sync code is exposed.",
 
   "summitTitle": "Cairn Summit",
   "summitOneTime": "One-time purchase. No subscription.",

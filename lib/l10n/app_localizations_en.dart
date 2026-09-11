@@ -621,6 +621,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncNoData => 'No synced data found for that code.';
 
   @override
+  String get syncPassphraseTooShort =>
+      'Use at least 10 characters. The passphrase is the only thing protecting your data if your sync code is exposed.';
+
+  @override
   String get summitTitle => 'Cairn Summit';
 
   @override
