@@ -13,16 +13,15 @@ import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/gpx/gpx_codec.dart';
 import '../../domain/models/route_plan.dart';
-import '../../domain/models/track.dart';
 import '../shared/empty_state.dart';
 import 'library_providers.dart';
 
 const _maxGpxBytes = 20 * 1024 * 1024;
 
-/// The Library tab: saved routes, recorded tracks, and offline regions (spec
-/// Section 3, Phase 4). Settings is reached from this app bar.
-class LibraryScreen extends ConsumerWidget {
-  const LibraryScreen({super.key});
+/// The Saved tab (Addendum A1): saved routes, saved trails, and offline regions.
+/// The app bar carries Import GPX and Settings.
+class SavedScreen extends ConsumerWidget {
+  const SavedScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -31,7 +30,7 @@ class LibraryScreen extends ConsumerWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text(l10n.tabLibrary),
+          title: Text(l10n.tabSaved),
           actions: [
             IconButton(
               icon: const Icon(Icons.file_upload_outlined),
@@ -41,19 +40,19 @@ class LibraryScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.settings_outlined),
               tooltip: l10n.settingsTitle,
-              onPressed: () => context.push('/library/settings'),
+              onPressed: () => context.push('/saved/settings'),
             ),
           ],
           bottom: TabBar(
             tabs: [
-              Tab(text: l10n.libraryRoutes),
-              Tab(text: l10n.libraryTracks),
-              Tab(text: l10n.libraryOffline),
+              Tab(text: l10n.savedRoutes),
+              Tab(text: l10n.savedTrails),
+              Tab(text: l10n.savedOffline),
             ],
           ),
         ),
         body: const TabBarView(
-          children: [_RoutesTab(), _TracksTab(), _OfflineTab()],
+          children: [_RoutesTab(), _TrailsTab(), _OfflineTab()],
         ),
       ),
     );
@@ -88,9 +87,7 @@ class LibraryScreen extends ConsumerWidget {
       await ref.read(gpxImporterProvider).import(data, fallbackName: file.name);
       bumpLibrary(ref);
       messenger.showSnackBar(
-        SnackBar(
-          content: Text('${data.tracks.length + data.routes.length} imported'),
-        ),
+        SnackBar(content: Text(l10n.gpxImported(data.tracks.length + data.routes.length))),
       );
     } on FormatException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
@@ -115,16 +112,14 @@ class _RoutesTab extends ConsumerWidget {
     final routes = ref.watch(savedRoutesProvider);
     return routes.when(
       loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => EmptyState(
-        icon: Icons.error_outline,
-        title: l10n.libraryEmptyRoutes,
-      ),
+      error: (_, __) =>
+          EmptyState(icon: Icons.error_outline, title: l10n.savedEmptyRoutes),
       data: (items) {
         if (items.isEmpty) {
           return EmptyState(
             icon: Icons.route_outlined,
-            title: l10n.libraryRoutes,
-            message: l10n.libraryEmptyRoutes,
+            title: l10n.savedRoutes,
+            message: l10n.savedEmptyRoutes,
           );
         }
         return ListView(
@@ -138,10 +133,9 @@ class _RoutesTab extends ConsumerWidget {
                 child: ListTile(
                   leading: const Icon(Icons.route_outlined),
                   title: Text(r.name),
-                  subtitle: Text(
-                    _subtitle(ref, r.updatedAt, r.distanceM, r.gainM),
-                  ),
-                  onTap: () => context.push('/library/route/${r.id}'),
+                  subtitle:
+                      Text(_subtitle(ref, r.updatedAt, r.distanceM, r.gainM)),
+                  onTap: () => context.push('/saved/route/${r.id}'),
                 ),
               ),
           ],
@@ -174,72 +168,17 @@ class _RoutesTab extends ConsumerWidget {
   }
 }
 
-class _TracksTab extends ConsumerWidget {
-  const _TracksTab();
+class _TrailsTab extends ConsumerWidget {
+  const _TrailsTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final tracks = ref.watch(savedTracksProvider);
-    return tracks.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
-      error: (_, __) => EmptyState(
-        icon: Icons.error_outline,
-        title: l10n.libraryEmptyTracks,
-      ),
-      data: (items) {
-        if (items.isEmpty) {
-          return EmptyState(
-            icon: Icons.timeline_outlined,
-            title: l10n.libraryTracks,
-            message: l10n.libraryEmptyTracks,
-          );
-        }
-        return ListView(
-          children: [
-            for (final t in items)
-              Dismissible(
-                key: ValueKey('track_${t.id}'),
-                direction: DismissDirection.endToStart,
-                background: const _DeleteBg(),
-                onDismissed: (_) => _deleteTrack(context, ref, t),
-                child: ListTile(
-                  leading: const Icon(Icons.timeline_outlined),
-                  title: Text(t.name),
-                  subtitle: Text(
-                    _subtitle(ref, t.startedAt, t.distanceM, t.gainM),
-                  ),
-                  onTap: () => context.push('/library/track/${t.id}'),
-                ),
-              ),
-          ],
-        );
-      },
-    );
-  }
-
-  Future<void> _deleteTrack(
-    BuildContext context,
-    WidgetRef ref,
-    TrackSummary track,
-  ) async {
-    final l10n = context.l10n;
-    final messenger = ScaffoldMessenger.of(context);
-    final repo = ref.read(trackRepositoryProvider);
-    final points = await repo.pointsFor(track.id); // capture for undo
-    await repo.deleteTrack(track.id);
-    bumpLibrary(ref);
-    messenger.showSnackBar(
-      SnackBar(
-        content: Text(l10n.libraryDeleted),
-        action: SnackBarAction(
-          label: l10n.libraryUndo,
-          onPressed: () async {
-            await repo.saveTrack(track, points);
-            bumpLibrary(ref);
-          },
-        ),
-      ),
+    // Saved trails (FavoriteTrails) land with Drift schema v2 in a later slice.
+    return EmptyState(
+      icon: Icons.favorite_border,
+      title: l10n.savedTrails,
+      message: l10n.savedEmptyTrails,
     );
   }
 }
@@ -252,10 +191,10 @@ class _OfflineTab extends ConsumerWidget {
     final l10n = context.l10n;
     return EmptyState(
       icon: Icons.download_for_offline_outlined,
-      title: l10n.libraryOffline,
+      title: l10n.savedOffline,
       message: l10n.libraryEmptyOffline,
       action: FilledButton(
-        onPressed: () => context.push('/library/offline'),
+        onPressed: () => context.push('/saved/offline'),
         child: Text(l10n.offlineNew),
       ),
     );

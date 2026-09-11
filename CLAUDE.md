@@ -1,6 +1,7 @@
 # Cairn: rules for Claude Code
 
 - Read docs/cairn-build-spec.md first. Work phases in order. Update docs/PROGRESS.md after each phase.
+- Read docs/cairn-spec-addendum-a-navigation.md after the main spec. Where they conflict, the addendum wins.
 - This repo is public and GPL-3.0-or-later. SPDX header on every Dart file. Never commit keystores, debug-symbols/, .env, or keys.
 - Two flavors: community (default, fully unlocked, no Google libraries) and store (Summit gate via --dart-define=CAIRN_STORE=true). Work in community. Touch store only in Phase 9.
 - Flutter + Dart. Riverpod (generated). Drift. maplibre_gl. go_router. Dio.

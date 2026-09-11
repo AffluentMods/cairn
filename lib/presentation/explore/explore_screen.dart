@@ -9,51 +9,40 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
-import 'map_geojson.dart';
-import 'map_layers_provider.dart';
-import 'map_providers.dart';
-import 'map_style.dart';
-import 'poi_icons.dart';
-import 'widgets/layer_switcher_sheet.dart';
-import 'widgets/location_fab.dart';
+import '../../domain/models/trail.dart';
+import '../map_common/cairn_map.dart';
+import '../map_common/map_geojson.dart';
+import '../map_common/map_layers_provider.dart';
+import '../map_common/map_providers.dart';
+import '../map_common/widgets/layer_sheet.dart';
+import '../map_common/widgets/location_fab.dart';
+import '../shell/shell_providers.dart';
 import 'widgets/trail_detail_sheet.dart';
 import 'widgets/trail_search.dart';
 
-/// The Map tab: a full-screen MapLibre map with switchable styles, hillshade,
-/// the user location puck, compass, the layer switcher, and OSM trails and POIs
-/// loaded per viewport and cached (spec Phases 1 and 2).
-class MapScreen extends ConsumerStatefulWidget {
-  const MapScreen({super.key});
+/// The Explore tab (Addendum A4.1): a full-screen map with switchable base maps,
+/// OSM trails and POIs loaded per viewport, search, and a "Trails in view" sheet
+/// listing the named trails currently on screen. Tapping a trail opens its
+/// detail sheet.
+class ExploreScreen extends ConsumerStatefulWidget {
+  const ExploreScreen({super.key});
 
   @override
-  ConsumerState<MapScreen> createState() => _MapScreenState();
+  ConsumerState<ExploreScreen> createState() => _ExploreScreenState();
 }
 
-class _MapScreenState extends ConsumerState<MapScreen> {
-  MapLibreMapController? _controller;
+class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   Timer? _debounce;
   bool _refreshing = false;
   bool _pending = false;
   bool _showOfflineBanner = false;
+  List<Trail> _nearby = const [];
 
-  void _onMapCreated(MapLibreMapController controller) {
-    _controller = controller;
-    ref.read(mapControllerProvider.notifier).state = controller;
-  }
+  MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
-  Future<void> _onStyleLoaded() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await addCairnIcons(controller);
-    await ref.read(viewportProvider.notifier).updateFrom(controller);
-    await _refreshOverlays();
-  }
+  Future<void> _onStyleLoaded(MapLibreMapController c) => _refreshOverlays();
 
-  Future<void> _onCameraIdle() async {
-    final controller = _controller;
-    if (controller == null) return;
-    await ref.read(viewportProvider.notifier).updateFrom(controller);
-    await persistCamera(ref.read(sharedPreferencesProvider), controller);
+  Future<void> _onCameraIdle(MapLibreMapController c) async {
     _scheduleRefresh();
   }
 
@@ -73,11 +62,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _refreshing = true;
     try {
       final layers = ref.read(mapLayersProvider);
+      var trails = const <Trail>[];
 
       if (layers.contains(MapOverlay.trails)) {
         final repo = ref.read(trailRepositoryProvider);
         final result = await repo.ensureArea(viewport.bbox);
-        final trails = await repo.trailsInBbox(viewport.bbox);
+        trails = await repo.trailsInBbox(viewport.bbox);
         await controller.setGeoJsonSource(
           'cairn-trails',
           trailsToGeoJson(trails, zoom: viewport.zoom),
@@ -98,10 +88,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         final pois = await repo.poisInBbox(viewport.bbox);
         await controller.setGeoJsonSource('cairn-pois', poisToGeoJson(pois));
       } else {
-        await controller.setGeoJsonSource(
-          'cairn-pois',
-          emptyFeatureCollection(),
-        );
+        await controller.setGeoJsonSource('cairn-pois', emptyFeatureCollection());
       }
 
       if (layers.contains(MapOverlay.fires)) {
@@ -110,10 +97,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             .firesInBbox(viewport.bbox);
         await controller.setGeoJsonSource('cairn-fires', firesToGeoJson(fires));
       } else {
-        await controller.setGeoJsonSource(
-          'cairn-fires',
-          emptyFeatureCollection(),
-        );
+        await controller.setGeoJsonSource('cairn-fires', emptyFeatureCollection());
       }
 
       if (layers.contains(MapOverlay.land)) {
@@ -122,11 +106,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             .landInBbox(viewport.bbox);
         await controller.setGeoJsonSource('cairn-land', landToGeoJson(land));
       } else {
-        await controller.setGeoJsonSource(
-          'cairn-land',
-          emptyFeatureCollection(),
-        );
+        await controller.setGeoJsonSource('cairn-land', emptyFeatureCollection());
       }
+
+      if (mounted) setState(() => _nearby = trails);
     } finally {
       _refreshing = false;
       if (_pending) {
@@ -146,12 +129,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       final props = (features.first as Map)['properties'];
       final id = (props is Map) ? props['id'] : null;
       if (id == null) return;
-      final trail = await ref.read(trailRepositoryProvider).byId(
-            (id as num).toInt(),
-          );
-      if (trail != null && mounted) {
-        await showTrailDetail(context, trail);
-      }
+      final trail =
+          await ref.read(trailRepositoryProvider).byId((id as num).toInt());
+      if (trail != null && mounted) await showTrailDetail(context, trail);
     } catch (_) {
       // A tap that hits nothing is not an error.
     }
@@ -165,53 +145,36 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final style = ref.watch(settingsProvider.select((s) => s.mapStyle));
     final locationEnabled = ref.watch(locationEnabledProvider);
-    final prefs = ref.read(sharedPreferencesProvider);
     final topInset = MediaQuery.of(context).padding.top;
 
-    // Re-render overlays when the enabled layer set changes.
     ref.listen(mapLayersProvider, (_, __) => _refreshOverlays());
 
     return Scaffold(
       body: Stack(
         children: [
-          MapLibreMap(
-            styleString: style.assetPath,
-            initialCameraPosition: initialCamera(prefs),
+          CairnMap(
+            tabIndex: ShellTab.explore,
             myLocationEnabled: locationEnabled,
-            myLocationRenderMode: locationEnabled
-                ? MyLocationRenderMode.compass
-                : MyLocationRenderMode.normal,
-            compassEnabled: true,
-            trackCameraPosition: true,
-            onMapCreated: _onMapCreated,
-            onStyleLoadedCallback: _onStyleLoaded,
+            onStyleLoaded: _onStyleLoaded,
             onCameraIdle: _onCameraIdle,
             onMapClick: _onMapClick,
-            attributionButtonPosition: AttributionButtonPosition.bottomLeft,
           ),
           Positioned(
             top: topInset + 8,
             left: 12,
             child: Material(
-              color: Theme.of(
-                context,
-              ).colorScheme.surface.withValues(alpha: 0.92),
+              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
               shape: const CircleBorder(),
               child: IconButton(
                 icon: const Icon(Icons.search),
-                tooltip: MaterialLocalizations.of(context).searchFieldLabel,
+                tooltip: context.l10n.exploreSearchHint,
                 onPressed: () => showTrailSearch(context),
               ),
             ),
           ),
-          Positioned(
-            top: topInset + 8,
-            right: 12,
-            child: const LayerSwitcherButton(),
-          ),
-          const Positioned(right: 16, bottom: 24, child: LocationFab()),
+          Positioned(top: topInset + 8, right: 12, child: const LayerSwitcherButton()),
+          const Positioned(right: 16, bottom: 200, child: LocationFab()),
           if (_showOfflineBanner)
             Positioned(
               top: topInset + 60,
@@ -221,7 +184,90 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 onDismiss: () => setState(() => _showOfflineBanner = false),
               ),
             ),
+          _NearbyTrailsSheet(
+            trails: _nearby,
+            onTap: (t) => showTrailDetail(context, t),
+          ),
         ],
+      ),
+    );
+  }
+}
+
+class _NearbyTrailsSheet extends ConsumerWidget {
+  const _NearbyTrailsSheet({required this.trails, required this.onTap});
+
+  final List<Trail> trails;
+  final void Function(Trail) onTap;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final fmt = ref.read(unitFormatterProvider);
+    final scheme = Theme.of(context).colorScheme;
+    final named = trails.where((t) => (t.name ?? '').isNotEmpty).take(50).toList();
+    return DraggableScrollableSheet(
+      initialChildSize: 0.18,
+      minChildSize: 0.18,
+      maxChildSize: 0.85,
+      snap: true,
+      snapSizes: const [0.18, 0.5, 0.85],
+      builder: (context, scroll) => Material(
+        color: scheme.surface,
+        elevation: 8,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        child: ListView(
+          controller: scroll,
+          padding: EdgeInsets.zero,
+          children: [
+            const SizedBox(height: 8),
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+              child: Row(
+                children: [
+                  Text(
+                    l10n.exploreTrailsInView,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  const Spacer(),
+                  Text('${named.length}',
+                      style: Theme.of(context).textTheme.titleMedium),
+                ],
+              ),
+            ),
+            if (named.isEmpty)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                child: Text(
+                  l10n.exploreEmpty,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                      ),
+                ),
+              ),
+            for (final t in named)
+              ListTile(
+                leading: const Icon(Icons.route_outlined),
+                title: Text(t.name ?? l10n.trailUnnamed),
+                subtitle: Text(
+                  t.usfsNumber != null
+                      ? l10n.trailUsfsNumber('${t.usfsNumber}')
+                      : l10n.trailSegmentLength(fmt.distance(t.lengthM)),
+                ),
+                onTap: () => onTap(t),
+              ),
+          ],
+        ),
       ),
     );
   }

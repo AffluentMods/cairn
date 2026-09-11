@@ -73,6 +73,9 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
    missing). Small follow-ups.
 10. **Design canvas.** A mockup of the five hero screens is published (link in the chat). It
    is my read of the spec's design system; tell me what to adjust and I will update it.
+11. **Is follow-route mode free?** (Phase R / Addendum A9). Navigate's Start uses follow mode,
+   which Section 12.4 gates behind Summit. Built ungated for now; the gate is not implemented
+   until you answer. Needed before Phase 9.
 
 ---
 

@@ -16,7 +16,7 @@ import '../../data/data_providers.dart';
 import '../../domain/models/track.dart';
 import '../../domain/usecases/recording_accumulator.dart';
 import '../../domain/usecases/trip_calories.dart';
-import '../library/library_providers.dart' show libraryRefreshProvider;
+import '../saved/library_providers.dart' show libraryRefreshProvider;
 import 'recording_service.dart';
 
 enum RecordingStatus { idle, recording, paused }

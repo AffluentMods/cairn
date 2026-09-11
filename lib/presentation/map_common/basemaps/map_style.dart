@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-import '../../core/settings/settings.dart';
+import '../../../core/settings/settings.dart';
 
 /// Presentation mapping from a [CairnMapStyle] to its bundled style asset and
 /// the attribution lines to show for it. Label text is resolved from l10n at

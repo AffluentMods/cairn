@@ -12,10 +12,10 @@ import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/gpx/gpx_codec.dart';
 import '../../domain/usecases/compute_route_stats.dart';
-import '../map/map_geojson.dart';
-import '../map/map_providers.dart';
-import '../map/map_style.dart';
-import '../plan/widgets/elevation_profile.dart';
+import '../map_common/basemaps/map_style.dart';
+import '../map_common/map_geojson.dart';
+import '../map_common/map_providers.dart';
+import '../map_common/widgets/elevation_profile.dart';
 import '../shared/empty_state.dart';
 import '../shared/stat_tile.dart';
 

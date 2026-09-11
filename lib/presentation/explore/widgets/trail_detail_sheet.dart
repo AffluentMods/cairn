@@ -8,8 +8,8 @@ import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../domain/models/trail.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../map_common/map_providers.dart';
 import '../../shared/stat_tile.dart';
-import '../map_providers.dart';
 
 Future<void> showTrailDetail(BuildContext context, Trail trail) {
   return showModalBottomSheet<void>(
@@ -126,7 +126,7 @@ class _TrailDetailSheet extends ConsumerWidget {
                     child: FilledButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        context.go('/plan');
+                        context.go('/navigate');
                       },
                       child: Text(l10n.trailPlanFromHere),
                     ),

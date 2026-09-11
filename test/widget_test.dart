@@ -21,9 +21,9 @@ void main() {
     await tester.pump(const Duration(milliseconds: 200));
 
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Map'), findsWidgets);
-    expect(find.text('Plan'), findsOneWidget);
-    expect(find.text('Record'), findsOneWidget);
-    expect(find.text('Library'), findsOneWidget);
+    expect(find.text('Explore'), findsWidgets);
+    expect(find.text('Navigate'), findsWidgets);
+    expect(find.text('Saved'), findsWidgets);
+    expect(find.text('Activity'), findsWidgets);
   });
 }

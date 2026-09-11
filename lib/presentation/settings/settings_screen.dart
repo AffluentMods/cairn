@@ -100,7 +100,7 @@ class SettingsScreen extends ConsumerWidget {
             leading: const Icon(Icons.sync),
             title: Text(l10n.settingsSync),
             subtitle: Text(l10n.settingsSyncOff),
-            onTap: () => context.push('/library/sync'),
+            onTap: () => context.push('/saved/sync'),
           ),
           ListTile(
             leading: const Icon(Icons.dns_outlined),

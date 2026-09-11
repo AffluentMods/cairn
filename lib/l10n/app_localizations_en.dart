@@ -691,4 +691,256 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get genericSkip => 'Skip';
+
+  @override
+  String get tabExplore => 'Explore';
+
+  @override
+  String get tabNavigate => 'Navigate';
+
+  @override
+  String get tabSaved => 'Saved';
+
+  @override
+  String get tabActivity => 'Activity';
+
+  @override
+  String get exploreSearchHint => 'Search trails and places';
+
+  @override
+  String get exploreTrailsInView => 'Trails in view';
+
+  @override
+  String get exploreSectionInView => 'Section in view';
+
+  @override
+  String exploreDistanceAway(String distance) {
+    return '$distance away';
+  }
+
+  @override
+  String get exploreEmpty =>
+      'No trails in this area yet. Zoom in or pan to load them.';
+
+  @override
+  String get trailNavigate => 'Navigate this trail';
+
+  @override
+  String get trailSave => 'Save trail';
+
+  @override
+  String get trailUnsave => 'Remove from saved';
+
+  @override
+  String get navEmptyTitle => 'No route loaded';
+
+  @override
+  String get navEmptyBody => 'Pick a trail in Explore, or draw your own.';
+
+  @override
+  String get navCustomizeRoute => 'Customize route';
+
+  @override
+  String get navDirections => 'Directions';
+
+  @override
+  String get navDirectionsFailed => 'No app could open directions.';
+
+  @override
+  String get navDownload => 'Download';
+
+  @override
+  String get navDownloaded => 'Downloaded';
+
+  @override
+  String get navStart => 'Start';
+
+  @override
+  String get navDone => 'Done';
+
+  @override
+  String get navClear => 'Clear';
+
+  @override
+  String get navDiscardChanges => 'Discard changes to this route?';
+
+  @override
+  String get nav3dView => '3D view';
+
+  @override
+  String get nav3dNeedsConnection =>
+      '3D view needs a connection. The flat map works offline.';
+
+  @override
+  String get navClose => 'Close';
+
+  @override
+  String get layersMapType => 'Map type';
+
+  @override
+  String get layersOverlays => 'Overlays';
+
+  @override
+  String get layersHillshade => 'Hillshade';
+
+  @override
+  String get layersTilt => 'Tilt';
+
+  @override
+  String get styleTerrain => 'Terrain';
+
+  @override
+  String get styleRoad => 'Road';
+
+  @override
+  String get styleIgnPlan => 'IGN Plan';
+
+  @override
+  String get coverageUsOnly => 'US only';
+
+  @override
+  String get coverageFranceOnly => 'France only';
+
+  @override
+  String get overlayRadar => 'Precipitation radar';
+
+  @override
+  String get overlayRadarSubtitle => 'Radar now, updates every 5 min';
+
+  @override
+  String get overlayTemperature => 'Temperature forecast';
+
+  @override
+  String get overlayTemperatureSubtitle => 'NWS forecast';
+
+  @override
+  String get overlaySnowDepth => 'Snow depth';
+
+  @override
+  String get overlaySnowDepthSubtitle => 'Modeled, updated several times a day';
+
+  @override
+  String get overlaySlope => 'Slope angle';
+
+  @override
+  String get overlaySlopeSubtitle => 'From USGS elevation data';
+
+  @override
+  String get overlayLidarHillshade => 'Lidar hillshade';
+
+  @override
+  String get overlayLidarHillshadeSubtitle =>
+      'USGS 3DEP, best available resolution';
+
+  @override
+  String get overlayGpsTraces => 'OSM GPS traces';
+
+  @override
+  String get overlayGpsTracesSubtitle =>
+      'Public traces uploaded to OpenStreetMap';
+
+  @override
+  String get overlayNeedsConnection => 'Needs a connection';
+
+  @override
+  String get slopeDisclaimer =>
+      'Slope from USGS elevation data. Not an avalanche forecast.';
+
+  @override
+  String get recentWeatherTitle => 'Recent weather';
+
+  @override
+  String recentWeatherBody(String rain, String snow, String temp) {
+    return 'Last 3 days: $rain rain, $snow snow, low $temp';
+  }
+
+  @override
+  String get recentWeatherNotReport =>
+      'Weather at the trailhead, not a trail report.';
+
+  @override
+  String get waypointAdd => 'Add waypoint';
+
+  @override
+  String get waypointEdit => 'Edit waypoint';
+
+  @override
+  String get waypointKindWater => 'Water';
+
+  @override
+  String get waypointKindCamp => 'Camp';
+
+  @override
+  String get waypointKindHazard => 'Hazard';
+
+  @override
+  String get waypointKindViewpoint => 'Viewpoint';
+
+  @override
+  String get waypointKindParking => 'Parking';
+
+  @override
+  String get waypointKindNote => 'Note';
+
+  @override
+  String get waypointNameHint => 'Name';
+
+  @override
+  String get waypointNoteHint => 'Note';
+
+  @override
+  String get waypointAttachToRoute => 'Attach to this route';
+
+  @override
+  String get waypointDelete => 'Delete waypoint';
+
+  @override
+  String get routeDeletePinsToo => 'Also delete pins on this route';
+
+  @override
+  String get savedRoutes => 'Routes';
+
+  @override
+  String get savedTrails => 'Trails';
+
+  @override
+  String get savedOffline => 'Offline';
+
+  @override
+  String get savedEmptyRoutes => 'No saved routes. Draw one in Navigate.';
+
+  @override
+  String get savedEmptyTrails =>
+      'No saved trails. Tap the heart on a trail to keep it here.';
+
+  @override
+  String get activityEmpty => 'No recordings yet.';
+
+  @override
+  String get activityThisMonth => 'This month';
+
+  @override
+  String activityTotals(String distance, String gain, int count) {
+    return '$distance · $gain · $count hikes';
+  }
+
+  @override
+  String gpxImported(int count) {
+    return '$count imported';
+  }
+
+  @override
+  String get statEmpty => '--';
+
+  @override
+  String get attributionIgn => '© IGN';
+
+  @override
+  String get attributionNoaa => 'Weather maps: NOAA National Weather Service';
+
+  @override
+  String get attributionUsgs3dep => 'Elevation: USGS 3DEP';
+
+  @override
+  String get attributionOsmGps => 'GPS traces © OpenStreetMap contributors';
 }

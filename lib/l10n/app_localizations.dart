@@ -1335,6 +1335,480 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Skip'**
   String get genericSkip;
+
+  /// No description provided for @tabExplore.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get tabExplore;
+
+  /// No description provided for @tabNavigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate'**
+  String get tabNavigate;
+
+  /// No description provided for @tabSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get tabSaved;
+
+  /// No description provided for @tabActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get tabActivity;
+
+  /// No description provided for @exploreSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search trails and places'**
+  String get exploreSearchHint;
+
+  /// No description provided for @exploreTrailsInView.
+  ///
+  /// In en, this message translates to:
+  /// **'Trails in view'**
+  String get exploreTrailsInView;
+
+  /// No description provided for @exploreSectionInView.
+  ///
+  /// In en, this message translates to:
+  /// **'Section in view'**
+  String get exploreSectionInView;
+
+  /// No description provided for @exploreDistanceAway.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} away'**
+  String exploreDistanceAway(String distance);
+
+  /// No description provided for @exploreEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No trails in this area yet. Zoom in or pan to load them.'**
+  String get exploreEmpty;
+
+  /// No description provided for @trailNavigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate this trail'**
+  String get trailNavigate;
+
+  /// No description provided for @trailSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save trail'**
+  String get trailSave;
+
+  /// No description provided for @trailUnsave.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from saved'**
+  String get trailUnsave;
+
+  /// No description provided for @navEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No route loaded'**
+  String get navEmptyTitle;
+
+  /// No description provided for @navEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a trail in Explore, or draw your own.'**
+  String get navEmptyBody;
+
+  /// No description provided for @navCustomizeRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize route'**
+  String get navCustomizeRoute;
+
+  /// No description provided for @navDirections.
+  ///
+  /// In en, this message translates to:
+  /// **'Directions'**
+  String get navDirections;
+
+  /// No description provided for @navDirectionsFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'No app could open directions.'**
+  String get navDirectionsFailed;
+
+  /// No description provided for @navDownload.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get navDownload;
+
+  /// No description provided for @navDownloaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded'**
+  String get navDownloaded;
+
+  /// No description provided for @navStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get navStart;
+
+  /// No description provided for @navDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get navDone;
+
+  /// No description provided for @navClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get navClear;
+
+  /// No description provided for @navDiscardChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes to this route?'**
+  String get navDiscardChanges;
+
+  /// No description provided for @nav3dView.
+  ///
+  /// In en, this message translates to:
+  /// **'3D view'**
+  String get nav3dView;
+
+  /// No description provided for @nav3dNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'3D view needs a connection. The flat map works offline.'**
+  String get nav3dNeedsConnection;
+
+  /// No description provided for @navClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get navClose;
+
+  /// No description provided for @layersMapType.
+  ///
+  /// In en, this message translates to:
+  /// **'Map type'**
+  String get layersMapType;
+
+  /// No description provided for @layersOverlays.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlays'**
+  String get layersOverlays;
+
+  /// No description provided for @layersHillshade.
+  ///
+  /// In en, this message translates to:
+  /// **'Hillshade'**
+  String get layersHillshade;
+
+  /// No description provided for @layersTilt.
+  ///
+  /// In en, this message translates to:
+  /// **'Tilt'**
+  String get layersTilt;
+
+  /// No description provided for @styleTerrain.
+  ///
+  /// In en, this message translates to:
+  /// **'Terrain'**
+  String get styleTerrain;
+
+  /// No description provided for @styleRoad.
+  ///
+  /// In en, this message translates to:
+  /// **'Road'**
+  String get styleRoad;
+
+  /// No description provided for @styleIgnPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'IGN Plan'**
+  String get styleIgnPlan;
+
+  /// No description provided for @coverageUsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'US only'**
+  String get coverageUsOnly;
+
+  /// No description provided for @coverageFranceOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'France only'**
+  String get coverageFranceOnly;
+
+  /// No description provided for @overlayRadar.
+  ///
+  /// In en, this message translates to:
+  /// **'Precipitation radar'**
+  String get overlayRadar;
+
+  /// No description provided for @overlayRadarSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Radar now, updates every 5 min'**
+  String get overlayRadarSubtitle;
+
+  /// No description provided for @overlayTemperature.
+  ///
+  /// In en, this message translates to:
+  /// **'Temperature forecast'**
+  String get overlayTemperature;
+
+  /// No description provided for @overlayTemperatureSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'NWS forecast'**
+  String get overlayTemperatureSubtitle;
+
+  /// No description provided for @overlaySnowDepth.
+  ///
+  /// In en, this message translates to:
+  /// **'Snow depth'**
+  String get overlaySnowDepth;
+
+  /// No description provided for @overlaySnowDepthSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Modeled, updated several times a day'**
+  String get overlaySnowDepthSubtitle;
+
+  /// No description provided for @overlaySlope.
+  ///
+  /// In en, this message translates to:
+  /// **'Slope angle'**
+  String get overlaySlope;
+
+  /// No description provided for @overlaySlopeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'From USGS elevation data'**
+  String get overlaySlopeSubtitle;
+
+  /// No description provided for @overlayLidarHillshade.
+  ///
+  /// In en, this message translates to:
+  /// **'Lidar hillshade'**
+  String get overlayLidarHillshade;
+
+  /// No description provided for @overlayLidarHillshadeSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'USGS 3DEP, best available resolution'**
+  String get overlayLidarHillshadeSubtitle;
+
+  /// No description provided for @overlayGpsTraces.
+  ///
+  /// In en, this message translates to:
+  /// **'OSM GPS traces'**
+  String get overlayGpsTraces;
+
+  /// No description provided for @overlayGpsTracesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Public traces uploaded to OpenStreetMap'**
+  String get overlayGpsTracesSubtitle;
+
+  /// No description provided for @overlayNeedsConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'Needs a connection'**
+  String get overlayNeedsConnection;
+
+  /// No description provided for @slopeDisclaimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Slope from USGS elevation data. Not an avalanche forecast.'**
+  String get slopeDisclaimer;
+
+  /// No description provided for @recentWeatherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent weather'**
+  String get recentWeatherTitle;
+
+  /// No description provided for @recentWeatherBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 days: {rain} rain, {snow} snow, low {temp}'**
+  String recentWeatherBody(String rain, String snow, String temp);
+
+  /// No description provided for @recentWeatherNotReport.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather at the trailhead, not a trail report.'**
+  String get recentWeatherNotReport;
+
+  /// No description provided for @waypointAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add waypoint'**
+  String get waypointAdd;
+
+  /// No description provided for @waypointEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit waypoint'**
+  String get waypointEdit;
+
+  /// No description provided for @waypointKindWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get waypointKindWater;
+
+  /// No description provided for @waypointKindCamp.
+  ///
+  /// In en, this message translates to:
+  /// **'Camp'**
+  String get waypointKindCamp;
+
+  /// No description provided for @waypointKindHazard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hazard'**
+  String get waypointKindHazard;
+
+  /// No description provided for @waypointKindViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewpoint'**
+  String get waypointKindViewpoint;
+
+  /// No description provided for @waypointKindParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get waypointKindParking;
+
+  /// No description provided for @waypointKindNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get waypointKindNote;
+
+  /// No description provided for @waypointNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get waypointNameHint;
+
+  /// No description provided for @waypointNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get waypointNoteHint;
+
+  /// No description provided for @waypointAttachToRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Attach to this route'**
+  String get waypointAttachToRoute;
+
+  /// No description provided for @waypointDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete waypoint'**
+  String get waypointDelete;
+
+  /// No description provided for @routeDeletePinsToo.
+  ///
+  /// In en, this message translates to:
+  /// **'Also delete pins on this route'**
+  String get routeDeletePinsToo;
+
+  /// No description provided for @savedRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'Routes'**
+  String get savedRoutes;
+
+  /// No description provided for @savedTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'Trails'**
+  String get savedTrails;
+
+  /// No description provided for @savedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get savedOffline;
+
+  /// No description provided for @savedEmptyRoutes.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved routes. Draw one in Navigate.'**
+  String get savedEmptyRoutes;
+
+  /// No description provided for @savedEmptyTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved trails. Tap the heart on a trail to keep it here.'**
+  String get savedEmptyTrails;
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No recordings yet.'**
+  String get activityEmpty;
+
+  /// No description provided for @activityThisMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month'**
+  String get activityThisMonth;
+
+  /// No description provided for @activityTotals.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} · {gain} · {count} hikes'**
+  String activityTotals(String distance, String gain, int count);
+
+  /// No description provided for @gpxImported.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} imported'**
+  String gpxImported(int count);
+
+  /// No description provided for @statEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'--'**
+  String get statEmpty;
+
+  /// No description provided for @attributionIgn.
+  ///
+  /// In en, this message translates to:
+  /// **'© IGN'**
+  String get attributionIgn;
+
+  /// No description provided for @attributionNoaa.
+  ///
+  /// In en, this message translates to:
+  /// **'Weather maps: NOAA National Weather Service'**
+  String get attributionNoaa;
+
+  /// No description provided for @attributionUsgs3dep.
+  ///
+  /// In en, this message translates to:
+  /// **'Elevation: USGS 3DEP'**
+  String get attributionUsgs3dep;
+
+  /// No description provided for @attributionOsmGps.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS traces © OpenStreetMap contributors'**
+  String get attributionOsmGps;
 }
 
 class _AppLocalizationsDelegate

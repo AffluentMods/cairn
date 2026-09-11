@@ -46,3 +46,36 @@ option that ships fastest and record it here.
   tombstone plus newest-wins merge follow ZestSSH exactly. Sync is optional and off by
   default; the app is fully functional offline without it. AGPL-3.0-or-later, same as the
   proxy.
+
+## Phase R (navigation redesign, Addendum A)
+
+- **No community or user-generated content (reviews, photos, star ratings), now or in Phase R.**
+  Reason: the user chose this after weighing it. It keeps the "No account" promise and avoids
+  the moderation, legal (photo/CSAM), cost, and cold-start burden, while preserving Cairn's
+  differentiation (conditions, not social). The only future opening, and only if the app
+  becomes popular, is an optional sign-in scoped to trail-condition comments. Not built now.
+- **Dropped the "For you" tab.** Reason: an algorithmic feed needs accounts and community data,
+  both non-goals. Nav is Explore, Navigate, Saved, Activity.
+- **IGN SCAN 25 excluded entirely (not even a hidden flag).** Reason: not open data; IGN's open
+  license excludes SCAN 25 (third-party rights) and bars private download even for personal
+  use. Needs a paid license, and the app ships no keys. Plan IGN v2 covers France instead.
+- **OS Great Britain (Explorer/Leisure look) deferred to Phase 10.** Reason: the OS Maps API
+  needs a key (the app ships none), the Leisure style is served only in British National Grid
+  (EPSG:27700) which a Web Mercator MapLibre map cannot display, and premium zooms are paid.
+  Future path: self-host OS Open Zoomstack (OGL) as PMTiles. Will not look like paper Explorer.
+- **No AllTrails map style.** Reason: proprietary. The `outdoors` style fills that slot and is
+  not named or styled after AllTrails.
+- **Community heatmap replaced by an OSM GPS traces overlay.** Reason: a real heatmap needs a
+  community of uploaded recordings (accounts, a non-goal); Strava's requires login and bars
+  third-party use. Public OSM GPS traces are the open substitute (usage policy checked, Cairn
+  User-Agent, no bulk download).
+- **"Ground conditions" replaced by a "Recent weather" chip.** Reason: AllTrails derives ground
+  conditions from user trail reports, which Cairn does not have. The chip shows Open-Meteo
+  past-3-day precip/snow/low at the trailhead and is explicitly labeled not a trail report.
+- **3D terrain via a bundled MapLibre-GL-JS WebView, not the native map.** Reason: `maplibre_gl`
+  (MapLibre Native) throws UnsupportedError on setTerrain; 3D terrain is not shipped on
+  Android/iOS yet. Native gets a 2.5D "Tilt" (pitch + hillshade bump, offline); real 3D is an
+  online WebView using pinned MapLibre GL JS. Replace with native when it lands.
+- **Follow-route Summit gate pending the user's decision.** Reason: Section 12.4 gates follow
+  mode behind Summit, but Navigate's Start uses follow mode. Built ungated for now (gates land
+  in Phase 9 regardless); open item in PROGRESS: is follow-route free?
