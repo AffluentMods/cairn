@@ -93,6 +93,33 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
     state = const RouteEditorState();
   }
 
+  /// Load a trail (or imported line) as the active route: endpoint waypoints and
+  /// the geometry as the polyline, with stats (Addendum A4.1, "Navigate this
+  /// trail"). Editing (tap to add) still works from here.
+  Future<void> loadPolyline(List<List<double>> geometry) async {
+    _undo.clear();
+    if (geometry.length < 2) {
+      state = const RouteEditorState();
+      return;
+    }
+    state = const RouteEditorState(computing: true);
+    final stats = await computeRouteStats(
+      geometry,
+      ref.read(elevationRepositoryProvider),
+    );
+    state = RouteEditorState(
+      waypoints: [
+        EditorWaypoint(
+            lat: geometry.first[0], lon: geometry.first[1], onTrail: true),
+        EditorWaypoint(
+            lat: geometry.last[0], lon: geometry.last[1], onTrail: true),
+      ],
+      polyline: geometry,
+      stats: stats,
+      hasOffTrailLeg: false,
+    );
+  }
+
   Future<void> recompute() async {
     final wps = state.waypoints;
     if (wps.length < 2) {

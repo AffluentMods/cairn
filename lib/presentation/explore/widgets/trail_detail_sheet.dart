@@ -6,9 +6,12 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/settings/settings_providers.dart';
+import '../../../data/data_providers.dart';
 import '../../../domain/models/trail.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../map_common/map_providers.dart';
+import '../../navigate/route_editor_provider.dart';
+import '../../saved/library_providers.dart';
 import '../../shared/stat_tile.dart';
 
 Future<void> showTrailDetail(BuildContext context, Trail trail) {
@@ -42,6 +45,10 @@ class _TrailDetailSheet extends ConsumerWidget {
     final fmt = ref.watch(unitFormatterProvider);
     final scheme = Theme.of(context).colorScheme;
     final sac = sacLabel(l10n, trail.sacScale);
+    final trailId = 'w${trail.id}';
+    final saved = (ref.watch(savedTrailIdsProvider).valueOrNull ??
+            const <String>{})
+        .contains(trailId);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.4,
@@ -90,6 +97,14 @@ class _TrailDetailSheet extends ConsumerWidget {
                       ),
                       child: Text(l10n.trailUsfsNumber(trail.usfsNumber!)),
                     ),
+                  IconButton(
+                    icon: Icon(
+                      saved ? Icons.favorite : Icons.favorite_border,
+                      color: saved ? scheme.primary : scheme.onSurfaceVariant,
+                    ),
+                    tooltip: saved ? l10n.trailUnsave : l10n.trailSave,
+                    onPressed: () => _toggleSave(ref, l10n),
+                  ),
                 ],
               ),
               const SizedBox(height: 16),
@@ -125,10 +140,13 @@ class _TrailDetailSheet extends ConsumerWidget {
                   Expanded(
                     child: FilledButton(
                       onPressed: () {
+                        ref
+                            .read(routeEditorProvider.notifier)
+                            .loadPolyline(trail.geometry);
                         Navigator.of(context).pop();
                         context.go('/navigate');
                       },
-                      child: Text(l10n.trailPlanFromHere),
+                      child: Text(l10n.trailNavigate),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -143,6 +161,18 @@ class _TrailDetailSheet extends ConsumerWidget {
         );
       },
     );
+  }
+
+  void _toggleSave(WidgetRef ref, AppLocalizations l10n) {
+    final geo = trail.geometry;
+    final mid = geo.isEmpty ? const [0.0, 0.0] : geo[geo.length ~/ 2];
+    ref.read(favoritesRepositoryProvider).toggle(
+          trailId: 'w${trail.id}',
+          name: trail.name ?? l10n.trailUnnamed,
+          centerLat: mid[0],
+          centerLon: mid[1],
+          lengthM: trail.lengthM,
+        );
   }
 
   Future<void> _fitTrail(WidgetRef ref, BuildContext context) async {
