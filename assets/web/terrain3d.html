@@ -1,0 +1,74 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="maplibre-gl.css">
+  <style>html,body,#map{margin:0;padding:0;height:100%;width:100%;background:#0E1412}</style>
+</head>
+<body>
+  <div id="map"></div>
+  <script src="maplibre-gl.js"></script>
+  <script>
+    let map;
+    // Called from Dart after the page loads, with camera and the active route.
+    function init(opts) {
+      try {
+        map = new maplibregl.Map({
+          container: 'map',
+          attributionControl: false,
+          center: [opts.lon, opts.lat],
+          zoom: opts.zoom || 12,
+          pitch: 65,
+          bearing: opts.bearing || 0,
+          maxPitch: 85,
+          style: {
+            version: 8,
+            sources: {
+              'terrain-dem': {
+                type: 'raster-dem',
+                tiles: ['https://elevation-tiles-prod.s3.amazonaws.com/terrarium/{z}/{x}/{y}.png'],
+                encoding: 'terrarium',
+                tileSize: 256,
+                maxzoom: 15,
+                attribution: 'Terrain: Mapzen, AWS Terrain Tiles'
+              },
+              'cairn-route': {
+                type: 'geojson',
+                data: opts.route || { type: 'FeatureCollection', features: [] }
+              }
+            },
+            layers: [
+              { id: 'bg', type: 'background', paint: { 'background-color': '#0E1412' } },
+              { id: 'hillshade', type: 'hillshade', source: 'terrain-dem',
+                paint: {
+                  'hillshade-exaggeration': 0.65,
+                  'hillshade-shadow-color': '#16231b',
+                  'hillshade-accent-color': '#0E1412',
+                  'hillshade-highlight-color': '#e9e4d6'
+                } },
+              { id: 'route-casing', type: 'line', source: 'cairn-route',
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': '#0E1412', 'line-opacity': 0.5, 'line-width': 7 } },
+              { id: 'route', type: 'line', source: 'cairn-route',
+                layout: { 'line-cap': 'round', 'line-join': 'round' },
+                paint: { 'line-color': '#D9A441', 'line-width': 4 } }
+            ]
+          }
+        });
+        map.on('load', function () {
+          try { map.setTerrain({ source: 'terrain-dem', exaggeration: 1.3 }); } catch (e) {}
+          CairnBridge.postMessage(JSON.stringify({ type: 'ready' }));
+        });
+        map.on('error', function (e) {
+          var m = (e && e.error && e.error.message) ? String(e.error.message) : 'map error';
+          CairnBridge.postMessage(JSON.stringify({ type: 'error', message: m }));
+        });
+      } catch (e) {
+        CairnBridge.postMessage(JSON.stringify({ type: 'error', message: String(e) }));
+      }
+    }
+  </script>
+</body>
+</html>

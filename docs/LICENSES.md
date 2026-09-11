@@ -28,6 +28,8 @@ Apache-2.0, MPL-2.0, LGPL, GPL-2.0-or-later, or GPL-3. This list is maintained b
 | gpx | 2.3.x | MIT | yes |
 | image | 4.x | MIT | yes |
 | geolocator | 13.x | MIT | yes |
+| webview_flutter | 4.14.x | BSD-3-Clause (Android system WebView, no Play services) | yes |
+| MapLibre GL JS (bundled asset, `assets/web/`, refreshed by tool/fetch_maplibre_js.sh) | 4.7.1 | BSD-3-Clause | yes |
 | flutter_foreground_task | 8.17.x | MIT | yes |
 | permission_handler | 11.x | MIT | yes |
 | cryptography | 2.7.x | Apache-2.0 / MIT | yes |

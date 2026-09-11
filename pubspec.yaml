@@ -55,6 +55,7 @@ dependencies:
   url_launcher: ^6.3.0
   collection: ^1.19.0
   uuid: ^4.5.0
+  webview_flutter: ^4.14.1
 
 dev_dependencies:
   flutter_test:
@@ -73,3 +74,4 @@ flutter:
   assets:
     - assets/map_styles/
     - assets/data/
+    - assets/web/
