@@ -160,6 +160,7 @@ class _PlanScreenState extends ConsumerState<PlanScreen> {
       highLon: highPt[1],
       highElevM: highElev < -1e8 ? startElev : highElev,
       bbox: [minLat, minLon, maxLat, maxLon],
+      profile: profile,
     );
   }
 

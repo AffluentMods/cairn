@@ -18,6 +18,7 @@ const _kThemeMode = 'settings.themeMode';
 const _kBodyWeight = 'settings.bodyWeightKg';
 const _kPackWeight = 'settings.defaultPackKg';
 const _kShowConditions = 'settings.showConditions';
+const _kProxyBaseUrl = 'settings.proxyBaseUrl';
 
 class SettingsNotifier extends Notifier<Settings> {
   @override
@@ -42,6 +43,7 @@ class SettingsNotifier extends Notifier<Settings> {
       bodyWeightKg: prefs.getDouble(_kBodyWeight),
       defaultPackKg: prefs.getDouble(_kPackWeight),
       showConditions: prefs.getBool(_kShowConditions) ?? true,
+      proxyBaseUrl: prefs.getString(_kProxyBaseUrl) ?? '',
     );
   }
 
@@ -83,6 +85,12 @@ class SettingsNotifier extends Notifier<Settings> {
   Future<void> setShowConditions(bool show) async {
     state = state.copyWith(showConditions: show);
     await _prefs.setBool(_kShowConditions, show);
+  }
+
+  Future<void> setProxyBaseUrl(String url) async {
+    final trimmed = url.trim();
+    state = state.copyWith(proxyBaseUrl: trimmed);
+    await _prefs.setString(_kProxyBaseUrl, trimmed);
   }
 }
 

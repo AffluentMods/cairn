@@ -13,7 +13,13 @@ import '../../../domain/models/air_quality.dart';
 import '../../../domain/models/fire_incident.dart';
 import '../../../domain/models/land_unit.dart';
 import '../../../domain/repositories/conditions_repository.dart';
+import '../../../domain/usecases/compute_route_stats.dart';
+import '../../../domain/usecases/water_along_route.dart';
 import '../../../l10n/app_localizations.dart';
+
+const _waterKinds = {'spring', 'drinking_water', 'stream', 'river', 'water'};
+
+typedef _PanelData = ({ConditionsBundle bundle, List<WaterPoint> water});
 
 /// Opens the conditions panel for a route (spec Phase 7). trailhead is the route
 /// start; high is the highest point.
@@ -28,6 +34,7 @@ Future<void> showConditions(
   required double highLon,
   required double highElevM,
   required List<double> bbox,
+  List<ProfilePoint> profile = const [],
 }) {
   return showModalBottomSheet<void>(
     context: context,
@@ -43,6 +50,7 @@ Future<void> showConditions(
       highLon: highLon,
       highElevM: highElevM,
       bbox: bbox,
+      profile: profile,
     ),
   );
 }
@@ -87,6 +95,7 @@ class _ConditionsPanel extends ConsumerStatefulWidget {
     required this.highLon,
     required this.highElevM,
     required this.bbox,
+    required this.profile,
   });
 
   final String name;
@@ -98,23 +107,39 @@ class _ConditionsPanel extends ConsumerStatefulWidget {
   final double highLon;
   final double highElevM;
   final List<double> bbox;
+  final List<ProfilePoint> profile;
 
   @override
   ConsumerState<_ConditionsPanel> createState() => _ConditionsPanelState();
 }
 
 class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
-  late final Future<ConditionsBundle> _future =
-      ref.read(conditionsRepositoryProvider).forRoute(
-            routePolyline: widget.routePolyline,
-            trailheadLat: widget.trailheadLat,
-            trailheadLon: widget.trailheadLon,
-            trailheadElevM: widget.trailheadElevM,
-            highLat: widget.highLat,
-            highLon: widget.highLon,
-            highElevM: widget.highElevM,
-            bbox: widget.bbox,
-          );
+  late final Future<_PanelData> _future = _load();
+
+  Future<_PanelData> _load() async {
+    final bundle = await ref.read(conditionsRepositoryProvider).forRoute(
+          routePolyline: widget.routePolyline,
+          trailheadLat: widget.trailheadLat,
+          trailheadLon: widget.trailheadLon,
+          trailheadElevM: widget.trailheadElevM,
+          highLat: widget.highLat,
+          highLon: widget.highLon,
+          highElevM: widget.highElevM,
+          bbox: widget.bbox,
+        );
+    final pois = await ref.read(poiRepositoryProvider).poisInBbox(widget.bbox);
+    final candidates = [
+      for (final p in pois)
+        if (_waterKinds.contains(p.kind))
+          WaterCandidate(lat: p.lat, lon: p.lon, kind: p.kind, name: p.name),
+    ];
+    final water = waterAlongRoute(
+      widget.routePolyline,
+      candidates,
+      profile: widget.profile,
+    );
+    return (bundle: bundle, water: water);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +149,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
       maxChildSize: 0.95,
       expand: false,
       builder: (context, controller) {
-        return FutureBuilder<ConditionsBundle>(
+        return FutureBuilder<_PanelData>(
           future: _future,
           builder: (context, snap) {
             if (!snap.hasData) {
@@ -133,7 +158,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
             return ListView(
               controller: controller,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              children: _sections(context, snap.data!),
+              children: _sections(context, snap.data!.bundle, snap.data!.water),
             );
           },
         );
@@ -141,7 +166,11 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
     );
   }
 
-  List<Widget> _sections(BuildContext context, ConditionsBundle b) {
+  List<Widget> _sections(
+    BuildContext context,
+    ConditionsBundle b,
+    List<WaterPoint> water,
+  ) {
     final l10n = context.l10n;
     final fmt = ref.read(unitFormatterProvider);
     return [
@@ -170,6 +199,61 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
       ..._weather(context, b, l10n, fmt),
       _daylight(context, b, l10n),
       ..._land(context, b, l10n),
+      ..._restrictions(context, b, l10n),
+      ..._water(context, water, l10n, fmt),
+    ];
+  }
+
+  List<Widget> _restrictions(
+    BuildContext c,
+    ConditionsBundle b,
+    AppLocalizations l10n,
+  ) {
+    if (b.restrictions.isEmpty) return const [];
+    return [
+      for (final r in b.restrictions)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Row(
+            children: [
+              const Icon(Icons.local_fire_department,
+                  size: 14, color: AppColors.smoke),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  '${r.name}  ${l10n.condRestrictionStage(r.stage)}: ${r.summary}',
+                  style: Theme.of(c).textTheme.bodySmall,
+                ),
+              ),
+            ],
+          ),
+        ),
+    ];
+  }
+
+  List<Widget> _water(
+    BuildContext c,
+    List<WaterPoint> water,
+    AppLocalizations l10n,
+    dynamic fmt,
+  ) {
+    if (water.isEmpty) return const [];
+    return [
+      const Divider(),
+      Text(l10n.planWaterHeader, style: Theme.of(c).textTheme.titleSmall),
+      for (final w in water)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            '${fmt.distance(w.distanceAlongM)}  ${w.name ?? w.kind}'
+            '${w.lastBeforeClimb ? '  (${l10n.planWaterLastBeforeClimb})' : ''}',
+            style: Theme.of(c).textTheme.bodySmall,
+          ),
+        ),
+      Text(
+        l10n.planWaterSeasonal,
+        style: Theme.of(c).textTheme.labelSmall,
+      ),
     ];
   }
 

@@ -16,6 +16,7 @@ class Settings {
     this.bodyWeightKg,
     this.defaultPackKg,
     this.showConditions = true,
+    this.proxyBaseUrl = '',
   });
 
   final CairnMapStyle mapStyle;
@@ -25,6 +26,10 @@ class Settings {
   final double? defaultPackKg;
   final bool showConditions;
 
+  /// Optional Affluent Labs proxy base URL (spec Phase 8). Empty means the app
+  /// uses only the no-key sources.
+  final String proxyBaseUrl;
+
   Settings copyWith({
     CairnMapStyle? mapStyle,
     UnitSystem? units,
@@ -32,6 +37,7 @@ class Settings {
     double? bodyWeightKg,
     double? defaultPackKg,
     bool? showConditions,
+    String? proxyBaseUrl,
   }) {
     return Settings(
       mapStyle: mapStyle ?? this.mapStyle,
@@ -40,6 +46,7 @@ class Settings {
       bodyWeightKg: bodyWeightKg ?? this.bodyWeightKg,
       defaultPackKg: defaultPackKg ?? this.defaultPackKg,
       showConditions: showConditions ?? this.showConditions,
+      proxyBaseUrl: proxyBaseUrl ?? this.proxyBaseUrl,
     );
   }
 }

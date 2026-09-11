@@ -3,6 +3,7 @@ import '../../core/geo/moon.dart';
 import '../../core/geo/solar.dart';
 import '../models/air_quality.dart';
 import '../models/fire_incident.dart';
+import '../models/fire_restriction.dart';
 import '../models/land_unit.dart';
 import '../models/weather_forecast.dart';
 
@@ -18,6 +19,7 @@ class ConditionsBundle {
     this.aqi,
     this.weatherTrailhead,
     this.weatherHigh,
+    this.restrictions = const [],
     this.stale = false,
   });
 
@@ -28,6 +30,7 @@ class ConditionsBundle {
   final WeatherForecast? weatherHigh;
   final List<WeatherAlert> alerts;
   final List<LandUnit> land; // units the route enters
+  final List<FireRestriction> restrictions;
   final SolarTimes solar;
   final MoonInfo moon;
   final DateTime fetchedAt;

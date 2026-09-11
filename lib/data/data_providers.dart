@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../core/net/dio_client.dart';
+import '../core/settings/settings_providers.dart';
 import '../domain/repositories/conditions_repository.dart';
 import '../domain/repositories/elevation_repository.dart';
 import '../domain/repositories/offline_repository.dart';
@@ -21,6 +22,7 @@ import 'repositories/poi_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
 import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
+import 'sources/affluent_proxy_source.dart';
 import 'sources/nifc_source.dart';
 import 'sources/nws_source.dart';
 import 'sources/open_meteo_source.dart';
@@ -68,6 +70,13 @@ final openMeteoSourceProvider = Provider<OpenMeteoSource>(
   (ref) => OpenMeteoSource(ref.watch(dioProvider)),
 );
 
+/// The Affluent Labs proxy client, or null when no proxy URL is configured.
+final affluentProxySourceProvider = Provider<AffluentProxySource?>((ref) {
+  final base = ref.watch(settingsProvider.select((s) => s.proxyBaseUrl));
+  if (base.isEmpty) return null;
+  return AffluentProxySource(ref.watch(dioProvider), base);
+});
+
 final conditionsRepositoryProvider = Provider<ConditionsRepository>(
   (ref) => ConditionsRepositoryImpl(
     db: ref.watch(appDatabaseProvider),
@@ -75,6 +84,7 @@ final conditionsRepositoryProvider = Provider<ConditionsRepository>(
     nws: ref.watch(nwsSourceProvider),
     openMeteo: ref.watch(openMeteoSourceProvider),
     usfs: ref.watch(usfsSourceProvider),
+    proxy: ref.watch(affluentProxySourceProvider),
   ),
 );
 

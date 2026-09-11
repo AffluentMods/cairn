@@ -6,11 +6,13 @@ import '../../core/geo/polygon.dart';
 import '../../core/geo/solar.dart';
 import '../../domain/models/air_quality.dart';
 import '../../domain/models/fire_incident.dart';
+import '../../domain/models/fire_restriction.dart';
 import '../../domain/models/land_unit.dart';
 import '../../domain/models/weather_forecast.dart';
 import '../../domain/repositories/conditions_repository.dart';
 import '../../domain/usecases/fire_proximity.dart';
 import '../db/app_database.dart';
+import '../sources/affluent_proxy_source.dart';
 import '../sources/nifc_source.dart';
 import '../sources/nws_source.dart';
 import '../sources/open_meteo_source.dart';
@@ -29,6 +31,7 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
     required this.nws,
     required this.openMeteo,
     required this.usfs,
+    this.proxy,
   });
 
   final AppDatabase db;
@@ -36,6 +39,10 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
   final NwsSource nws;
   final OpenMeteoSource openMeteo;
   final UsfsSource usfs;
+
+  /// Optional Affluent Labs proxy (AirNow AQI, restrictions). Null when the
+  /// user has not set a proxy URL; the app then uses only no-key sources.
+  final AffluentProxySource? proxy;
 
   static const _fireTtl = Duration(minutes: 15);
   static const _weatherTtl = Duration(minutes: 60);
@@ -220,7 +227,17 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
   }) async {
     final when = date ?? DateTime.now();
     final fires = annotateFires(routePolyline, await firesInBbox(bbox));
-    final aqi = await _aqiAt(trailheadLat, trailheadLon);
+
+    // Prefer EPA AirNow monitor AQI via the proxy when configured; fall back to
+    // the Open-Meteo model estimate.
+    AirQuality? monitorAqi;
+    if (proxy != null) {
+      monitorAqi = await proxy!.airNowAqi(trailheadLat, trailheadLon);
+    }
+    final aqi = monitorAqi != null
+        ? (aqi: monitorAqi, fetchedAt: DateTime.now(), stale: false)
+        : await _aqiAt(trailheadLat, trailheadLon);
+
     final wxTrail = await _weatherAt(
         trailheadLat, trailheadLon, trailheadElevM, 'trailhead');
     final wxHigh = await _weatherAt(highLat, highLon, highElevM, 'high point');
@@ -232,6 +249,20 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
               routePolyline.any((p) => pointInAnyRing(p[0], p[1], u.polygons)),
         )
         .toList();
+
+    // Fire restrictions for the forests and parks the route enters.
+    var restrictions = <FireRestriction>[];
+    if (proxy != null && entered.isNotEmpty) {
+      final all = await proxy!.restrictions();
+      final enteredNames = entered.map((u) => u.name.toLowerCase()).toList();
+      restrictions = all
+          .where((r) => enteredNames.any(
+                (n) =>
+                    n.contains(r.name.toLowerCase()) ||
+                    r.name.toLowerCase().contains(n),
+              ))
+          .toList();
+    }
 
     final stale = aqi.stale || wxTrail.stale || wxHigh.stale || alerts.stale;
     final fetchedAt = [
@@ -250,6 +281,7 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
       weatherHigh: wxHigh.forecast,
       alerts: alerts.alerts,
       land: entered,
+      restrictions: restrictions,
       solar: computeSolarTimes(when, trailheadLat, trailheadLon),
       moon: computeMoon(when),
       fetchedAt: fetchedAt ?? DateTime.now(),
