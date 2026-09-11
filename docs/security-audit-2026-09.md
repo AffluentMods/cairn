@@ -25,25 +25,25 @@ Unverified (needs a device or live service).
 ## Findings
 
 ### Medium
-1. **No passphrase strength floor on sync setup** — lib/presentation/sync/sync_screen.dart. (Reviewed)
+1. **No passphrase strength floor on sync setup** - lib/presentation/sync/sync_screen.dart. (Reviewed)
    - Issue: enable/join accepted any passphrase, including trivially short ones.
    - Risk: with a leaked sync id, a weak passphrase is brute-forceable offline despite Argon2id.
    - Fix: FIXED. Enable/Join now require at least 10 characters, with an inline explanation that
      the passphrase is the only protection if the sync code leaks.
 
 ### Low
-2. **Sync pull/status rate-limited per IP only, not per sync id** — cairn-sync. (Reviewed)
+2. **Sync pull/status rate-limited per IP only, not per sync id** - cairn-sync. (Reviewed)
    - Impact is minor (the caller already holds the sync id, so it is their own blob), but a
      per-sync-id limit on pull would bound abuse. Push/verify/purge are already per-sync-id limited.
-3. **Argon2id at OWASP minimum (19 MiB, t=2, p=1)** — lib/data/sync/sync_crypto.dart. (Reviewed)
+3. **Argon2id at OWASP minimum (19 MiB, t=2, p=1)** - lib/data/sync/sync_crypto.dart. (Reviewed)
    - Meets current guidance; consider raising memory on capable devices later. Params travel in the
      blob so a bump is backward compatible.
 
 ### Info
-4. **Transitive `qs` advisory via Express 4** — cairn-sync and cairn-proxy. (Reviewed)
+4. **Transitive `qs` advisory via Express 4** - cairn-sync and cairn-proxy. (Reviewed)
    - Both servers take JSON bodies, not complex query strings, so impact is low. Consider Express 5
      at a maintenance window. Reported by both backend builds.
-5. **RevenueCat not yet flavor-isolated** — the store flavor's billing must be a store-only Gradle
+5. **RevenueCat not yet flavor-isolated** - the store flavor's billing must be a store-only Gradle
    dependency so the community APK stays free of Google Play libraries (F-Droid). Tracked in
    docs/DECISIONS.md; community build currently links no billing at all.
 

@@ -64,16 +64,21 @@ Done and verified on the Pixel_3a API 36 emulator:
 - **Schema v3**: FavoriteTrails and UserWaypoints via a v2 to v3 migration.
 - **F2** trail styling fixed in all six styles; **F3** stat row done.
 
-Still to do in Phase R:
-- Trail detail sheet: heart + a real "Navigate this trail" that loads the trail as the active
-  route in Navigate.
-- Navigate: the draggable stats sheet (0.14/0.45/0.9 snaps), Download and the Download/Start
-  swap by offline coverage, the edit-mode toolbar, and the elevation profile fill.
-- User waypoints (A4.5): the add-waypoint flow, editor sheet, render, and GPX export.
-- 3D view (A5.2): the real bundled MapLibre-GL-JS WebView (currently a placeholder screen).
-- Remove the dead l10n keys (tabMap, libraryTracks, ...) and update the last call sites.
-- LICENSES entries for webview_flutter and MapLibre GL JS once 3D lands.
-- Before/after screenshots for F1 to F3 under docs/screens/phase-r/.
+Also done and emulator-verified since: the trail detail heart + "Navigate this trail" (loads a
+trail as the active route); the draggable Navigate sheet with the stat row, elevation profile,
+and the Download button with the Download/Start swap by offline coverage; the edit-mode toolbar;
+elevation-profile units; user waypoints (long-press or the add button, kind/name/note editor,
+colored pins, tap to edit); the real 3D terrain WebView (bundled MapLibre GL JS, no Play
+services); the dead l10n keys removed; LICENSES updated. The community APK is confirmed free of
+Play services, Firebase, and billing.
+
+Remaining follow-ups (documented, not blockers):
+- Overlay raster tiles: the toggle/badge/persistence work, but the ArcGIS export overlays
+  (radar, temperature, snow, slope, lidar) did not visibly render on the emulator, most likely
+  because MapLibre Native does not substitute `{bbox-epsg-3857}`. The fix is the A5.3 localhost
+  tile proxy. Logged in API_NOTES.
+- User waypoints: route attachment and GPX `<wpt>` export.
+- Optional: before/after screenshots for F1 to F3 under docs/screens/phase-r/.
 
 ## Questions for you
 

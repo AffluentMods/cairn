@@ -49,3 +49,14 @@ update the parser plus this note if they differ:
   roads and labels at normal prominence. Both keep every cairn-* source and layer. If a
   positron or bright snapshot is preferred later, regenerate these two files from it and
   preserve the same cairn-* sources and layers.
+- 2026-09-11: **Overlay raster tiles (A5.3), observed on the Pixel_3a API 36 emulator.** The
+  overlay system (toggle, layers-button badge, persistence, install/reinstall on style load)
+  works. But the ArcGIS `export`/`exportImage` overlays (precipitation radar, temperature,
+  snow depth, slope angle, lidar hillshade) did not visibly render when toggled on. Most
+  likely MapLibre Native does not substitute the `{bbox-epsg-3857}` token in a raster source's
+  tile URL (the addendum anticipated this). The fix is the localhost tile proxy in A5.3: a
+  `127.0.0.1` `HttpServer` that turns `{z}/{x}/{y}` into a bbox with `tile_math.dart` and
+  forwards the request. Until then, treat these overlay URLs as unverified. OSM GPS traces
+  (`gps.tile.openstreetmap.org`, standard XYZ) installs cleanly but is sparse in the Goat
+  Rocks area, so nothing obvious appeared. Verify each service's exact path/layer ids/render
+  rules with `?f=json` when wiring the proxy.
