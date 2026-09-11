@@ -1174,6 +1174,30 @@ abstract class AppLocalizations {
   /// **'Enter this on your other devices to join the same sync.'**
   String get syncRecoveryCodeHint;
 
+  /// No description provided for @syncJoin.
+  ///
+  /// In en, this message translates to:
+  /// **'Join with a code'**
+  String get syncJoin;
+
+  /// No description provided for @syncCodeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync code copied'**
+  String get syncCodeCopied;
+
+  /// No description provided for @syncEnabled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync is on'**
+  String get syncEnabled;
+
+  /// No description provided for @syncNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No synced data found for that code.'**
+  String get syncNoData;
+
   /// No description provided for @summitTitle.
   ///
   /// In en, this message translates to:

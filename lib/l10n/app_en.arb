@@ -220,6 +220,10 @@
   "syncWrongPassphrase": "That passphrase does not match the synced data.",
   "syncRecoveryCode": "Sync code",
   "syncRecoveryCodeHint": "Enter this on your other devices to join the same sync.",
+  "syncJoin": "Join with a code",
+  "syncCodeCopied": "Sync code copied",
+  "syncEnabled": "Sync is on",
+  "syncNoData": "No synced data found for that code.",
 
   "summitTitle": "Cairn Summit",
   "summitOneTime": "One-time purchase. No subscription.",

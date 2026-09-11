@@ -78,6 +78,14 @@ class RouteRepositoryImpl implements RouteRepository {
       await (db.delete(db.routeWaypoints)..where((t) => t.routeId.equals(id)))
           .go();
       await (db.delete(db.routes)..where((t) => t.id.equals(id))).go();
+      // Tombstone so the deletion propagates through sync (newest wins).
+      await db.into(db.tombstones).insertOnConflictUpdate(
+            TombstonesCompanion.insert(
+              entityType: 'route',
+              entityId: id,
+              deletedAt: DateTime.now(),
+            ),
+          );
     });
   }
 

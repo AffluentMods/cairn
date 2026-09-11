@@ -128,6 +128,9 @@ class Tracks extends Table {
   RealColumn get packWeightKg => real().nullable()();
   RealColumn get calories => real().nullable()();
   TextColumn get linkedRouteId => text().nullable()();
+  // For sync (tombstones + newest wins): the last genuine local edit time.
+  DateTimeColumn get lastModified =>
+      dateTime().withDefault(currentDateAndTime)();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -177,6 +180,18 @@ class ConditionsCache extends Table {
   Set<Column> get primaryKey => {key};
 }
 
+/// A deletion marker for sync (spec: sync-tombstones design). Travels in the
+/// blob so other devices remove the record and do not re-add it. Newest wins:
+/// a record with a lastModified newer than its tombstone's deletedAt lives.
+class Tombstones extends Table {
+  TextColumn get entityType => text()(); // "route" or "track"
+  TextColumn get entityId => text()();
+  DateTimeColumn get deletedAt => dateTime()();
+
+  @override
+  Set<Column> get primaryKey => {entityType, entityId};
+}
+
 @DriftDatabase(
   tables: [
     OsmWays,
@@ -190,6 +205,7 @@ class ConditionsCache extends Table {
     TrackPoints,
     OfflineRegions,
     ConditionsCache,
+    Tombstones,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -199,7 +215,19 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          // v2: sync support (tombstones + newest wins).
+          if (from < 2) {
+            await m.createTable(tombstones);
+            await m.addColumn(tracks, tracks.lastModified);
+          }
+        },
+      );
 
   static LazyDatabase _open() {
     return LazyDatabase(() async {

@@ -87,6 +87,13 @@ class TrackRepositoryImpl implements TrackRepository {
       await (db.delete(db.trackPoints)..where((t) => t.trackId.equals(id)))
           .go();
       await (db.delete(db.tracks)..where((t) => t.id.equals(id))).go();
+      await db.into(db.tombstones).insertOnConflictUpdate(
+            TombstonesCompanion.insert(
+              entityType: 'track',
+              entityId: id,
+              deletedAt: DateTime.now(),
+            ),
+          );
     });
   }
 
@@ -103,6 +110,7 @@ class TrackRepositoryImpl implements TrackRepository {
         packWeightKg: Value(s.packWeightKg),
         calories: Value(s.calories),
         linkedRouteId: Value(s.linkedRouteId),
+        lastModified: Value(DateTime.now()),
       );
 
   Track _summaryRow(TrackSummary s) => Track(
@@ -118,6 +126,7 @@ class TrackRepositoryImpl implements TrackRepository {
         packWeightKg: s.packWeightKg,
         calories: s.calories,
         linkedRouteId: s.linkedRouteId,
+        lastModified: DateTime.now(),
       );
 
   TrackPointsCompanion _pointCompanion(String trackId, TrackPointData p) =>

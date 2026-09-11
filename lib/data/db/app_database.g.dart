@@ -2878,6 +2878,14 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
   late final GeneratedColumn<String> linkedRouteId = GeneratedColumn<String>(
       'linked_route_id', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lastModifiedMeta =
+      const VerificationMeta('lastModified');
+  @override
+  late final GeneratedColumn<DateTime> lastModified = GeneratedColumn<DateTime>(
+      'last_modified', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2891,7 +2899,8 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
         lossM,
         packWeightKg,
         calories,
-        linkedRouteId
+        linkedRouteId,
+        lastModified
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2964,6 +2973,12 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
           linkedRouteId.isAcceptableOrUnknown(
               data['linked_route_id']!, _linkedRouteIdMeta));
     }
+    if (data.containsKey('last_modified')) {
+      context.handle(
+          _lastModifiedMeta,
+          lastModified.isAcceptableOrUnknown(
+              data['last_modified']!, _lastModifiedMeta));
+    }
     return context;
   }
 
@@ -2997,6 +3012,8 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
           .read(DriftSqlType.double, data['${effectivePrefix}calories']),
       linkedRouteId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}linked_route_id']),
+      lastModified: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_modified'])!,
     );
   }
 
@@ -3019,6 +3036,7 @@ class Track extends DataClass implements Insertable<Track> {
   final double? packWeightKg;
   final double? calories;
   final String? linkedRouteId;
+  final DateTime lastModified;
   const Track(
       {required this.id,
       required this.name,
@@ -3031,7 +3049,8 @@ class Track extends DataClass implements Insertable<Track> {
       required this.lossM,
       this.packWeightKg,
       this.calories,
-      this.linkedRouteId});
+      this.linkedRouteId,
+      required this.lastModified});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3055,6 +3074,7 @@ class Track extends DataClass implements Insertable<Track> {
     if (!nullToAbsent || linkedRouteId != null) {
       map['linked_route_id'] = Variable<String>(linkedRouteId);
     }
+    map['last_modified'] = Variable<DateTime>(lastModified);
     return map;
   }
 
@@ -3080,6 +3100,7 @@ class Track extends DataClass implements Insertable<Track> {
       linkedRouteId: linkedRouteId == null && nullToAbsent
           ? const Value.absent()
           : Value(linkedRouteId),
+      lastModified: Value(lastModified),
     );
   }
 
@@ -3099,6 +3120,7 @@ class Track extends DataClass implements Insertable<Track> {
       packWeightKg: serializer.fromJson<double?>(json['packWeightKg']),
       calories: serializer.fromJson<double?>(json['calories']),
       linkedRouteId: serializer.fromJson<String?>(json['linkedRouteId']),
+      lastModified: serializer.fromJson<DateTime>(json['lastModified']),
     );
   }
   @override
@@ -3117,6 +3139,7 @@ class Track extends DataClass implements Insertable<Track> {
       'packWeightKg': serializer.toJson<double?>(packWeightKg),
       'calories': serializer.toJson<double?>(calories),
       'linkedRouteId': serializer.toJson<String?>(linkedRouteId),
+      'lastModified': serializer.toJson<DateTime>(lastModified),
     };
   }
 
@@ -3132,7 +3155,8 @@ class Track extends DataClass implements Insertable<Track> {
           double? lossM,
           Value<double?> packWeightKg = const Value.absent(),
           Value<double?> calories = const Value.absent(),
-          Value<String?> linkedRouteId = const Value.absent()}) =>
+          Value<String?> linkedRouteId = const Value.absent(),
+          DateTime? lastModified}) =>
       Track(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -3148,6 +3172,7 @@ class Track extends DataClass implements Insertable<Track> {
         calories: calories.present ? calories.value : this.calories,
         linkedRouteId:
             linkedRouteId.present ? linkedRouteId.value : this.linkedRouteId,
+        lastModified: lastModified ?? this.lastModified,
       );
   Track copyWithCompanion(TracksCompanion data) {
     return Track(
@@ -3171,6 +3196,9 @@ class Track extends DataClass implements Insertable<Track> {
       linkedRouteId: data.linkedRouteId.present
           ? data.linkedRouteId.value
           : this.linkedRouteId,
+      lastModified: data.lastModified.present
+          ? data.lastModified.value
+          : this.lastModified,
     );
   }
 
@@ -3188,7 +3216,8 @@ class Track extends DataClass implements Insertable<Track> {
           ..write('lossM: $lossM, ')
           ..write('packWeightKg: $packWeightKg, ')
           ..write('calories: $calories, ')
-          ..write('linkedRouteId: $linkedRouteId')
+          ..write('linkedRouteId: $linkedRouteId, ')
+          ..write('lastModified: $lastModified')
           ..write(')'))
         .toString();
   }
@@ -3206,7 +3235,8 @@ class Track extends DataClass implements Insertable<Track> {
       lossM,
       packWeightKg,
       calories,
-      linkedRouteId);
+      linkedRouteId,
+      lastModified);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3222,7 +3252,8 @@ class Track extends DataClass implements Insertable<Track> {
           other.lossM == this.lossM &&
           other.packWeightKg == this.packWeightKg &&
           other.calories == this.calories &&
-          other.linkedRouteId == this.linkedRouteId);
+          other.linkedRouteId == this.linkedRouteId &&
+          other.lastModified == this.lastModified);
 }
 
 class TracksCompanion extends UpdateCompanion<Track> {
@@ -3238,6 +3269,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
   final Value<double?> packWeightKg;
   final Value<double?> calories;
   final Value<String?> linkedRouteId;
+  final Value<DateTime> lastModified;
   final Value<int> rowid;
   const TracksCompanion({
     this.id = const Value.absent(),
@@ -3252,6 +3284,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
     this.packWeightKg = const Value.absent(),
     this.calories = const Value.absent(),
     this.linkedRouteId = const Value.absent(),
+    this.lastModified = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TracksCompanion.insert({
@@ -3267,6 +3300,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
     this.packWeightKg = const Value.absent(),
     this.calories = const Value.absent(),
     this.linkedRouteId = const Value.absent(),
+    this.lastModified = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -3284,6 +3318,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
     Expression<double>? packWeightKg,
     Expression<double>? calories,
     Expression<String>? linkedRouteId,
+    Expression<DateTime>? lastModified,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3299,6 +3334,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
       if (packWeightKg != null) 'pack_weight_kg': packWeightKg,
       if (calories != null) 'calories': calories,
       if (linkedRouteId != null) 'linked_route_id': linkedRouteId,
+      if (lastModified != null) 'last_modified': lastModified,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3316,6 +3352,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
       Value<double?>? packWeightKg,
       Value<double?>? calories,
       Value<String?>? linkedRouteId,
+      Value<DateTime>? lastModified,
       Value<int>? rowid}) {
     return TracksCompanion(
       id: id ?? this.id,
@@ -3330,6 +3367,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
       packWeightKg: packWeightKg ?? this.packWeightKg,
       calories: calories ?? this.calories,
       linkedRouteId: linkedRouteId ?? this.linkedRouteId,
+      lastModified: lastModified ?? this.lastModified,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3373,6 +3411,9 @@ class TracksCompanion extends UpdateCompanion<Track> {
     if (linkedRouteId.present) {
       map['linked_route_id'] = Variable<String>(linkedRouteId.value);
     }
+    if (lastModified.present) {
+      map['last_modified'] = Variable<DateTime>(lastModified.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3394,6 +3435,7 @@ class TracksCompanion extends UpdateCompanion<Track> {
           ..write('packWeightKg: $packWeightKg, ')
           ..write('calories: $calories, ')
           ..write('linkedRouteId: $linkedRouteId, ')
+          ..write('lastModified: $lastModified, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -4766,6 +4808,243 @@ class ConditionsCacheCompanion extends UpdateCompanion<ConditionsCacheData> {
   }
 }
 
+class $TombstonesTable extends Tombstones
+    with TableInfo<$TombstonesTable, Tombstone> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TombstonesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _entityTypeMeta =
+      const VerificationMeta('entityType');
+  @override
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
+      'entity_type', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _entityIdMeta =
+      const VerificationMeta('entityId');
+  @override
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
+      'entity_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _deletedAtMeta =
+      const VerificationMeta('deletedAt');
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+      'deleted_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [entityType, entityId, deletedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tombstones';
+  @override
+  VerificationContext validateIntegrity(Insertable<Tombstone> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('entity_type')) {
+      context.handle(
+          _entityTypeMeta,
+          entityType.isAcceptableOrUnknown(
+              data['entity_type']!, _entityTypeMeta));
+    } else if (isInserting) {
+      context.missing(_entityTypeMeta);
+    }
+    if (data.containsKey('entity_id')) {
+      context.handle(_entityIdMeta,
+          entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta));
+    } else if (isInserting) {
+      context.missing(_entityIdMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(_deletedAtMeta,
+          deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta));
+    } else if (isInserting) {
+      context.missing(_deletedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {entityType, entityId};
+  @override
+  Tombstone map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Tombstone(
+      entityType: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_type'])!,
+      entityId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}entity_id'])!,
+      deletedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}deleted_at'])!,
+    );
+  }
+
+  @override
+  $TombstonesTable createAlias(String alias) {
+    return $TombstonesTable(attachedDatabase, alias);
+  }
+}
+
+class Tombstone extends DataClass implements Insertable<Tombstone> {
+  final String entityType;
+  final String entityId;
+  final DateTime deletedAt;
+  const Tombstone(
+      {required this.entityType,
+      required this.entityId,
+      required this.deletedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
+    map['deleted_at'] = Variable<DateTime>(deletedAt);
+    return map;
+  }
+
+  TombstonesCompanion toCompanion(bool nullToAbsent) {
+    return TombstonesCompanion(
+      entityType: Value(entityType),
+      entityId: Value(entityId),
+      deletedAt: Value(deletedAt),
+    );
+  }
+
+  factory Tombstone.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Tombstone(
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
+      deletedAt: serializer.fromJson<DateTime>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
+      'deletedAt': serializer.toJson<DateTime>(deletedAt),
+    };
+  }
+
+  Tombstone copyWith(
+          {String? entityType, String? entityId, DateTime? deletedAt}) =>
+      Tombstone(
+        entityType: entityType ?? this.entityType,
+        entityId: entityId ?? this.entityId,
+        deletedAt: deletedAt ?? this.deletedAt,
+      );
+  Tombstone copyWithCompanion(TombstonesCompanion data) {
+    return Tombstone(
+      entityType:
+          data.entityType.present ? data.entityType.value : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Tombstone(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(entityType, entityId, deletedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Tombstone &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
+          other.deletedAt == this.deletedAt);
+}
+
+class TombstonesCompanion extends UpdateCompanion<Tombstone> {
+  final Value<String> entityType;
+  final Value<String> entityId;
+  final Value<DateTime> deletedAt;
+  final Value<int> rowid;
+  const TombstonesCompanion({
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TombstonesCompanion.insert({
+    required String entityType,
+    required String entityId,
+    required DateTime deletedAt,
+    this.rowid = const Value.absent(),
+  })  : entityType = Value(entityType),
+        entityId = Value(entityId),
+        deletedAt = Value(deletedAt);
+  static Insertable<Tombstone> custom({
+    Expression<String>? entityType,
+    Expression<String>? entityId,
+    Expression<DateTime>? deletedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TombstonesCompanion copyWith(
+      {Value<String>? entityType,
+      Value<String>? entityId,
+      Value<DateTime>? deletedAt,
+      Value<int>? rowid}) {
+    return TombstonesCompanion(
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
+      deletedAt: deletedAt ?? this.deletedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
+    }
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TombstonesCompanion(')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4781,6 +5060,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OfflineRegionsTable offlineRegions = $OfflineRegionsTable(this);
   late final $ConditionsCacheTable conditionsCache =
       $ConditionsCacheTable(this);
+  late final $TombstonesTable tombstones = $TombstonesTable(this);
   late final Index idxWaysBbox = Index('idx_ways_bbox',
       'CREATE INDEX idx_ways_bbox ON osm_ways (min_lat, max_lat, min_lon, max_lon)');
   late final Index idxPoisLatlon = Index(
@@ -4801,6 +5081,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         trackPoints,
         offlineRegions,
         conditionsCache,
+        tombstones,
         idxWaysBbox,
         idxPoisLatlon
       ];
@@ -6420,6 +6701,7 @@ typedef $$TracksTableCreateCompanionBuilder = TracksCompanion Function({
   Value<double?> packWeightKg,
   Value<double?> calories,
   Value<String?> linkedRouteId,
+  Value<DateTime> lastModified,
   Value<int> rowid,
 });
 typedef $$TracksTableUpdateCompanionBuilder = TracksCompanion Function({
@@ -6435,6 +6717,7 @@ typedef $$TracksTableUpdateCompanionBuilder = TracksCompanion Function({
   Value<double?> packWeightKg,
   Value<double?> calories,
   Value<String?> linkedRouteId,
+  Value<DateTime> lastModified,
   Value<int> rowid,
 });
 
@@ -6502,6 +6785,9 @@ class $$TracksTableFilterComposer
 
   ColumnFilters<String> get linkedRouteId => $composableBuilder(
       column: $table.linkedRouteId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastModified => $composableBuilder(
+      column: $table.lastModified, builder: (column) => ColumnFilters(column));
 
   Expression<bool> trackPointsRefs(
       Expression<bool> Function($$TrackPointsTableFilterComposer f) f) {
@@ -6573,6 +6859,10 @@ class $$TracksTableOrderingComposer
   ColumnOrderings<String> get linkedRouteId => $composableBuilder(
       column: $table.linkedRouteId,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastModified => $composableBuilder(
+      column: $table.lastModified,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TracksTableAnnotationComposer
@@ -6619,6 +6909,9 @@ class $$TracksTableAnnotationComposer
 
   GeneratedColumn<String> get linkedRouteId => $composableBuilder(
       column: $table.linkedRouteId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastModified => $composableBuilder(
+      column: $table.lastModified, builder: (column) => column);
 
   Expression<T> trackPointsRefs<T extends Object>(
       Expression<T> Function($$TrackPointsTableAnnotationComposer a) f) {
@@ -6677,6 +6970,7 @@ class $$TracksTableTableManager extends RootTableManager<
             Value<double?> packWeightKg = const Value.absent(),
             Value<double?> calories = const Value.absent(),
             Value<String?> linkedRouteId = const Value.absent(),
+            Value<DateTime> lastModified = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TracksCompanion(
@@ -6692,6 +6986,7 @@ class $$TracksTableTableManager extends RootTableManager<
             packWeightKg: packWeightKg,
             calories: calories,
             linkedRouteId: linkedRouteId,
+            lastModified: lastModified,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -6707,6 +7002,7 @@ class $$TracksTableTableManager extends RootTableManager<
             Value<double?> packWeightKg = const Value.absent(),
             Value<double?> calories = const Value.absent(),
             Value<String?> linkedRouteId = const Value.absent(),
+            Value<DateTime> lastModified = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TracksCompanion.insert(
@@ -6722,6 +7018,7 @@ class $$TracksTableTableManager extends RootTableManager<
             packWeightKg: packWeightKg,
             calories: calories,
             linkedRouteId: linkedRouteId,
+            lastModified: lastModified,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -7555,6 +7852,141 @@ typedef $$ConditionsCacheTableProcessedTableManager = ProcessedTableManager<
     ),
     ConditionsCacheData,
     PrefetchHooks Function()>;
+typedef $$TombstonesTableCreateCompanionBuilder = TombstonesCompanion Function({
+  required String entityType,
+  required String entityId,
+  required DateTime deletedAt,
+  Value<int> rowid,
+});
+typedef $$TombstonesTableUpdateCompanionBuilder = TombstonesCompanion Function({
+  Value<String> entityType,
+  Value<String> entityId,
+  Value<DateTime> deletedAt,
+  Value<int> rowid,
+});
+
+class $$TombstonesTableFilterComposer
+    extends Composer<_$AppDatabase, $TombstonesTable> {
+  $$TombstonesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$TombstonesTableOrderingComposer
+    extends Composer<_$AppDatabase, $TombstonesTable> {
+  $$TombstonesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get entityId => $composableBuilder(
+      column: $table.entityId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+      column: $table.deletedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TombstonesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $TombstonesTable> {
+  $$TombstonesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get entityType => $composableBuilder(
+      column: $table.entityType, builder: (column) => column);
+
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$TombstonesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $TombstonesTable,
+    Tombstone,
+    $$TombstonesTableFilterComposer,
+    $$TombstonesTableOrderingComposer,
+    $$TombstonesTableAnnotationComposer,
+    $$TombstonesTableCreateCompanionBuilder,
+    $$TombstonesTableUpdateCompanionBuilder,
+    (Tombstone, BaseReferences<_$AppDatabase, $TombstonesTable, Tombstone>),
+    Tombstone,
+    PrefetchHooks Function()> {
+  $$TombstonesTableTableManager(_$AppDatabase db, $TombstonesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TombstonesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TombstonesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TombstonesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> entityType = const Value.absent(),
+            Value<String> entityId = const Value.absent(),
+            Value<DateTime> deletedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TombstonesCompanion(
+            entityType: entityType,
+            entityId: entityId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String entityType,
+            required String entityId,
+            required DateTime deletedAt,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TombstonesCompanion.insert(
+            entityType: entityType,
+            entityId: entityId,
+            deletedAt: deletedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TombstonesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $TombstonesTable,
+    Tombstone,
+    $$TombstonesTableFilterComposer,
+    $$TombstonesTableOrderingComposer,
+    $$TombstonesTableAnnotationComposer,
+    $$TombstonesTableCreateCompanionBuilder,
+    $$TombstonesTableUpdateCompanionBuilder,
+    (Tombstone, BaseReferences<_$AppDatabase, $TombstonesTable, Tombstone>),
+    Tombstone,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7580,4 +8012,6 @@ class $AppDatabaseManager {
       $$OfflineRegionsTableTableManager(_db, _db.offlineRegions);
   $$ConditionsCacheTableTableManager get conditionsCache =>
       $$ConditionsCacheTableTableManager(_db, _db.conditionsCache);
+  $$TombstonesTableTableManager get tombstones =>
+      $$TombstonesTableTableManager(_db, _db.tombstones);
 }

@@ -609,6 +609,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enter this on your other devices to join the same sync.';
 
   @override
+  String get syncJoin => 'Join with a code';
+
+  @override
+  String get syncCodeCopied => 'Sync code copied';
+
+  @override
+  String get syncEnabled => 'Sync is on';
+
+  @override
+  String get syncNoData => 'No synced data found for that code.';
+
+  @override
   String get summitTitle => 'Cairn Summit';
 
   @override

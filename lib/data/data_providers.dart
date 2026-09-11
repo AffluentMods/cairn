@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../core/net/dio_client.dart';
 import '../core/settings/settings_providers.dart';
@@ -29,6 +30,7 @@ import 'sources/open_meteo_source.dart';
 import 'sources/overpass_source.dart';
 import 'sources/terrain_tile_source.dart';
 import 'sources/usfs_source.dart';
+import 'sync/sync_service.dart';
 
 /// The app support directory (for the terrain tile cache). Overridden in main()
 /// with the resolved directory.
@@ -128,6 +130,19 @@ final offlineRepositoryProvider = Provider<OfflineRepository>(
     trails: ref.watch(trailRepositoryProvider),
     pois: ref.watch(poiRepositoryProvider),
     terrain: ref.watch(terrainTileSourceProvider),
+  ),
+);
+
+/// OS-backed secure storage for sync credentials (never plain prefs).
+final secureStorageProvider = Provider<FlutterSecureStorage>(
+  (ref) => const FlutterSecureStorage(),
+);
+
+final syncServiceProvider = Provider<SyncService>(
+  (ref) => SyncService(
+    db: ref.watch(appDatabaseProvider),
+    dio: ref.watch(dioProvider),
+    storage: ref.watch(secureStorageProvider),
   ),
 );
 

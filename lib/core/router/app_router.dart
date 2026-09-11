@@ -10,6 +10,7 @@ import '../../presentation/plan/plan_screen.dart';
 import '../../presentation/record/record_screen.dart';
 import '../../presentation/settings/settings_screen.dart';
 import '../../presentation/shell/app_shell.dart';
+import '../../presentation/sync/sync_screen.dart';
 
 final _mapKey = GlobalKey<NavigatorState>(debugLabel: 'map');
 final _planKey = GlobalKey<NavigatorState>(debugLabel: 'plan');
@@ -70,6 +71,10 @@ final appRouter = GoRouter(
                 GoRoute(
                   path: 'settings',
                   builder: (_, __) => const SettingsScreen(),
+                ),
+                GoRoute(
+                  path: 'sync',
+                  builder: (_, __) => const SyncScreen(),
                 ),
               ],
             ),
