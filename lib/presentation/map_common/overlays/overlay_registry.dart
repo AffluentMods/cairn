@@ -91,8 +91,8 @@ final overlays = <OverlayDef>[
     label: (l) => l.overlayTemperature,
     subtitle: (l) => l.overlayTemperatureSubtitle,
     tileUrl:
-        'https://mapservices.weather.noaa.gov/raster/rest/services/ndfd/'
-        'NDFD_temp/MapServer/export?$_arcgisExport',
+        'https://mapservices.weather.noaa.gov/raster/rest/services/NDFD/'
+        'NDFD_temp/MapServer/export?layers=show:5&$_arcgisExport',
     opacity: 0.5,
     refresh: const Duration(hours: 1),
     attribution: (l) => l.attributionNoaa,
@@ -105,7 +105,7 @@ final overlays = <OverlayDef>[
     subtitle: (l) => l.overlaySnowDepthSubtitle,
     tileUrl:
         'https://mapservices.weather.noaa.gov/raster/rest/services/snow/'
-        'NOHRSC_Snow_Analysis/MapServer/export?layers=show:3&$_arcgisExport',
+        'NOHRSC_Snow_Analysis/MapServer/export?layers=show:0&$_arcgisExport',
     opacity: 0.6,
     refresh: const Duration(hours: 6),
     attribution: (l) => l.attributionNoaa,

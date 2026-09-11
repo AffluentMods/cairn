@@ -57,8 +57,12 @@ update the parser plus this note if they differ:
   overlay controller routes any `{bbox-epsg-3857}` overlay through it. The **slope-angle**
   overlay (USGS 3DEP Slope Map) now renders correctly through the proxy (verified at z13 over
   Goat Rocks). The other 3DEP overlay (lidar hillshade) uses the same shape. The NWS weather
-  overlays (radar / temperature / snow) go through the same proxy but their exact service
-  paths / layer ids / render rules are best-effort; confirm each with `?f=json` and fix the URL
-  in `overlay_registry.dart` if a given one comes back blank. OSM GPS traces
-  (`gps.tile.openstreetmap.org`, standard XYZ) installs directly (no proxy) and is just sparse
-  in this area.
+  overlays go through the same proxy, and their service paths were verified live and corrected
+  in `overlay_registry.dart`: radar `eventdriven/.../radar/radar_base_reflectivity/MapServer`
+  (correct as written; it is transparent on a clear day, which is normal, not a bug);
+  temperature `raster/.../NDFD/NDFD_temp/MapServer` layer 5 (`Temp_00Hr`, current temperature)
+  (the folder is capital `NDFD`, not `ndfd`); snow depth
+  `raster/.../snow/NOHRSC_Snow_Analysis/MapServer` layer 0 (`Snow Depth`, was wrongly layer 3).
+  Lidar hillshade uses the 3DEP ImageServer like slope, which is verified rendering. OSM GPS
+  traces (`gps.tile.openstreetmap.org`, standard XYZ) installs directly (no proxy) and is just
+  sparse in this area.
