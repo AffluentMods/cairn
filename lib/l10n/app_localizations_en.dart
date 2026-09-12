@@ -869,6 +869,130 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trailUnsave => 'Remove from saved';
 
   @override
+  String trailLengthOneWay(String distance) {
+    return '$distance one way';
+  }
+
+  @override
+  String get trailDifficultyEasy => 'Easy';
+
+  @override
+  String get trailDifficultyModerate => 'Moderate';
+
+  @override
+  String get trailDifficultyHard => 'Hard';
+
+  @override
+  String get trailDifficultyStrenuous => 'Strenuous';
+
+  @override
+  String trailDifficultyWhy(int score, String distance, String gain) {
+    return 'Rating $score: $distance with $gain of climbing';
+  }
+
+  @override
+  String get trailRouteLoop => 'Loop';
+
+  @override
+  String get trailRouteOutAndBack => 'Out and back';
+
+  @override
+  String get trailRoutePointToPoint => 'One way';
+
+  @override
+  String trailTimeTypical(String band) {
+    return 'Typical $band';
+  }
+
+  @override
+  String trailTimeFit(String time) {
+    return 'Fit $time';
+  }
+
+  @override
+  String trailHoursBand(String from, String to) {
+    return '$from to $to h';
+  }
+
+  @override
+  String get trailVisibilityFaint => 'Faint route';
+
+  @override
+  String get trailVisibilityUnmarked => 'Unmarked';
+
+  @override
+  String trailSurface(String surface) {
+    return '$surface surface';
+  }
+
+  @override
+  String trailWays(int count) {
+    return '$count segments joined';
+  }
+
+  @override
+  String get trailGapNote =>
+      'Some segments of this trail are not connected; Navigate follows the longest one.';
+
+  @override
+  String get trailSights => 'Along the way';
+
+  @override
+  String trailParkingNear(String distance) {
+    return 'Parking $distance from the start';
+  }
+
+  @override
+  String get trailProfileLoading => 'Reading elevation';
+
+  @override
+  String get poiKindPeak => 'Peak';
+
+  @override
+  String get poiKindSaddle => 'Saddle';
+
+  @override
+  String get poiKindViewpoint => 'Viewpoint';
+
+  @override
+  String get poiKindSpring => 'Spring';
+
+  @override
+  String get poiKindWater => 'Water';
+
+  @override
+  String get poiKindDrinkingWater => 'Drinking water';
+
+  @override
+  String get poiKindCampSite => 'Campsite';
+
+  @override
+  String get poiKindHut => 'Hut';
+
+  @override
+  String get poiKindShelter => 'Shelter';
+
+  @override
+  String get poiKindToilets => 'Toilets';
+
+  @override
+  String get poiKindParking => 'Parking';
+
+  @override
+  String get poiKindTrailhead => 'Trailhead';
+
+  @override
+  String get poiKindStream => 'Stream';
+
+  @override
+  String get poiKindRiver => 'River';
+
+  @override
+  String searchMatches(int count) {
+    return '$count segments';
+  }
+
+  @override
   String get navEmptyTitle => 'No route loaded';
 
   @override

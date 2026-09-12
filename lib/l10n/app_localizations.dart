@@ -1654,6 +1654,216 @@ abstract class AppLocalizations {
   /// **'Remove from saved'**
   String get trailUnsave;
 
+  /// No description provided for @trailLengthOneWay.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} one way'**
+  String trailLengthOneWay(String distance);
+
+  /// No description provided for @trailDifficultyEasy.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get trailDifficultyEasy;
+
+  /// No description provided for @trailDifficultyModerate.
+  ///
+  /// In en, this message translates to:
+  /// **'Moderate'**
+  String get trailDifficultyModerate;
+
+  /// No description provided for @trailDifficultyHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get trailDifficultyHard;
+
+  /// No description provided for @trailDifficultyStrenuous.
+  ///
+  /// In en, this message translates to:
+  /// **'Strenuous'**
+  String get trailDifficultyStrenuous;
+
+  /// No description provided for @trailDifficultyWhy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating {score}: {distance} with {gain} of climbing'**
+  String trailDifficultyWhy(int score, String distance, String gain);
+
+  /// No description provided for @trailRouteLoop.
+  ///
+  /// In en, this message translates to:
+  /// **'Loop'**
+  String get trailRouteLoop;
+
+  /// No description provided for @trailRouteOutAndBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Out and back'**
+  String get trailRouteOutAndBack;
+
+  /// No description provided for @trailRoutePointToPoint.
+  ///
+  /// In en, this message translates to:
+  /// **'One way'**
+  String get trailRoutePointToPoint;
+
+  /// No description provided for @trailTimeTypical.
+  ///
+  /// In en, this message translates to:
+  /// **'Typical {band}'**
+  String trailTimeTypical(String band);
+
+  /// No description provided for @trailTimeFit.
+  ///
+  /// In en, this message translates to:
+  /// **'Fit {time}'**
+  String trailTimeFit(String time);
+
+  /// No description provided for @trailHoursBand.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to} h'**
+  String trailHoursBand(String from, String to);
+
+  /// No description provided for @trailVisibilityFaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Faint route'**
+  String get trailVisibilityFaint;
+
+  /// No description provided for @trailVisibilityUnmarked.
+  ///
+  /// In en, this message translates to:
+  /// **'Unmarked'**
+  String get trailVisibilityUnmarked;
+
+  /// No description provided for @trailSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'{surface} surface'**
+  String trailSurface(String surface);
+
+  /// No description provided for @trailWays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} segments joined'**
+  String trailWays(int count);
+
+  /// No description provided for @trailGapNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Some segments of this trail are not connected; Navigate follows the longest one.'**
+  String get trailGapNote;
+
+  /// No description provided for @trailSights.
+  ///
+  /// In en, this message translates to:
+  /// **'Along the way'**
+  String get trailSights;
+
+  /// No description provided for @trailParkingNear.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking {distance} from the start'**
+  String trailParkingNear(String distance);
+
+  /// No description provided for @trailProfileLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading elevation'**
+  String get trailProfileLoading;
+
+  /// No description provided for @poiKindPeak.
+  ///
+  /// In en, this message translates to:
+  /// **'Peak'**
+  String get poiKindPeak;
+
+  /// No description provided for @poiKindSaddle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saddle'**
+  String get poiKindSaddle;
+
+  /// No description provided for @poiKindViewpoint.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewpoint'**
+  String get poiKindViewpoint;
+
+  /// No description provided for @poiKindSpring.
+  ///
+  /// In en, this message translates to:
+  /// **'Spring'**
+  String get poiKindSpring;
+
+  /// No description provided for @poiKindWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Water'**
+  String get poiKindWater;
+
+  /// No description provided for @poiKindDrinkingWater.
+  ///
+  /// In en, this message translates to:
+  /// **'Drinking water'**
+  String get poiKindDrinkingWater;
+
+  /// No description provided for @poiKindCampSite.
+  ///
+  /// In en, this message translates to:
+  /// **'Campsite'**
+  String get poiKindCampSite;
+
+  /// No description provided for @poiKindHut.
+  ///
+  /// In en, this message translates to:
+  /// **'Hut'**
+  String get poiKindHut;
+
+  /// No description provided for @poiKindShelter.
+  ///
+  /// In en, this message translates to:
+  /// **'Shelter'**
+  String get poiKindShelter;
+
+  /// No description provided for @poiKindToilets.
+  ///
+  /// In en, this message translates to:
+  /// **'Toilets'**
+  String get poiKindToilets;
+
+  /// No description provided for @poiKindParking.
+  ///
+  /// In en, this message translates to:
+  /// **'Parking'**
+  String get poiKindParking;
+
+  /// No description provided for @poiKindTrailhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailhead'**
+  String get poiKindTrailhead;
+
+  /// No description provided for @poiKindStream.
+  ///
+  /// In en, this message translates to:
+  /// **'Stream'**
+  String get poiKindStream;
+
+  /// No description provided for @poiKindRiver.
+  ///
+  /// In en, this message translates to:
+  /// **'River'**
+  String get poiKindRiver;
+
+  /// No description provided for @searchMatches.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} segments'**
+  String searchMatches(int count);
+
   /// No description provided for @navEmptyTitle.
   ///
   /// In en, this message translates to:

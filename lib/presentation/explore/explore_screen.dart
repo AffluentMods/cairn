@@ -220,7 +220,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       if (id == null) return;
       final trail =
           await ref.read(trailRepositoryProvider).byId((id as num).toInt());
-      if (trail != null && mounted) await showTrailDetail(context, trail);
+      if (trail == null || !mounted) return;
+      // Open the whole named trail when the list already assembled it, so a
+      // tap on one way shows the same entry as the card.
+      final nearby = ref.read(nearbyTrailsProvider).valueOrNull ?? const [];
+      NearbyTrail? entry;
+      for (final n in nearby) {
+        if (trail.name != null && n.name == trail.name) {
+          entry = n;
+          break;
+        }
+      }
+      await showTrailDetail(context, entry ?? NearbyTrail.single(trail));
     } catch (_) {
       // A tap that hits nothing is not an error.
     }
@@ -364,7 +375,7 @@ class _NearbyTrailsSheet extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: TrailCard(
                   trail: t,
-                  onTap: () => showTrailDetail(context, t.trail),
+                  onTap: () => showTrailDetail(context, t),
                 ),
               ),
           ],

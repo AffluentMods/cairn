@@ -10,6 +10,7 @@ class StatTile extends StatelessWidget {
     required this.value,
     required this.label,
     this.emphasized = false,
+    this.compact = false,
     super.key,
   });
 
@@ -17,11 +18,17 @@ class StatTile extends StatelessWidget {
   final String label;
   final bool emphasized;
 
+  /// A smaller number for strips of four or more tiles.
+  final bool compact;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final numberStyle =
-        emphasized ? theme.textTheme.headlineSmall : theme.textTheme.titleLarge;
+    final numberStyle = compact
+        ? theme.textTheme.titleMedium
+        : emphasized
+            ? theme.textTheme.headlineSmall
+            : theme.textTheme.titleLarge;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Column(

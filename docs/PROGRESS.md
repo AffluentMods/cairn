@@ -371,6 +371,15 @@ optimization prompt on Samsung/OnePlus.
 NEEDS DEVICE: an actual multi-hundred-MB bundle download on a phone (the emulator can only prove
 the flow), and the offline map render with the radio off.
 
+## Trail detail sheet v2 (2026-09-11)
+
+The sheet now describes the whole named trail (ways chained into one line, `chainWays`, tested):
+difficulty band with the score and inputs in a tooltip, route type, SAC grade, visibility and
+surface chips, a stat strip (length one way, DEM gain, loss, high point), Typical and Fit times,
+the elevation profile, parking or a trailhead near the start, and the sights along the way from
+cached OSM POIs. Search groups hits by trail name and uses the right hint. `trail_rating_test`
+checks the difficulty bands against the AllTrails labels sampled in the benchmark.
+
 ## Numbered phases 0-9: all implemented
 
 Recorded here for accuracy (Phases 4-8 were built during the overnight and Phase R work but never

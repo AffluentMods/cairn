@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n_ext.dart';
 import '../../../data/data_providers.dart';
 import '../../../domain/models/trail.dart';
+import '../nearby_trails_provider.dart';
 import 'trail_detail_sheet.dart';
 
 /// Name search over cached trails (Drift LIKE, spec Phase 2). Opens a sheet with
@@ -52,6 +53,22 @@ class _TrailSearchSheetState extends ConsumerState<_TrailSearchSheet> {
     }
   }
 
+  /// One row per trail name: the hits are ways, and a trail is many ways.
+  List<List<Trail>> get _groups {
+    final byName = <String, List<Trail>>{};
+    for (final t in _results) {
+      (byName[t.name ?? ''] ??= []).add(t);
+    }
+    return byName.values.toList();
+  }
+
+  void _open(List<Trail> ways) {
+    Navigator.of(context).pop();
+    final geo = ways.first.geometry;
+    final mid = geo.isEmpty ? const [0.0, 0.0] : geo[geo.length ~/ 2];
+    showTrailDetail(context, buildNearbyTrail(ways, mid[0], mid[1]));
+  }
+
   @override
   void dispose() {
     _debounce?.cancel();
@@ -75,30 +92,38 @@ class _TrailSearchSheetState extends ConsumerState<_TrailSearchSheet> {
                 onChanged: _onChanged,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
-                  hintText: l10n.planNameHint,
+                  hintText: l10n.exploreSearchHint,
                   border: const OutlineInputBorder(),
                 ),
               ),
             ),
             if (_searching) const LinearProgressIndicator(),
             Expanded(
-              child: ListView.builder(
-                itemCount: _results.length,
-                itemBuilder: (context, i) {
-                  final t = _results[i];
-                  return ListTile(
-                    leading: const Icon(Icons.route_outlined),
-                    title: Text(t.name ?? l10n.trailUnnamed),
-                    subtitle: t.usfsNumber != null
-                        ? Text(l10n.trailUsfsNumber(t.usfsNumber!))
-                        : null,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      showTrailDetail(context, t);
-                    },
-                  );
-                },
-              ),
+              child: Builder(builder: (context) {
+                final groups = _groups;
+                return ListView.builder(
+                  itemCount: groups.length,
+                  itemBuilder: (context, i) {
+                    final ways = groups[i];
+                    final rep = ways.firstWhere(
+                      (w) => w.usfsNumber != null,
+                      orElse: () => ways.first,
+                    );
+                    final parts = <String>[
+                      if (rep.usfsNumber != null)
+                        l10n.trailUsfsNumber(rep.usfsNumber!),
+                      if (ways.length > 1) l10n.searchMatches(ways.length),
+                    ];
+                    return ListTile(
+                      leading: const Icon(Icons.route_outlined),
+                      title: Text(rep.name ?? l10n.trailUnnamed),
+                      subtitle:
+                          parts.isEmpty ? null : Text(parts.join('  ·  ')),
+                      onTap: () => _open(ways),
+                    );
+                  },
+                );
+              }),
             ),
           ],
         ),

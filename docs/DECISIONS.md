@@ -185,6 +185,31 @@ option that ships fastest and record it here.
   logo; the notification showed it too. Pillow is the only build-time need and the output is
   committed, so CI and F-Droid builds do not run the script.
 
+## Trail detail sheet (2026-09-11, AllTrails benchmark section 5 and 8)
+
+- **A trail is its named ways chained into one line, not a single OSM way.** Reason: the sheet
+  opened from a card said "0.7 mi segment" while the card said 4.5 mi. `chainWays` walks from the
+  longest way and joins any way whose end lies within 15 m, in either orientation; the longest
+  chain feeds the profile, the rating, and Navigate, and a note appears when some ways did not
+  connect. Search groups its hits by name the same way.
+- **Difficulty is the NPS / Shenandoah score, `sqrt(2 x gain_ft x distance_mi)`: Easy under 50,
+  Moderate to 140, Hard to 250, Strenuous above, bumped one band for `sac_scale` T3 and up or
+  `trail_visibility` bad / horrible / no.** Reason: AllTrails' equation is unpublished; this one
+  reproduced its label on all seven benchmark trails (docs, research 2026-09-11). The score and
+  its inputs sit in the chip's tooltip so the label is explainable. T2 does not bump: it is an
+  ordinary mountain trail in OSM's scale.
+- **Two times: "Typical" (5.35 km/h plus one hour per 248 m of gain, floored to a half-hour
+  band) and "Fit" (Naismith and Langmuir).** Reason: the Typical pace is the fit to AllTrails'
+  published bands and absorbs rests; hikers know that number. Naismith stays as the honest
+  moving-time estimate and the ETA basis.
+- **Lengths on the sheet are one way, with the route type (one way, loop, out and back) as a
+  chip.** Reason: OSM trails are lines, not curated hikes; an out-and-back on a 4.5 mi trail is
+  the hiker's choice, and doubling silently would misstate the data.
+- **Sights along the way come from the cached OSM POIs within 100 m of the line (peaks, saddles,
+  viewpoints, springs, water, campsites, huts, shelters) and parking or a trailhead within 300 m
+  of the start; matched in a worker.** Reason: AllTrails' "Top sights" and "Plan your visit"
+  without any community data, and it works offline inside a downloaded region.
+
 ## Divergences recorded after the spec audit (2026-09-12)
 
 - **Overpass budgets are 35 s query / 40 s receive, not the spec's 60 / 90.** Reason: Fix Pass 1
