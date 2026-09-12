@@ -116,7 +116,11 @@ class LayerSheet extends ConsumerWidget {
                 physics: const NeverScrollableScrollPhysics(),
                 mainAxisSpacing: 12,
                 crossAxisSpacing: 10,
-                childAspectRatio: 0.82,
+                // The label lines under each preview grow with the user's
+                // text size; give the cells the room (Addendum A5 test at
+                // 1.3x) rather than overflow.
+                childAspectRatio:
+                    0.82 / MediaQuery.textScalerOf(context).scale(1.0),
                 children: [
                   for (final b in basemaps)
                     _BasemapTile(

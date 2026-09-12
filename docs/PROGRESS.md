@@ -488,7 +488,9 @@ layer sheet's map type tiles now show real base-map crops (A5.2, `tool/crop_map_
 and "Needs a connection" also follows the device's connectivity, since MapLibre stops
 fetching in airplane mode before the proxy could ever see a failure. Fire and land polygon
 parsing moved to the worker isolate (4 ms rule), and waypoint rows read "Start / Waypoint 2
-at 2.3 mi / End" instead of coordinates.
+at 2.3 mi / End" instead of coordinates. The Addendum A5 widget test (layer sheet at 360x640,
+text at 1.3x, no overflow) now exists and caught a 12 px overflow in the map type grid, fixed
+by scaling the grid cells with the text size.
 
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
