@@ -49,4 +49,17 @@ if [ "$bad" -ne 0 ]; then
   exit 1
 fi
 
+# AppColors must hold only semantic map colors (fire, water, grade, AQI, ...).
+# Its brand/surface/text values are the DEFAULT theme's seed and must not be
+# referenced from presentation, where chrome comes from context.cairn tokens or
+# the ColorScheme (Fix Pass 1 X4.1).
+chrome_re='AppColors\.(larch|larchLight|glacier|inkDeep|ink|inkRaised|paper|paperRaised|paperBorder|textPrimaryDark|textSecondaryDark|textPrimaryLight|textSecondaryLight)\b'
+if grep -rInE "$chrome_re" lib/presentation >/dev/null; then
+  echo "chrome AppColors in presentation (use context.cairn / ColorScheme):"
+  grep -rInE "$chrome_re" lib/presentation | sed 's/^/    /'
+  echo ""
+  echo "These are the default theme's seed values, not semantic map colors."
+  exit 1
+fi
+
 echo "check_theme_tokens: ok"

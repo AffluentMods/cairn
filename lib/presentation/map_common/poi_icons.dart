@@ -7,28 +7,33 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/theme/app_colors.dart';
 
-/// The icons registered with the map at style load, keyed by the name the POI
-/// and fire layers reference via `icon-image`. We generate simple colored dots
-/// at runtime (spec Section 8 fallback: controller.addImage) so no sprite sheet
-/// needs to ship, which keeps the APK small and F-Droid clean.
-const _iconColors = <String, Color>{
-  'water': AppColors.water,
-  'peak': AppColors.trailOsm,
-  'saddle': AppColors.trailInformal,
-  'camp': AppColors.aqiGood,
-  'hut': AppColors.aqiGood,
-  'viewpoint': AppColors.glacier,
-  'toilets': AppColors.closure,
-  'parking': AppColors.closure,
-  'trailhead': AppColors.larch,
-  'fire': AppColors.fire,
-};
+/// The POI marker colors that are map semantics (water, peak, closures, fire)
+/// and stay fixed. The trailhead and viewpoint dots take the theme accent and
+/// track so they match the active theme (Fix Pass 1 X4.1).
+Map<String, Color> _iconColors(Color accent, Color track) => {
+      'water': AppColors.water,
+      'peak': AppColors.trailOsm,
+      'saddle': AppColors.trailInformal,
+      'camp': AppColors.aqiGood,
+      'hut': AppColors.aqiGood,
+      'viewpoint': track,
+      'toilets': AppColors.closure,
+      'parking': AppColors.closure,
+      'trailhead': accent,
+      'fire': AppColors.fire,
+    };
 
 /// Registers every Cairn map icon. Call after each style load (icons are cleared
 /// when the style reloads). Best effort: a failure just means dots do not show.
-Future<void> addCairnIcons(MapLibreMapController controller) async {
+/// [accent] and [track] color the trailhead and viewpoint dots so they follow
+/// the active theme.
+Future<void> addCairnIcons(
+  MapLibreMapController controller, {
+  required Color accent,
+  required Color track,
+}) async {
   const size = 44;
-  for (final entry in _iconColors.entries) {
+  for (final entry in _iconColors(accent, track).entries) {
     try {
       final bytes = await _dotPng(entry.value, size);
       await controller.addImage(entry.key, bytes);

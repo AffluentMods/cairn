@@ -95,7 +95,8 @@ class _CairnMapState extends ConsumerState<CairnMap> {
     }
     final c = _controller;
     if (c == null) return;
-    await addCairnIcons(c);
+    final cairn = context.cairn;
+    await addCairnIcons(c, accent: cairn.accent, track: cairn.track);
     await ref.read(overlayControllerProvider.notifier).reinstall();
     if (ref.read(tiltProvider)) {
       await c.animateCamera(CameraUpdate.tiltTo(60));
