@@ -30,6 +30,9 @@ jobs:
       - name: SPDX header check
         run: bash tool/check_spdx.sh
 
+      - name: Theme token check
+        run: bash tool/check_theme_tokens.sh
+
       - name: Formatting
         run: dart format --output=none --set-exit-if-changed .
 
