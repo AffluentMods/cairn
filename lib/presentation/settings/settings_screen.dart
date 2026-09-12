@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -13,6 +14,7 @@ import '../../core/settings/settings_providers.dart';
 import '../../core/theme/cairn_theme.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
+import '../../domain/usecases/recording_engine.dart' show RecordingProfile;
 import '../navigate/navigate_providers.dart';
 import 'about_screen.dart';
 import 'appearance_screen.dart';
@@ -95,6 +97,53 @@ class SettingsScreen extends ConsumerWidget {
               (kg) => notifier.setDefaultPackKg(kg),
             ),
           ),
+          const Divider(),
+          _header(context, l10n.settingsRecording),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Text(
+              l10n.settingsRecordingProfile,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ),
+          for (final p in RecordingProfile.values)
+            RadioListTileless(
+              selected: s.recordingProfile == p,
+              title: switch (p) {
+                RecordingProfile.precise => l10n.profilePrecise,
+                RecordingProfile.balanced => l10n.profileBalanced,
+                RecordingProfile.saver => l10n.profileSaver,
+              },
+              subtitle: switch (p) {
+                RecordingProfile.precise => l10n.profilePreciseSub,
+                RecordingProfile.balanced => l10n.profileBalancedSub,
+                RecordingProfile.saver => l10n.profileSaverSub,
+              },
+              onTap: () => notifier.setRecordingProfile(p),
+            ),
+          SwitchListTile(
+            secondary: const Icon(Icons.pause_circle_outline),
+            title: Text(l10n.settingsAutoPause),
+            subtitle: Text(l10n.settingsAutoPauseSub),
+            value: s.autoPause,
+            onChanged: notifier.setAutoPause,
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.battery_saver_outlined),
+            title: Text(l10n.settingsAutoSaver),
+            subtitle: Text(l10n.settingsAutoSaverSub),
+            value: s.autoSaver,
+            onChanged: notifier.setAutoSaver,
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.brightness_high_outlined),
+            title: Text(l10n.settingsKeepScreenOn),
+            value: s.keepScreenOn,
+            onChanged: notifier.setKeepScreenOn,
+          ),
+          if (Platform.isAndroid) const _BatteryOptimizationTile(),
           const Divider(),
           const _TerrainCacheTile(),
           const Divider(),
@@ -279,11 +328,13 @@ class RadioListTileless extends StatelessWidget {
     required this.selected,
     required this.title,
     required this.onTap,
+    this.subtitle,
     super.key,
   });
 
   final bool selected;
   final String title;
+  final String? subtitle;
   final VoidCallback onTap;
 
   @override
@@ -295,7 +346,73 @@ class RadioListTileless extends StatelessWidget {
         color: selected ? scheme.primary : scheme.onSurfaceVariant,
       ),
       title: Text(title),
+      subtitle: subtitle == null ? null : Text(subtitle!),
       onTap: onTap,
+    );
+  }
+}
+
+/// Whether Android lets Cairn run unrestricted in the background; a tap opens
+/// the system page. Re-checked when the app comes back to the foreground.
+class _BatteryOptimizationTile extends StatefulWidget {
+  const _BatteryOptimizationTile();
+
+  @override
+  State<_BatteryOptimizationTile> createState() =>
+      _BatteryOptimizationTileState();
+}
+
+class _BatteryOptimizationTileState extends State<_BatteryOptimizationTile> {
+  bool? _unrestricted;
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    _lifecycle = AppLifecycleListener(onResume: _check);
+    _check();
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
+
+  Future<void> _check() async {
+    bool? value;
+    try {
+      value = await FlutterForegroundTask.isIgnoringBatteryOptimizations;
+    } on Exception {
+      value = null;
+    }
+    if (mounted) setState(() => _unrestricted = value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final ok = _unrestricted;
+    return ListTile(
+      leading: Icon(
+        ok == false ? Icons.battery_alert_outlined : Icons.battery_full,
+        color: ok == false ? Theme.of(context).colorScheme.error : null,
+      ),
+      title: Text(l10n.settingsBatteryOptimization),
+      subtitle: Text(
+        ok == null
+            ? '...'
+            : ok
+                ? l10n.settingsBatteryUnrestricted
+                : l10n.settingsBatteryRestricted,
+      ),
+      onTap: () async {
+        try {
+          await FlutterForegroundTask.openIgnoreBatteryOptimizationSettings();
+        } on Exception {
+          // not available
+        }
+      },
     );
   }
 }

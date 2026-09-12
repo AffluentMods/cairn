@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:async';
 import 'dart:io';
 import 'dart:isolate';
 import 'dart:typed_data';
@@ -9,6 +10,7 @@ import 'package:path/path.dart' as p;
 
 import '../../core/geo/terrarium.dart';
 import '../../core/geo/tile_math.dart';
+import 'terrain_sidecar.dart';
 
 /// Fetches terrarium elevation PNG tiles at a fixed zoom and caches them on disk
 /// (spec Sections 5.1, 8.3). Decodes each tile to a Float32List of meters once,
@@ -44,7 +46,16 @@ class TerrainTileSource {
     if (bytes == null) return null;
 
     final grid = await _decode(bytes);
-    if (grid != null) _memory[t.key] = grid;
+    if (grid != null) {
+      _memory[t.key] = grid;
+      // A decoded `.f32` sidecar next to the PNG lets the recording service
+      // (a separate isolate with no image codec) read DEM elevations for live
+      // gain without decoding anything (spec Phase 6).
+      final sidecar = File(TerrainSidecarReader.sidecarPathFor(file.path));
+      if (!sidecar.existsSync()) {
+        unawaited(TerrainSidecarReader.writeSidecar(file.path, grid));
+      }
+    }
     return grid;
   }
 

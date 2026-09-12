@@ -64,6 +64,30 @@ The simulator lives in `lib/data/sources/location_source.dart`
 (`SimulatedLocationSource` / `simulateAlong`) behind the `LocationSource`
 interface, and is ignored entirely in release builds.
 
+### Recording survives a kill (how to check it)
+
+The recording runs in the foreground service's own isolate and appends every
+fix to `files/recording/<trackId>.jsonl` (spec Phase 6). Three paths to try:
+
+1. Start a recording, open recents, swipe Cairn away: the notification keeps
+   counting; reopen the app and Navigate shows the live session.
+2. With the app swiped away, expand the notification and press **Stop**: the
+   next launch folds the hike into Activity.
+3. `adb shell am force-stop com.affluentlabs.cairn` mid-recording (kills the
+   service too), then relaunch: Navigate shows "Recording recovered" paused;
+   Resume restarts the service, which replays the log and carries on.
+
+Inspect the on-device state with `adb shell run-as com.affluentlabs.cairn`
+(`ls files/recording`, `sqlite3 files/cairn.sqlite`).
+
+### Map styles
+
+`tool/fetch_styles.dart` snapshots the upstream style into
+`assets/map_styles/outdoors.json`; `tool/patch_cairn_layers.dart` then splits
+any dashed Cairn layer into a solid base plus a dashed variant (MapLibre Native
+drops a layer whose `line-dasharray` is data-driven). Run the patch after
+touching any style.
+
 ### Emulator location, the manual way
 
 You can also drive the OS location the app reads from GPS:

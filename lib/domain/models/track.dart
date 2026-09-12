@@ -41,6 +41,8 @@ class TrackSummary {
     this.packWeightKg,
     this.calories,
     this.linkedRouteId,
+    this.batteryStartPct,
+    this.batteryEndPct,
   });
 
   final String id;
@@ -49,12 +51,32 @@ class TrackSummary {
   final DateTime? endedAt;
   final double distanceM;
   final int movingSeconds;
+
+  /// Active time: elapsed minus pauses.
   final int totalSeconds;
   final double gainM;
   final double lossM;
   final double? packWeightKg;
   final double? calories;
   final String? linkedRouteId;
+
+  /// Battery percent at start and end (Android only), for a measured drain.
+  final int? batteryStartPct;
+  final int? batteryEndPct;
+
+  /// Wall-clock duration, or null while still recording.
+  Duration? get elapsed => endedAt?.difference(startedAt);
+
+  /// Battery percent used per hour of wall-clock time, or null when unknown
+  /// or when the hike was too short (under 20 minutes) to measure.
+  double? get batteryPctPerHour {
+    final s = batteryStartPct;
+    final e = batteryEndPct;
+    final d = elapsed;
+    if (s == null || e == null || d == null) return null;
+    if (d.inMinutes < 20 || e > s) return null; // charged mid-hike
+    return (s - e) / (d.inSeconds / 3600.0);
+  }
 
   TrackSummary copyWith({
     String? name,
@@ -67,6 +89,8 @@ class TrackSummary {
     double? packWeightKg,
     double? calories,
     String? linkedRouteId,
+    int? batteryStartPct,
+    int? batteryEndPct,
   }) {
     return TrackSummary(
       id: id,
@@ -81,6 +105,8 @@ class TrackSummary {
       packWeightKg: packWeightKg ?? this.packWeightKg,
       calories: calories ?? this.calories,
       linkedRouteId: linkedRouteId ?? this.linkedRouteId,
+      batteryStartPct: batteryStartPct ?? this.batteryStartPct,
+      batteryEndPct: batteryEndPct ?? this.batteryEndPct,
     );
   }
 }

@@ -29,12 +29,16 @@ class NearestPoint {
 
 /// Nearest point on a `[lat, lon]` polyline to (qLat, qLon), using a local
 /// equirectangular projection (accurate over the short spans of a trail).
-/// Returns null for a line with fewer than two points.
+/// Returns null for a line with fewer than two points. [start] and [end]
+/// restrict the search to segments `start <= i < end` so a live follower can
+/// look near its last match first.
 NearestPoint? nearestPointOnPolyline(
   double qLat,
   double qLon,
-  List<List<double>> line,
-) {
+  List<List<double>> line, {
+  int start = 0,
+  int? end,
+}) {
   if (line.length < 2) return null;
   final lat0 = qLat * math.pi / 180.0;
   const mPerDegLat = kEarthRadiusM * math.pi / 180.0;
@@ -46,7 +50,9 @@ NearestPoint? nearestPointOnPolyline(
   final px = x(qLon), py = y(qLat);
   NearestPoint? best;
 
-  for (var i = 0; i < line.length - 1; i++) {
+  final from = start.clamp(0, line.length - 1);
+  final to = (end ?? line.length - 1).clamp(0, line.length - 1);
+  for (var i = from; i < to; i++) {
     final ax = x(line[i][1]), ay = y(line[i][0]);
     final bx = x(line[i + 1][1]), by = y(line[i + 1][0]);
     final dx = bx - ax, dy = by - ay;

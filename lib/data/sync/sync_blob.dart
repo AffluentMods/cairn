@@ -79,6 +79,8 @@ Future<Map<String, dynamic>> gatherAll(AppDatabase db) async {
           'calories': t.calories,
           'linkedRouteId': t.linkedRouteId,
           'lastModified': _ms(t.lastModified),
+          'batteryStartPct': t.batteryStartPct,
+          'batteryEndPct': t.batteryEndPct,
           'points': [
             for (final p in ([
               ...?ptsByTrack[t.id]
@@ -254,6 +256,8 @@ Future<void> _writeTrack(AppDatabase db, Map<String, dynamic> t) async {
           calories: Value((t['calories'] as num?)?.toDouble()),
           linkedRouteId: Value(t['linkedRouteId'] as String?),
           lastModified: Value(_dt(t['lastModified'])),
+          batteryStartPct: Value((t['batteryStartPct'] as num?)?.toInt()),
+          batteryEndPct: Value((t['batteryEndPct'] as num?)?.toInt()),
         ),
       );
   await (db.delete(db.trackPoints)..where((tp) => tp.trackId.equals(id))).go();

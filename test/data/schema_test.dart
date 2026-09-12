@@ -5,10 +5,27 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('schema is at v4', () {
+  test('schema is at v5', () {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 4);
+    expect(db.schemaVersion, 5);
+  });
+
+  test('Tracks carry battery start and end (v5)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.tracks).insert(
+          TracksCompanion.insert(
+            id: 't1',
+            name: 'Hike',
+            startedAt: DateTime(2026, 9, 11, 8),
+            batteryStartPct: const Value(90),
+            batteryEndPct: const Value(72),
+          ),
+        );
+    final row = await db.select(db.tracks).getSingle();
+    expect(row.batteryStartPct, 90);
+    expect(row.batteryEndPct, 72);
   });
 
   test('CustomThemes round-trips (Fix Pass 1 X4.4, v4)', () async {

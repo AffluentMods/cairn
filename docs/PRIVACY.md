@@ -39,6 +39,10 @@ these services require one. That string identifies the app, not you.
 - The diagnostics log (Settings > Diagnostics) records crashes and slow frames to a small file
   on the phone with coordinates removed. It is never uploaded. You can share it yourself or
   clear it.
+- While you record a hike, the fixes are appended to a private file in the app's own storage
+  so the track survives the app being closed or the phone running out of power; it is folded
+  into your Activity when you finish and then deleted. Cairn also notes the battery percentage
+  at the start and end of a hike to show you a "% per hour" figure. Both stay on the phone.
 
 ## Optional multi-device sync
 

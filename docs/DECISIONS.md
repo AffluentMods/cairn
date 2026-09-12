@@ -117,6 +117,54 @@ option that ships fastest and record it here.
   migration. Themes import and export as a `.cairntheme` JSON file and a `cairn-theme-1:` base64
   code; import validates the schema and rejects anything else.
 
+## Phase 6 recording engine (2026-09-11, after the spec audit and the AllTrails benchmark)
+
+- **The foreground service isolate owns the recording; the UI only mirrors it.** Reason: spec
+  Phase 6 ("the handler owns the write, the UI just reads") and the audit's top gap (a killed
+  app ended the hike). `RecordingTaskHandler` reads a session file, runs the GPS stream through
+  the pure `RecordingEngine`, appends every accepted fix and pause transition to a JSONL log
+  (flushed per line), and sends snapshots to the main isolate. The handler never touches Drift:
+  two isolates on one SQLite file is a locking trap, and a log that replays into the identical
+  engine state is simpler and survives every kill. The main isolate ingests the log on Finish,
+  on the next launch after Stop was pressed on the notification with the app gone, or as a
+  recovered (paused) session when the service itself died.
+- **Live gain uses the DEM through `.f32` sidecars, else a 5-point GPS median offset to the
+  last DEM reading; never raw GPS deltas.** Reason: spec Phase 6 and the house rule. The
+  service isolate has no image codec, so `TerrainTileSource` writes a decoded Float32 sidecar
+  next to each cached terrarium PNG and `TerrainSidecarReader` samples it bilinearly. The first
+  DEM reading after GPS-only samples re-anchors the hysteresis reference instead of counting the
+  ellipsoid-to-terrain offset as a climb or a drop.
+- **Auto-pause: 20 s under 0.5 m/s enters, two moving fixes (or 15 m from the pause spot)
+  resumes; a 5 s service tick runs it when the distance filter sends no fixes.** Reason: the
+  spec's acceptance (within 20 s, resume within 5 s). Active time excludes every pause; the
+  distance walked away from an auto-pause spot counts, the wait does not; a manual pause is a
+  gap that starts a new segment.
+- **Off-route: more than 60 m for 30 s with fixes better than 25 m enters, back within 30 m
+  leaves and re-arms; Mute silences until then.** Reason: spec Phase 6 (60 m for 30 s) plus
+  AllTrails' mute-until-return behavior; the accuracy gate stops canyon fixes from firing false
+  alerts. The alert is two heavy haptic taps, the notification text, and a banner with distance
+  and an arrow back to the trail. No separate high-importance notification: the plugin owns one
+  channel, kept LOW so a 6 h hike never buzzes for status updates.
+- **ETA is Naismith and Langmuir on the remaining profile, scaled by the hiker's own pace.**
+  Reason: AllTrails has no computed ETA (the research); the spec asks for "ETA using your own
+  moving pace". The scale is observed moving time over Naismith time for what has been covered,
+  clamped 0.6 to 2.5 and weighted in over the first 30 minutes of moving.
+- **Three GPS power profiles (Precise 5 m / 1 s, Balanced 10 m / 4 s, Saver 30 m / 15 s) plus an
+  automatic drop to Saver at 20 percent battery.** Reason: AllTrails offers no low-power mode
+  and its users' top safety complaint is battery; the profiles are the spec's location config
+  made a setting. Precise stays on the fused provider with best accuracy (the spec's config);
+  geolocator falls back to LocationManager where Play services are absent.
+- **Battery percent at start and end is stored per track (schema v5) and shown as "%/h".**
+  Reason: a measured number beats AllTrails' "10 to 15 percent an hour" guess. `battery_plus`
+  (BatteryManager, no Google libraries) is used because Android's sysfs battery node is denied to
+  apps by SELinux. Local only, never sent anywhere.
+- **The recording sheet collapses to three numbers, the route status, and two buttons.** Reason:
+  the mobile track (the map is the hero while navigating); the full grid, ETA, gain left,
+  profile with a position dot, and Discard live above the fold. Finish asks once; Pause stays one
+  tap. Start zooms to 16 before follow mode takes over, because tracking keeps the current zoom.
+- **Keep-screen-on is a two-line method channel in MainActivity, not a plugin.** Reason:
+  `FLAG_KEEP_SCREEN_ON` is all that is needed; a dependency for one flag is overhead.
+
 ## Divergences recorded after the spec audit (2026-09-12)
 
 - **Overpass budgets are 35 s query / 40 s receive, not the spec's 60 / 90.** Reason: Fix Pass 1
@@ -133,6 +181,12 @@ option that ships fastest and record it here.
   file_picker / webview_flutter (no permissions beyond intents).
 - **`gainLoss` uses a 5 m deadband, not the spec's snippet.** Reason: the snippet double-counted
   across the threshold; the deadband implements the intent (5 m hysteresis) and is unit-tested.
+- **Dashed trail and route variants are separate style layers with a constant dash.** Reason:
+  MapLibre Native rejects a data-driven `line-dasharray` (`[ParseStyle]: data expressions not
+  supported`) and drops the whole layer, so the `trails` and `route` layers never rendered on
+  Android; only the list and the casing showed. `trails-informal` and `route-offtrail` now carry
+  the dash behind a property filter (`tool/patch_cairn_layers.dart`, idempotent, run after
+  regenerating a style).
 - **The 3D view drapes the active base map on the terrain, built in Dart.** Reason: Fix Pass 1 X3
   found the 3D view showed bare grey hillshade with no base map, route, or labels. The WebView now
   loads the active base map's own style JSON (its sources already use absolute HTTPS URLs and carry

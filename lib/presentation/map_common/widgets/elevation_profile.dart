@@ -112,6 +112,7 @@ class ElevationProfile extends ConsumerStatefulWidget {
   const ElevationProfile({
     required this.profile,
     this.onScrub,
+    this.progressDistanceM,
     super.key,
   });
 
@@ -119,6 +120,10 @@ class ElevationProfile extends ConsumerStatefulWidget {
 
   /// Called with the scrubbed distance (meters), or null when the touch ends.
   final ValueChanged<double?>? onScrub;
+
+  /// While recording along this route: distance covered, drawn as the accent
+  /// fill with a position dot when nothing is being scrubbed.
+  final double? progressDistanceM;
 
   @override
   ConsumerState<ElevationProfile> createState() => _ElevationProfileState();
@@ -183,11 +188,17 @@ class _ElevationProfileState extends ConsumerState<ElevationProfile> {
                 if (view == null || !view.isUsable) {
                   return const SizedBox(height: 140);
                 }
+                final total = widget.profile.last.distanceM;
+                final progress = widget.progressDistanceM;
+                final progressX = progress == null || total <= 0
+                    ? null
+                    : (progress / total).clamp(0.0, 1.0) * w;
                 return CustomPaint(
                   size: Size(w, 140),
                   painter: _ProfilePainter(
                     view: view,
                     scrubX: _scrubX,
+                    progressX: progressX,
                     textColor: theme.colorScheme.onSurfaceVariant,
                     neutralColor: theme.colorScheme.onSurfaceVariant,
                     accentColor: theme.colorScheme.primary,
@@ -211,10 +222,12 @@ class _ProfilePainter extends CustomPainter {
     required this.neutralColor,
     required this.accentColor,
     required this.formatElev,
+    this.progressX,
   });
 
   final ProfileView view;
   final double? scrubX;
+  final double? progressX;
   final Color textColor;
   final Color neutralColor;
   final Color accentColor;
@@ -253,9 +266,11 @@ class _ProfilePainter extends CustomPainter {
     canvas.drawPath(
         area, Paint()..color = neutralColor.withValues(alpha: 0.10));
 
-    // One accent progress fill, clipped to the left of the scrubber.
-    if (scrubX != null) {
-      final x = scrubX!.clamp(0.0, size.width);
+    // One accent progress fill, clipped to the left of the scrubber, or of
+    // the recorded progress when nothing is being scrubbed.
+    final fillX = scrubX ?? progressX;
+    if (fillX != null) {
+      final x = fillX.clamp(0.0, size.width);
       canvas.save();
       canvas.clipRect(Rect.fromLTWH(0, 0, x, size.height));
       canvas.drawPath(
@@ -309,6 +324,14 @@ class _ProfilePainter extends CustomPainter {
         4,
         Paint()..color = accentColor,
       );
+    } else if (progressX != null) {
+      // "You are here" while recording: a ringed dot on the line.
+      final x = progressX!.clamp(0.0, size.width);
+      final e = _elevAtFraction((x / size.width).clamp(0.0, 1.0));
+      final c = Offset(x, yOf(e));
+      canvas.drawCircle(
+          c, 6, Paint()..color = accentColor.withValues(alpha: 0.35));
+      canvas.drawCircle(c, 3.5, Paint()..color = accentColor);
     }
   }
 
@@ -345,5 +368,7 @@ class _ProfilePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ProfilePainter old) =>
-      !identical(old.view, view) || old.scrubX != scrubX;
+      !identical(old.view, view) ||
+      old.scrubX != scrubX ||
+      old.progressX != progressX;
 }

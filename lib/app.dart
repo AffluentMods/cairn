@@ -5,16 +5,32 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/router/app_router.dart';
 import 'core/settings/settings_providers.dart';
 import 'l10n/app_localizations.dart';
+import 'presentation/navigate/recording_provider.dart';
 import 'presentation/theme_providers.dart';
 
 /// Root widget: MaterialApp.router with the selected light and dark themes,
 /// following the system setting by default (spec Section 2), and the
-/// localization delegates.
-class CairnApp extends ConsumerWidget {
+/// localization delegates. On first frame it re-attaches to a recording that
+/// outlived the app (spec Phase 6: killing the app must not end the hike).
+class CairnApp extends ConsumerStatefulWidget {
   const CairnApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CairnApp> createState() => _CairnAppState();
+}
+
+class _CairnAppState extends ConsumerState<CairnApp> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.read(recordingProvider.notifier).attachOnLaunch();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(settingsProvider.select((s) => s.themeMode));
     final themes = ref.watch(activeThemesProvider);
     return MaterialApp.router(

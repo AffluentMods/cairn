@@ -9,8 +9,10 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
+import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
 import '../../data/gpx/gpx_codec.dart';
+import '../../domain/models/track.dart';
 import '../../domain/usecases/compute_route_stats.dart';
 import '../map_common/basemaps/map_style.dart';
 import '../map_common/map_geojson.dart';
@@ -39,11 +41,15 @@ class _DetailData {
     required this.geometry,
     required this.stats,
     this.gpx,
+    this.track,
   });
   final String name;
   final List<List<double>> geometry;
   final RouteStats stats;
   final String? gpx;
+
+  /// The recorded summary (times, calories, battery) for a track.
+  final TrackSummary? track;
 }
 
 class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
@@ -80,6 +86,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
         name: track.name,
         geometry: geometry,
         stats: stats,
+        track: track,
         gpx: exportTrackGpx(
           name: track.name,
           points: [
@@ -203,6 +210,7 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                           ),
                         ],
                       ),
+                      if (data.track != null) _TrackRow(track: data.track!),
                       const SizedBox(height: 8),
                       ElevationProfile(profile: data.stats.profile),
                     ],
@@ -224,5 +232,51 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
     await Share.shareXFiles([
       XFile.fromData(bytes, name: '$safe.gpx', mimeType: 'application/gpx+xml'),
     ]);
+  }
+}
+
+/// Recorded-only stats: moving and active time, calories, and the measured
+/// battery drain (spec Phase 6; the drain is local data, never uploaded).
+class _TrackRow extends StatelessWidget {
+  const _TrackRow({required this.track});
+  final TrackSummary track;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = context.l10n;
+    final drain = track.batteryPctPerHour;
+    return Row(
+      children: [
+        Expanded(
+          child: StatTile(
+            value: UnitFormatter.durationHm(
+                Duration(seconds: track.movingSeconds)),
+            label: l10n.statMoving,
+          ),
+        ),
+        Expanded(
+          child: StatTile(
+            value:
+                UnitFormatter.durationHm(Duration(seconds: track.totalSeconds)),
+            label: l10n.statActive,
+          ),
+        ),
+        Expanded(
+          child: StatTile(
+            value: track.calories == null
+                ? '--'
+                : track.calories!.round().toString(),
+            label: l10n.statCalories,
+          ),
+        ),
+        if (drain != null)
+          Expanded(
+            child: StatTile(
+              value: l10n.statBatteryPerHour(drain.toStringAsFixed(0)),
+              label: l10n.statBattery,
+            ),
+          ),
+      ],
+    );
   }
 }

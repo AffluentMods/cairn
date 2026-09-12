@@ -64,49 +64,75 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
 
   MapLibreMapController? get _c => ref.read(mapControllerProvider);
 
+  /// The shared controller belongs to whichever tab's map is live; only act on
+  /// it while this tab is the active one. While another tab is showing, work
+  /// stays pending and the Navigate map's next style load runs it.
+  bool get _isActiveTab =>
+      ref.read(shellIndexProvider) == ShellTab.navigate;
+
+  @override
+  void initState() {
+    super.initState();
+    // A route loaded before this tab was first built (Navigate this trail from
+    // Explore) still needs framing on the first style load.
+    _pendingFit = ref.read(routeEditorProvider).polyline.length >= 2;
+  }
+
   Future<void> _tryFit() async {
     final c = _c;
-    if (c == null || !mounted) return;
+    if (c == null || !mounted || !_isActiveTab) return;
     final bbox = routeBboxOf(ref.read(routeEditorProvider).polyline);
     if (bbox == null) return;
-    _pendingFit = false;
     final media = MediaQuery.of(context);
-    await c.animateCamera(
-      CameraUpdate.newLatLngBounds(
-        LatLngBounds(
-          southwest: LatLng(bbox[0], bbox[1]),
-          northeast: LatLng(bbox[2], bbox[3]),
+    try {
+      await c.animateCamera(
+        CameraUpdate.newLatLngBounds(
+          LatLngBounds(
+            southwest: LatLng(bbox[0], bbox[1]),
+            northeast: LatLng(bbox[2], bbox[3]),
+          ),
+          left: 50,
+          right: 50,
+          top: media.padding.top + 60,
+          bottom: media.size.height * 0.44,
         ),
-        left: 50,
-        right: 50,
-        top: media.padding.top + 60,
-        bottom: media.size.height * 0.44,
-      ),
-      duration: const Duration(milliseconds: 600),
-    );
+        duration: const Duration(milliseconds: 600),
+      );
+      _pendingFit = false;
+    } catch (_) {
+      // The shared controller was a map that just got disposed on the tab
+      // switch: keep the fit pending so the new map's style load runs it.
+    }
   }
 
   Future<void> _syncRoute() async {
     final c = _c;
-    if (c == null) return;
+    if (c == null || !_isActiveTab) return;
     final state = ref.read(routeEditorProvider);
-    await c.setGeoJsonSource(
-      'cairn-route',
-      lineToGeoJson(state.polyline, offTrail: state.hasOffTrailLeg),
-    );
-    await c.clearSymbols();
-    for (var i = 0; i < state.waypoints.length; i++) {
-      final w = state.waypoints[i];
-      await c.addSymbol(
-        SymbolOptions(
-          geometry: LatLng(w.lat, w.lon),
-          textField: '${i + 1}',
-          textColor: '#0E1412',
-          textHaloColor: '#F6F3EC',
-          textHaloWidth: 1.6,
-          textSize: 14,
-        ),
+    // The shared controller can belong to a map that was just disposed on a
+    // tab switch; the next onStyleLoaded re-syncs, so a failure here is not
+    // an error worth surfacing.
+    try {
+      await c.setGeoJsonSource(
+        'cairn-route',
+        lineToGeoJson(state.polyline, offTrail: state.hasOffTrailLeg),
       );
+      await c.clearSymbols();
+      for (var i = 0; i < state.waypoints.length; i++) {
+        final w = state.waypoints[i];
+        await c.addSymbol(
+          SymbolOptions(
+            geometry: LatLng(w.lat, w.lon),
+            textField: '${i + 1}',
+            textColor: '#0E1412',
+            textHaloColor: '#F6F3EC',
+            textHaloWidth: 1.6,
+            textSize: 14,
+          ),
+        );
+      }
+    } catch (_) {
+      // disposed controller between tabs
     }
   }
 
@@ -385,10 +411,22 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final pack = await _promptPack(defaultPack);
     if (pack == null) return;
     await HapticFeedback.mediumImpact();
-    if (mounted) setState(() => _follow = true); // follow from the first fix
-    await ref
-        .read(recordingProvider.notifier)
-        .start(packKg: pack.isNegative ? null : pack);
+    if (!mounted) return;
+    setState(() => _follow = true); // follow from the first fix
+    // Navigation zoom before follow mode takes over (it keeps the current
+    // zoom): a route framed at z12 is useless for spotting the next bend.
+    final c = _c;
+    if (c != null && (c.cameraPosition?.zoom ?? 16) < 15) {
+      try {
+        await c.animateCamera(CameraUpdate.zoomTo(16));
+      } catch (_) {}
+    }
+    if (!mounted) return;
+    final labels = RecordingLabels.fromL10n(context.l10n);
+    await ref.read(recordingProvider.notifier).start(
+          labels: labels,
+          packKg: pack.isNegative ? null : pack,
+        );
     if (pack > 0) {
       await ref.read(settingsProvider.notifier).setDefaultPackKg(pack);
     }
@@ -433,6 +471,25 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final l10n = context.l10n;
     final fmt = ref.read(unitFormatterProvider);
     final messenger = ScaffoldMessenger.of(context);
+    // A confirm guards against an accidental stop mid-hike; Pause stays one
+    // tap (AllTrails hides Finish behind Pause for the same reason).
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        content: Text(l10n.recordFinishConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.genericCancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.recordFinish),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
     await HapticFeedback.mediumImpact();
     final summary = await ref.read(recordingProvider.notifier).finish();
     if (summary != null) {
@@ -533,6 +590,17 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final locationEnabled = ref.watch(locationEnabledProvider);
     final recording = ref.watch(recordingProvider.select((s) => s.status)) !=
         RecordingStatus.idle;
+    // Off-route banner inputs, selected so the map does not rebuild on every
+    // clock tick of the recording state.
+    final offRoute = ref.watch(recordingProvider.select((s) => (
+          show: s.isActive &&
+              !s.onRoute &&
+              !s.offRouteMuted &&
+              s.offRouteDistanceM != null,
+          distanceM: s.offRouteDistanceM ?? 0,
+          bearingBack: s.bearingBackDeg,
+          heading: s.heading,
+        )));
     final editing = ref.watch(editModeProvider);
     final hasRoute =
         ref.watch(routeEditorProvider.select((s) => s.polyline.length >= 2));
@@ -549,10 +617,6 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     ref.listen(fitRouteProvider, (_, __) {
       _pendingFit = true;
       _tryFit();
-    });
-    // One haptic tap when the hiker drifts off the route (Fix Pass 1 X2.6).
-    ref.listen(recordingProvider.select((s) => s.onRoute), (prev, next) {
-      if (prev == true && next == false) HapticFeedback.mediumImpact();
     });
 
     return Scaffold(
@@ -634,11 +698,62 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
           if (!editing)
             const Positioned(right: 16, bottom: 24, child: LocationFab()),
 
+          // Off-route banner (spec Phase 6, Fix Pass 1 X2.6): how far, an
+          // arrow back to the trail (relative to heading when known), and a
+          // Mute that re-arms once the hiker is back on the route.
+          if (offRoute.show)
+            Positioned(
+              top: topInset + 8,
+              left: 12,
+              right: 12,
+              child: Material(
+                color: context.cairn.raised,
+                borderRadius: BorderRadius.circular(12),
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+                  child: Row(
+                    children: [
+                      Transform.rotate(
+                        angle: ((offRoute.bearingBack ?? 0) -
+                                (offRoute.heading ?? 0)) *
+                            math.pi /
+                            180.0,
+                        child: Icon(Icons.navigation,
+                            size: 20,
+                            color: Theme.of(context).colorScheme.error),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          context.l10n.recordOffRouteBy(
+                            ref
+                                .watch(unitFormatterProvider)
+                                .distance(offRoute.distanceM),
+                          ),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: context.cairn.textPrimary,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () =>
+                            ref.read(recordingProvider.notifier).muteOffRoute(),
+                        child: Text(context.l10n.recordMuteOffRoute),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
           // Recenter pill: shown when the hiker pans away during recording, so
           // one tap resumes heading-up follow (Fix Pass 1 X2.6).
           if (recording && !_follow)
             Positioned(
-              top: topInset + 12,
+              top: topInset + (offRoute.show ? 64 : 12),
               left: 0,
               right: 0,
               child: Center(
@@ -727,9 +842,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
 
           // Bottom content depends on the mode.
           if (recording)
-            _BottomCard(
-              child: _RecordingContent(onFinish: _finish, onDiscard: _discard),
-            )
+            _RecordingSheet(onFinish: _finish, onDiscard: _discard)
           else if (editing)
             const _BottomCard(child: _EditStatsBar())
           else if (hasRoute)
@@ -875,71 +988,199 @@ class _EditStatsBar extends ConsumerWidget {
   }
 }
 
-class _RecordingContent extends ConsumerWidget {
-  const _RecordingContent({required this.onFinish, required this.onDiscard});
+/// The live recording sheet (spec Section 9.6, Fix Pass 1 X2.6). Collapsed it
+/// shows just the three headline numbers, the route status, and Pause and
+/// Finish, so the map stays the hero while navigating; dragging up reveals
+/// the full stats, the profile with the position dot, and Discard.
+class _RecordingSheet extends ConsumerWidget {
+  const _RecordingSheet({required this.onFinish, required this.onDiscard});
   final VoidCallback onFinish;
   final VoidCallback onDiscard;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final fmt = ref.watch(unitFormatterProvider);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
     final state = ref.watch(recordingProvider);
     final controller = ref.read(recordingProvider.notifier);
     final paused = state.status == RecordingStatus.paused;
+    final following = state.routeLengthM != null;
+    final profile = following
+        ? ref.watch(routeEditorProvider.select((s) => s.stats.profile))
+        : null;
+    // Notes push the peek down so the buttons stay reachable.
+    final notes = (state.recovered ? 1 : 0) + (state.batteryRestricted ? 1 : 0);
+    final peek = 0.30 + 0.09 * notes;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        const LiveStatsGrid(),
-        const SizedBox(height: 8),
-        if (paused)
-          Text(l10n.recordAutoPaused,
-              style: Theme.of(context).textTheme.titleSmall),
-        if (state.followRouteId != null)
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                state.onRoute ? Icons.check_circle : Icons.error_outline,
-                size: 16,
-                color: state.onRoute
-                    ? Theme.of(context).colorScheme.secondary
-                    : Theme.of(context).colorScheme.error,
-              ),
-              const SizedBox(width: 6),
-              Text(state.onRoute ? l10n.recordOnRoute : l10n.recordOffRoute),
-              if (state.distanceRemainingM != null) ...[
-                const SizedBox(width: 8),
-                Text(l10n.recordToGo(fmt.distance(state.distanceRemainingM!))),
-              ],
-            ],
-          ),
-        const SizedBox(height: 8),
-        Row(
+    return DraggableScrollableSheet(
+      initialChildSize: peek,
+      minChildSize: peek,
+      maxChildSize: 0.92,
+      snap: true,
+      snapSizes: [peek, 0.92],
+      builder: (context, scrollController) => Material(
+        color: scheme.surface,
+        elevation: 8,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        child: ListView(
+          controller: scrollController,
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () async {
-                  await HapticFeedback.mediumImpact();
-                  paused ? controller.resume() : controller.pause();
-                },
-                icon: Icon(paused ? Icons.play_arrow : Icons.pause),
-                label: Text(paused ? l10n.recordResume : l10n.recordPause),
+            Center(
+              child: Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: scheme.onSurfaceVariant.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton.icon(
-                onPressed: onFinish,
-                icon: const Icon(Icons.stop),
-                label: Text(l10n.recordFinish),
+            const SizedBox(height: 8),
+            if (state.recovered)
+              _RecordingNote(
+                icon: Icons.restore,
+                text: l10n.recordRecovered,
+              ),
+            if (state.batteryRestricted)
+              _RecordingNote(
+                icon: Icons.battery_alert_outlined,
+                text: l10n.recordBatteryRestricted,
+                actionLabel: l10n.recordBatteryFix,
+                onAction: controller.openBatterySettings,
+                onDismiss: controller.dismissBatteryHint,
+              ),
+            const RecordingPrimaryRow(),
+            const SizedBox(height: 2),
+            if (state.arrived)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.flag_circle, size: 18, color: scheme.primary),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(l10n.recordArrived,
+                        style: theme.textTheme.titleSmall),
+                  ),
+                ],
+              )
+            else if (paused)
+              Text(
+                state.autoPaused ? l10n.recordAutoPaused : l10n.recordPaused,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.titleSmall,
+              )
+            else if (following)
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    state.onRoute ? Icons.check_circle : Icons.error_outline,
+                    size: 16,
+                    color: state.onRoute ? scheme.secondary : scheme.error,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                      state.onRoute ? l10n.recordOnRoute : l10n.recordOffRoute),
+                ],
+              )
+            else
+              const SizedBox(height: 20),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      await HapticFeedback.mediumImpact();
+                      paused ? controller.resume() : controller.pause();
+                    },
+                    icon: Icon(paused ? Icons.play_arrow : Icons.pause),
+                    label: Text(paused ? l10n.recordResume : l10n.recordPause),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: onFinish,
+                    icon: const Icon(Icons.stop),
+                    label: Text(l10n.recordFinish),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            const RecordingDetailGrid(),
+            if (profile != null && profile.length >= 2) ...[
+              const SizedBox(height: 8),
+              ElevationProfile(
+                profile: profile,
+                progressDistanceM: state.progressM,
+              ),
+            ],
+            const SizedBox(height: 8),
+            Center(
+              child: TextButton(
+                onPressed: onDiscard,
+                child: Text(l10n.recordDiscard),
               ),
             ),
           ],
         ),
-        TextButton(onPressed: onDiscard, child: Text(l10n.recordDiscard)),
-      ],
+      ),
+    );
+  }
+}
+
+/// A one-line note above the live stats (recovered session, battery hint).
+class _RecordingNote extends StatelessWidget {
+  const _RecordingNote({
+    required this.icon,
+    required this.text,
+    this.actionLabel,
+    this.onAction,
+    this.onDismiss,
+  });
+
+  final IconData icon;
+  final String text;
+  final String? actionLabel;
+  final VoidCallback? onAction;
+  final VoidCallback? onDismiss;
+
+  @override
+  Widget build(BuildContext context) {
+    final cairn = context.cairn;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Material(
+        color: cairn.raised,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 4, 8),
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: cairn.textSecondary),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(fontSize: 13, color: cairn.textPrimary),
+                ),
+              ),
+              if (actionLabel != null)
+                TextButton(onPressed: onAction, child: Text(actionLabel!)),
+              if (onDismiss != null)
+                IconButton(
+                  icon: const Icon(Icons.close, size: 18),
+                  tooltip: context.l10n.navClose,
+                  onPressed: onDismiss,
+                ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

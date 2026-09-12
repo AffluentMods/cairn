@@ -111,6 +111,8 @@ class TrackRepositoryImpl implements TrackRepository {
         calories: Value(s.calories),
         linkedRouteId: Value(s.linkedRouteId),
         lastModified: Value(DateTime.now()),
+        batteryStartPct: Value(s.batteryStartPct),
+        batteryEndPct: Value(s.batteryEndPct),
       );
 
   Track _summaryRow(TrackSummary s) => Track(
@@ -127,6 +129,8 @@ class TrackRepositoryImpl implements TrackRepository {
         calories: s.calories,
         linkedRouteId: s.linkedRouteId,
         lastModified: DateTime.now(),
+        batteryStartPct: s.batteryStartPct,
+        batteryEndPct: s.batteryEndPct,
       );
 
   TrackPointsCompanion _pointCompanion(String trackId, TrackPointData p) =>
@@ -155,5 +159,7 @@ class TrackRepositoryImpl implements TrackRepository {
         packWeightKg: row.packWeightKg,
         calories: row.calories,
         linkedRouteId: row.linkedRouteId,
+        batteryStartPct: row.batteryStartPct,
+        batteryEndPct: row.batteryEndPct,
       );
 }

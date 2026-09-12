@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -30,6 +31,10 @@ Future<void> main() async {
     return false; // not handled: let the platform still surface it
   };
   if (kDebugMode) StallWatchdog.start();
+
+  // The recording service (a separate isolate) reports through this port; it
+  // must exist before the app re-attaches to a service that outlived the app.
+  FlutterForegroundTask.initCommunicationPort();
 
   runApp(
     ProviderScope(

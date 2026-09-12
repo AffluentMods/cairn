@@ -233,6 +233,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordAutoPaused => 'Auto-paused';
 
   @override
+  String get recordPaused => 'Paused';
+
+  @override
   String get recordFollowRoute => 'Follow a route';
 
   @override
@@ -243,6 +246,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recordIdle => 'Not recording. Start a hike to see live stats.';
+
+  @override
+  String recordDefaultName(String date) {
+    return 'Hike $date';
+  }
+
+  @override
+  String get recordNotificationStop => 'Stop';
+
+  @override
+  String recordOffRouteBy(String distance) {
+    return 'Off route by $distance';
+  }
+
+  @override
+  String get recordMuteOffRoute => 'Mute';
+
+  @override
+  String get recordArrived => 'You reached the end of the route.';
+
+  @override
+  String get recordFinishConfirm => 'Finish and save this hike?';
+
+  @override
+  String get recordRecovered =>
+      'Recording recovered. The app was closed, but the track is safe. Resume or finish.';
+
+  @override
+  String get recordBatteryRestricted =>
+      'Android may stop this recording in the background. Allow unrestricted battery use for Cairn.';
+
+  @override
+  String get recordBatteryFix => 'Open settings';
+
+  @override
+  String get statToGo => 'to go';
+
+  @override
+  String get statEta => 'ETA';
+
+  @override
+  String get statGainLeft => 'gain left';
+
+  @override
+  String get statElapsed => 'elapsed';
+
+  @override
+  String get statActive => 'active';
+
+  @override
+  String get statBattery => 'battery';
+
+  @override
+  String statBatteryPerHour(String pct) {
+    return '$pct%/h';
+  }
 
   @override
   String get libraryEmptyOffline =>
@@ -900,6 +959,61 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsProxyInvalid =>
       'Enter an https:// address, or leave it empty to turn the proxy off.';
+
+  @override
+  String get settingsRecording => 'Recording';
+
+  @override
+  String get settingsRecordingProfile => 'GPS accuracy';
+
+  @override
+  String get profilePrecise => 'Precise';
+
+  @override
+  String get profilePreciseSub =>
+      'GPS only, a fix every 5 m. Best on remote trails; uses the most battery.';
+
+  @override
+  String get profileBalanced => 'Balanced';
+
+  @override
+  String get profileBalancedSub =>
+      'Fused location, a fix every 10 m or 4 s. Good for most hikes.';
+
+  @override
+  String get profileSaver => 'Saver';
+
+  @override
+  String get profileSaverSub =>
+      'A fix every 30 m or 15 s. Multi-day trips and low battery.';
+
+  @override
+  String get settingsAutoPause => 'Auto-pause';
+
+  @override
+  String get settingsAutoPauseSub =>
+      'Pause after 20 s standing still; resume when you walk.';
+
+  @override
+  String get settingsAutoSaver => 'Saver below 20% battery';
+
+  @override
+  String get settingsAutoSaverSub =>
+      'Switch to Saver automatically when the battery runs low.';
+
+  @override
+  String get settingsKeepScreenOn => 'Keep the screen on while recording';
+
+  @override
+  String get settingsBatteryOptimization => 'Battery optimization';
+
+  @override
+  String get settingsBatteryUnrestricted =>
+      'Unrestricted. Recordings keep running with the screen off.';
+
+  @override
+  String get settingsBatteryRestricted =>
+      'Restricted. Android may stop recordings in the background. Tap to allow.';
 
   @override
   String get settingsDiagnostics => 'Diagnostics';

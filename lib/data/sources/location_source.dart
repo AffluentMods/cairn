@@ -12,16 +12,20 @@ abstract class LocationSource {
   Stream<Position> stream();
 }
 
-/// The real device GPS.
+/// The real device GPS. [settings] selects the power profile (spec Phase 6
+/// default: best accuracy, 5 m distance filter).
 class DeviceLocationSource implements LocationSource {
-  const DeviceLocationSource();
+  const DeviceLocationSource({this.settings});
+
+  final LocationSettings? settings;
 
   @override
   Stream<Position> stream() => Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.best,
-          distanceFilter: 5,
-        ),
+        locationSettings: settings ??
+            const LocationSettings(
+              accuracy: LocationAccuracy.best,
+              distanceFilter: 5,
+            ),
       );
 }
 

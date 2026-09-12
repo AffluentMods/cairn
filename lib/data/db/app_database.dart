@@ -131,6 +131,10 @@ class Tracks extends Table {
   // For sync (tombstones + newest wins): the last genuine local edit time.
   DateTimeColumn get lastModified =>
       dateTime().withDefault(currentDateAndTime)();
+  // v5: battery at start and end, so Activity can show a measured "% per
+  // hour" for each hike (local only, never sent anywhere).
+  IntColumn get batteryStartPct => integer().nullable()();
+  IntColumn get batteryEndPct => integer().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -272,7 +276,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -293,6 +297,11 @@ class AppDatabase extends _$AppDatabase {
           // v4: Theme Designer custom themes (Fix Pass 1 X4.4).
           if (from < 4) {
             await m.createTable(customThemes);
+          }
+          // v5: per-hike battery drain (recording engine, spec Phase 6).
+          if (from < 5) {
+            await m.addColumn(tracks, tracks.batteryStartPct);
+            await m.addColumn(tracks, tracks.batteryEndPct);
           }
         },
       );

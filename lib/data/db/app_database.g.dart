@@ -2886,6 +2886,18 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
       type: DriftSqlType.dateTime,
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
+  static const VerificationMeta _batteryStartPctMeta =
+      const VerificationMeta('batteryStartPct');
+  @override
+  late final GeneratedColumn<int> batteryStartPct = GeneratedColumn<int>(
+      'battery_start_pct', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _batteryEndPctMeta =
+      const VerificationMeta('batteryEndPct');
+  @override
+  late final GeneratedColumn<int> batteryEndPct = GeneratedColumn<int>(
+      'battery_end_pct', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -2900,7 +2912,9 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
         packWeightKg,
         calories,
         linkedRouteId,
-        lastModified
+        lastModified,
+        batteryStartPct,
+        batteryEndPct
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2979,6 +2993,18 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
           lastModified.isAcceptableOrUnknown(
               data['last_modified']!, _lastModifiedMeta));
     }
+    if (data.containsKey('battery_start_pct')) {
+      context.handle(
+          _batteryStartPctMeta,
+          batteryStartPct.isAcceptableOrUnknown(
+              data['battery_start_pct']!, _batteryStartPctMeta));
+    }
+    if (data.containsKey('battery_end_pct')) {
+      context.handle(
+          _batteryEndPctMeta,
+          batteryEndPct.isAcceptableOrUnknown(
+              data['battery_end_pct']!, _batteryEndPctMeta));
+    }
     return context;
   }
 
@@ -3014,6 +3040,10 @@ class $TracksTable extends Tracks with TableInfo<$TracksTable, Track> {
           .read(DriftSqlType.string, data['${effectivePrefix}linked_route_id']),
       lastModified: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_modified'])!,
+      batteryStartPct: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}battery_start_pct']),
+      batteryEndPct: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}battery_end_pct']),
     );
   }
 
@@ -3037,6 +3067,8 @@ class Track extends DataClass implements Insertable<Track> {
   final double? calories;
   final String? linkedRouteId;
   final DateTime lastModified;
+  final int? batteryStartPct;
+  final int? batteryEndPct;
   const Track(
       {required this.id,
       required this.name,
@@ -3050,7 +3082,9 @@ class Track extends DataClass implements Insertable<Track> {
       this.packWeightKg,
       this.calories,
       this.linkedRouteId,
-      required this.lastModified});
+      required this.lastModified,
+      this.batteryStartPct,
+      this.batteryEndPct});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3075,6 +3109,12 @@ class Track extends DataClass implements Insertable<Track> {
       map['linked_route_id'] = Variable<String>(linkedRouteId);
     }
     map['last_modified'] = Variable<DateTime>(lastModified);
+    if (!nullToAbsent || batteryStartPct != null) {
+      map['battery_start_pct'] = Variable<int>(batteryStartPct);
+    }
+    if (!nullToAbsent || batteryEndPct != null) {
+      map['battery_end_pct'] = Variable<int>(batteryEndPct);
+    }
     return map;
   }
 
@@ -3101,6 +3141,12 @@ class Track extends DataClass implements Insertable<Track> {
           ? const Value.absent()
           : Value(linkedRouteId),
       lastModified: Value(lastModified),
+      batteryStartPct: batteryStartPct == null && nullToAbsent
+          ? const Value.absent()
+          : Value(batteryStartPct),
+      batteryEndPct: batteryEndPct == null && nullToAbsent
+          ? const Value.absent()
+          : Value(batteryEndPct),
     );
   }
 
@@ -3121,6 +3167,8 @@ class Track extends DataClass implements Insertable<Track> {
       calories: serializer.fromJson<double?>(json['calories']),
       linkedRouteId: serializer.fromJson<String?>(json['linkedRouteId']),
       lastModified: serializer.fromJson<DateTime>(json['lastModified']),
+      batteryStartPct: serializer.fromJson<int?>(json['batteryStartPct']),
+      batteryEndPct: serializer.fromJson<int?>(json['batteryEndPct']),
     );
   }
   @override
@@ -3140,6 +3188,8 @@ class Track extends DataClass implements Insertable<Track> {
       'calories': serializer.toJson<double?>(calories),
       'linkedRouteId': serializer.toJson<String?>(linkedRouteId),
       'lastModified': serializer.toJson<DateTime>(lastModified),
+      'batteryStartPct': serializer.toJson<int?>(batteryStartPct),
+      'batteryEndPct': serializer.toJson<int?>(batteryEndPct),
     };
   }
 
@@ -3156,7 +3206,9 @@ class Track extends DataClass implements Insertable<Track> {
           Value<double?> packWeightKg = const Value.absent(),
           Value<double?> calories = const Value.absent(),
           Value<String?> linkedRouteId = const Value.absent(),
-          DateTime? lastModified}) =>
+          DateTime? lastModified,
+          Value<int?> batteryStartPct = const Value.absent(),
+          Value<int?> batteryEndPct = const Value.absent()}) =>
       Track(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -3173,6 +3225,11 @@ class Track extends DataClass implements Insertable<Track> {
         linkedRouteId:
             linkedRouteId.present ? linkedRouteId.value : this.linkedRouteId,
         lastModified: lastModified ?? this.lastModified,
+        batteryStartPct: batteryStartPct.present
+            ? batteryStartPct.value
+            : this.batteryStartPct,
+        batteryEndPct:
+            batteryEndPct.present ? batteryEndPct.value : this.batteryEndPct,
       );
   Track copyWithCompanion(TracksCompanion data) {
     return Track(
@@ -3199,6 +3256,12 @@ class Track extends DataClass implements Insertable<Track> {
       lastModified: data.lastModified.present
           ? data.lastModified.value
           : this.lastModified,
+      batteryStartPct: data.batteryStartPct.present
+          ? data.batteryStartPct.value
+          : this.batteryStartPct,
+      batteryEndPct: data.batteryEndPct.present
+          ? data.batteryEndPct.value
+          : this.batteryEndPct,
     );
   }
 
@@ -3217,7 +3280,9 @@ class Track extends DataClass implements Insertable<Track> {
           ..write('packWeightKg: $packWeightKg, ')
           ..write('calories: $calories, ')
           ..write('linkedRouteId: $linkedRouteId, ')
-          ..write('lastModified: $lastModified')
+          ..write('lastModified: $lastModified, ')
+          ..write('batteryStartPct: $batteryStartPct, ')
+          ..write('batteryEndPct: $batteryEndPct')
           ..write(')'))
         .toString();
   }
@@ -3236,7 +3301,9 @@ class Track extends DataClass implements Insertable<Track> {
       packWeightKg,
       calories,
       linkedRouteId,
-      lastModified);
+      lastModified,
+      batteryStartPct,
+      batteryEndPct);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3253,7 +3320,9 @@ class Track extends DataClass implements Insertable<Track> {
           other.packWeightKg == this.packWeightKg &&
           other.calories == this.calories &&
           other.linkedRouteId == this.linkedRouteId &&
-          other.lastModified == this.lastModified);
+          other.lastModified == this.lastModified &&
+          other.batteryStartPct == this.batteryStartPct &&
+          other.batteryEndPct == this.batteryEndPct);
 }
 
 class TracksCompanion extends UpdateCompanion<Track> {
@@ -3270,6 +3339,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
   final Value<double?> calories;
   final Value<String?> linkedRouteId;
   final Value<DateTime> lastModified;
+  final Value<int?> batteryStartPct;
+  final Value<int?> batteryEndPct;
   final Value<int> rowid;
   const TracksCompanion({
     this.id = const Value.absent(),
@@ -3285,6 +3356,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
     this.calories = const Value.absent(),
     this.linkedRouteId = const Value.absent(),
     this.lastModified = const Value.absent(),
+    this.batteryStartPct = const Value.absent(),
+    this.batteryEndPct = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TracksCompanion.insert({
@@ -3301,6 +3374,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
     this.calories = const Value.absent(),
     this.linkedRouteId = const Value.absent(),
     this.lastModified = const Value.absent(),
+    this.batteryStartPct = const Value.absent(),
+    this.batteryEndPct = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -3319,6 +3394,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
     Expression<double>? calories,
     Expression<String>? linkedRouteId,
     Expression<DateTime>? lastModified,
+    Expression<int>? batteryStartPct,
+    Expression<int>? batteryEndPct,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3335,6 +3412,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
       if (calories != null) 'calories': calories,
       if (linkedRouteId != null) 'linked_route_id': linkedRouteId,
       if (lastModified != null) 'last_modified': lastModified,
+      if (batteryStartPct != null) 'battery_start_pct': batteryStartPct,
+      if (batteryEndPct != null) 'battery_end_pct': batteryEndPct,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3353,6 +3432,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
       Value<double?>? calories,
       Value<String?>? linkedRouteId,
       Value<DateTime>? lastModified,
+      Value<int?>? batteryStartPct,
+      Value<int?>? batteryEndPct,
       Value<int>? rowid}) {
     return TracksCompanion(
       id: id ?? this.id,
@@ -3368,6 +3449,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
       calories: calories ?? this.calories,
       linkedRouteId: linkedRouteId ?? this.linkedRouteId,
       lastModified: lastModified ?? this.lastModified,
+      batteryStartPct: batteryStartPct ?? this.batteryStartPct,
+      batteryEndPct: batteryEndPct ?? this.batteryEndPct,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3414,6 +3497,12 @@ class TracksCompanion extends UpdateCompanion<Track> {
     if (lastModified.present) {
       map['last_modified'] = Variable<DateTime>(lastModified.value);
     }
+    if (batteryStartPct.present) {
+      map['battery_start_pct'] = Variable<int>(batteryStartPct.value);
+    }
+    if (batteryEndPct.present) {
+      map['battery_end_pct'] = Variable<int>(batteryEndPct.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3436,6 +3525,8 @@ class TracksCompanion extends UpdateCompanion<Track> {
           ..write('calories: $calories, ')
           ..write('linkedRouteId: $linkedRouteId, ')
           ..write('lastModified: $lastModified, ')
+          ..write('batteryStartPct: $batteryStartPct, ')
+          ..write('batteryEndPct: $batteryEndPct, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8173,6 +8264,8 @@ typedef $$TracksTableCreateCompanionBuilder = TracksCompanion Function({
   Value<double?> calories,
   Value<String?> linkedRouteId,
   Value<DateTime> lastModified,
+  Value<int?> batteryStartPct,
+  Value<int?> batteryEndPct,
   Value<int> rowid,
 });
 typedef $$TracksTableUpdateCompanionBuilder = TracksCompanion Function({
@@ -8189,6 +8282,8 @@ typedef $$TracksTableUpdateCompanionBuilder = TracksCompanion Function({
   Value<double?> calories,
   Value<String?> linkedRouteId,
   Value<DateTime> lastModified,
+  Value<int?> batteryStartPct,
+  Value<int?> batteryEndPct,
   Value<int> rowid,
 });
 
@@ -8259,6 +8354,13 @@ class $$TracksTableFilterComposer
 
   ColumnFilters<DateTime> get lastModified => $composableBuilder(
       column: $table.lastModified, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get batteryStartPct => $composableBuilder(
+      column: $table.batteryStartPct,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get batteryEndPct => $composableBuilder(
+      column: $table.batteryEndPct, builder: (column) => ColumnFilters(column));
 
   Expression<bool> trackPointsRefs(
       Expression<bool> Function($$TrackPointsTableFilterComposer f) f) {
@@ -8334,6 +8436,14 @@ class $$TracksTableOrderingComposer
   ColumnOrderings<DateTime> get lastModified => $composableBuilder(
       column: $table.lastModified,
       builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get batteryStartPct => $composableBuilder(
+      column: $table.batteryStartPct,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get batteryEndPct => $composableBuilder(
+      column: $table.batteryEndPct,
+      builder: (column) => ColumnOrderings(column));
 }
 
 class $$TracksTableAnnotationComposer
@@ -8383,6 +8493,12 @@ class $$TracksTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastModified => $composableBuilder(
       column: $table.lastModified, builder: (column) => column);
+
+  GeneratedColumn<int> get batteryStartPct => $composableBuilder(
+      column: $table.batteryStartPct, builder: (column) => column);
+
+  GeneratedColumn<int> get batteryEndPct => $composableBuilder(
+      column: $table.batteryEndPct, builder: (column) => column);
 
   Expression<T> trackPointsRefs<T extends Object>(
       Expression<T> Function($$TrackPointsTableAnnotationComposer a) f) {
@@ -8442,6 +8558,8 @@ class $$TracksTableTableManager extends RootTableManager<
             Value<double?> calories = const Value.absent(),
             Value<String?> linkedRouteId = const Value.absent(),
             Value<DateTime> lastModified = const Value.absent(),
+            Value<int?> batteryStartPct = const Value.absent(),
+            Value<int?> batteryEndPct = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TracksCompanion(
@@ -8458,6 +8576,8 @@ class $$TracksTableTableManager extends RootTableManager<
             calories: calories,
             linkedRouteId: linkedRouteId,
             lastModified: lastModified,
+            batteryStartPct: batteryStartPct,
+            batteryEndPct: batteryEndPct,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -8474,6 +8594,8 @@ class $$TracksTableTableManager extends RootTableManager<
             Value<double?> calories = const Value.absent(),
             Value<String?> linkedRouteId = const Value.absent(),
             Value<DateTime> lastModified = const Value.absent(),
+            Value<int?> batteryStartPct = const Value.absent(),
+            Value<int?> batteryEndPct = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               TracksCompanion.insert(
@@ -8490,6 +8612,8 @@ class $$TracksTableTableManager extends RootTableManager<
             calories: calories,
             linkedRouteId: linkedRouteId,
             lastModified: lastModified,
+            batteryStartPct: batteryStartPct,
+            batteryEndPct: batteryEndPct,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

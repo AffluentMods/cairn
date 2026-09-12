@@ -496,6 +496,12 @@ abstract class AppLocalizations {
   /// **'Auto-paused'**
   String get recordAutoPaused;
 
+  /// No description provided for @recordPaused.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused'**
+  String get recordPaused;
+
   /// No description provided for @recordFollowRoute.
   ///
   /// In en, this message translates to:
@@ -519,6 +525,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Not recording. Start a hike to see live stats.'**
   String get recordIdle;
+
+  /// No description provided for @recordDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hike {date}'**
+  String recordDefaultName(String date);
+
+  /// No description provided for @recordNotificationStop.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop'**
+  String get recordNotificationStop;
+
+  /// No description provided for @recordOffRouteBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Off route by {distance}'**
+  String recordOffRouteBy(String distance);
+
+  /// No description provided for @recordMuteOffRoute.
+  ///
+  /// In en, this message translates to:
+  /// **'Mute'**
+  String get recordMuteOffRoute;
+
+  /// No description provided for @recordArrived.
+  ///
+  /// In en, this message translates to:
+  /// **'You reached the end of the route.'**
+  String get recordArrived;
+
+  /// No description provided for @recordFinishConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish and save this hike?'**
+  String get recordFinishConfirm;
+
+  /// No description provided for @recordRecovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording recovered. The app was closed, but the track is safe. Resume or finish.'**
+  String get recordRecovered;
+
+  /// No description provided for @recordBatteryRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Android may stop this recording in the background. Allow unrestricted battery use for Cairn.'**
+  String get recordBatteryRestricted;
+
+  /// No description provided for @recordBatteryFix.
+  ///
+  /// In en, this message translates to:
+  /// **'Open settings'**
+  String get recordBatteryFix;
+
+  /// No description provided for @statToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'to go'**
+  String get statToGo;
+
+  /// No description provided for @statEta.
+  ///
+  /// In en, this message translates to:
+  /// **'ETA'**
+  String get statEta;
+
+  /// No description provided for @statGainLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'gain left'**
+  String get statGainLeft;
+
+  /// No description provided for @statElapsed.
+  ///
+  /// In en, this message translates to:
+  /// **'elapsed'**
+  String get statElapsed;
+
+  /// No description provided for @statActive.
+  ///
+  /// In en, this message translates to:
+  /// **'active'**
+  String get statActive;
+
+  /// No description provided for @statBattery.
+  ///
+  /// In en, this message translates to:
+  /// **'battery'**
+  String get statBattery;
+
+  /// No description provided for @statBatteryPerHour.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}%/h'**
+  String statBatteryPerHour(String pct);
 
   /// No description provided for @libraryEmptyOffline.
   ///
@@ -1731,6 +1833,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Enter an https:// address, or leave it empty to turn the proxy off.'**
   String get settingsProxyInvalid;
+
+  /// No description provided for @settingsRecording.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording'**
+  String get settingsRecording;
+
+  /// No description provided for @settingsRecordingProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS accuracy'**
+  String get settingsRecordingProfile;
+
+  /// No description provided for @profilePrecise.
+  ///
+  /// In en, this message translates to:
+  /// **'Precise'**
+  String get profilePrecise;
+
+  /// No description provided for @profilePreciseSub.
+  ///
+  /// In en, this message translates to:
+  /// **'GPS only, a fix every 5 m. Best on remote trails; uses the most battery.'**
+  String get profilePreciseSub;
+
+  /// No description provided for @profileBalanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Balanced'**
+  String get profileBalanced;
+
+  /// No description provided for @profileBalancedSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Fused location, a fix every 10 m or 4 s. Good for most hikes.'**
+  String get profileBalancedSub;
+
+  /// No description provided for @profileSaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Saver'**
+  String get profileSaver;
+
+  /// No description provided for @profileSaverSub.
+  ///
+  /// In en, this message translates to:
+  /// **'A fix every 30 m or 15 s. Multi-day trips and low battery.'**
+  String get profileSaverSub;
+
+  /// No description provided for @settingsAutoPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-pause'**
+  String get settingsAutoPause;
+
+  /// No description provided for @settingsAutoPauseSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause after 20 s standing still; resume when you walk.'**
+  String get settingsAutoPauseSub;
+
+  /// No description provided for @settingsAutoSaver.
+  ///
+  /// In en, this message translates to:
+  /// **'Saver below 20% battery'**
+  String get settingsAutoSaver;
+
+  /// No description provided for @settingsAutoSaverSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Saver automatically when the battery runs low.'**
+  String get settingsAutoSaverSub;
+
+  /// No description provided for @settingsKeepScreenOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the screen on while recording'**
+  String get settingsKeepScreenOn;
+
+  /// No description provided for @settingsBatteryOptimization.
+  ///
+  /// In en, this message translates to:
+  /// **'Battery optimization'**
+  String get settingsBatteryOptimization;
+
+  /// No description provided for @settingsBatteryUnrestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Unrestricted. Recordings keep running with the screen off.'**
+  String get settingsBatteryUnrestricted;
+
+  /// No description provided for @settingsBatteryRestricted.
+  ///
+  /// In en, this message translates to:
+  /// **'Restricted. Android may stop recordings in the background. Tap to allow.'**
+  String get settingsBatteryRestricted;
 
   /// No description provided for @settingsDiagnostics.
   ///

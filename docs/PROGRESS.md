@@ -317,6 +317,45 @@ Needs the physical phone (the source of truth) and is the only Fix Pass 1 work l
 - 3D rendering (emulator WebView has no WebGL) and the Recenter pill's pan-triggered appearance
   (synthetic swipes don't fire the MapLibre dismiss callback).
 
+## Phase 6 recording engine, done properly (2026-09-11)
+
+Driven by the spec audit's top gaps (a killed app ended the hike; no auto-pause; live gain from
+raw GPS) and the AllTrails benchmark (docs/DECISIONS.md, "Phase 6 recording engine"):
+
+- **Durable, service-owned recording.** `RecordingTaskHandler` (the foreground service isolate)
+  reads a session file, runs the GPS through the pure `RecordingEngine`, appends every fix and
+  pause transition to `files/recording/<id>.jsonl`, and streams snapshots to the UI. The main
+  isolate ingests the log on Finish, on the next launch after Stop was pressed on the
+  notification with the app gone, or as a recovered paused session when the service itself
+  died. Notification: distance, active time, state, Pause/Resume and Stop buttons.
+- **Engine** (`lib/domain/usecases/recording_engine.dart`, 10 unit tests): accuracy and jump
+  gates, DEM gain via `.f32` terrain sidecars with a GPS-median fallback and re-anchoring, 5 m
+  hysteresis, auto-pause 20 s / resume on movement, route projection with a windowed nearest
+  search, distance and gain remaining, ETA scaled by the hiker's own pace, off-route 60 m for 30 s
+  with accuracy gating, hysteresis and mute, arrival, and a replayable log.
+- **Settings > Recording**: GPS accuracy profiles (Precise / Balanced / Saver), auto-pause,
+  Saver below 20 percent, keep screen on, and a battery-optimization status row that opens the
+  system page. Battery start/end per track (schema v5) shows as "%/h" on the track detail.
+- **Navigate while recording**: a collapsible sheet (three headline numbers, route status,
+  Pause/Finish; full stats, ETA, gain left, profile with a position dot, and Discard above the
+  fold), an off-route banner with distance, an arrow back to the trail and Mute, a Finish confirm,
+  a recovered-session note, a battery hint, and a zoom to 16 on Start.
+- **Map fix**: MapLibre Native drops any layer whose `line-dasharray` is data-driven, so the
+  `trails` and `route` layers never rendered on Android. Split into solid plus dashed variant
+  layers in all six styles (`tool/patch_cairn_layers.dart`); the generator matches.
+
+Verified on the Pixel 3a API 36 emulator with the route simulator: live stats, ETA, profile dot
+and DEM elevation during recording; swipe-from-recents keeps the service counting and reopening
+re-attaches to the live session; Pause and Stop from the notification with the app gone, and the
+next launch files the hike into Activity with 297 DEM-tagged points; `am force-stop` mid-hike
+then relaunch shows "Recording recovered" paused, Resume restarts the service from the log,
+Finish saves (battery 100 to 100 via battery_plus). Gate: analyze clean, 186 tests, SPDX and
+theme checks, dart format.
+
+NEEDS DEVICE: real GPS fixes (accuracy gating, auto-pause on a real stop, off-route on a real
+detour, the notification tap), a multi-hour battery figure per profile, and the OEM battery
+optimization prompt on Samsung/OnePlus.
+
 ## Numbered phases 0-9: all implemented
 
 Recorded here for accuracy (Phases 4-8 were built during the overnight and Phase R work but never

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart' show ThemeMode;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../domain/usecases/recording_engine.dart' show RecordingProfile;
 import '../units/unit_formatter.dart';
 import 'settings.dart';
 
@@ -21,6 +22,10 @@ const _kBodyWeight = 'settings.bodyWeightKg';
 const _kPackWeight = 'settings.defaultPackKg';
 const _kShowConditions = 'settings.showConditions';
 const _kProxyBaseUrl = 'settings.proxyBaseUrl';
+const _kRecordingProfile = 'settings.recordingProfile';
+const _kAutoPause = 'settings.autoPause';
+const _kAutoSaver = 'settings.autoSaver';
+const _kKeepScreenOn = 'settings.keepScreenOn';
 
 class SettingsNotifier extends Notifier<Settings> {
   @override
@@ -48,6 +53,14 @@ class SettingsNotifier extends Notifier<Settings> {
       defaultPackKg: prefs.getDouble(_kPackWeight),
       showConditions: prefs.getBool(_kShowConditions) ?? true,
       proxyBaseUrl: prefs.getString(_kProxyBaseUrl) ?? '',
+      recordingProfile: _enumByName(
+        RecordingProfile.values,
+        prefs.getString(_kRecordingProfile),
+        RecordingProfile.precise,
+      ),
+      autoPause: prefs.getBool(_kAutoPause) ?? true,
+      autoSaver: prefs.getBool(_kAutoSaver) ?? true,
+      keepScreenOn: prefs.getBool(_kKeepScreenOn) ?? false,
     );
   }
 
@@ -99,6 +112,26 @@ class SettingsNotifier extends Notifier<Settings> {
   Future<void> setShowConditions(bool show) async {
     state = state.copyWith(showConditions: show);
     await _prefs.setBool(_kShowConditions, show);
+  }
+
+  Future<void> setRecordingProfile(RecordingProfile profile) async {
+    state = state.copyWith(recordingProfile: profile);
+    await _prefs.setString(_kRecordingProfile, profile.name);
+  }
+
+  Future<void> setAutoPause(bool on) async {
+    state = state.copyWith(autoPause: on);
+    await _prefs.setBool(_kAutoPause, on);
+  }
+
+  Future<void> setAutoSaver(bool on) async {
+    state = state.copyWith(autoSaver: on);
+    await _prefs.setBool(_kAutoSaver, on);
+  }
+
+  Future<void> setKeepScreenOn(bool on) async {
+    state = state.copyWith(keepScreenOn: on);
+    await _prefs.setBool(_kKeepScreenOn, on);
   }
 
   /// Returns false and leaves the setting unchanged when [url] is not an
