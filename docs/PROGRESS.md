@@ -21,7 +21,29 @@ to confirm. The verification gate used here is:
 Phases 0 through 9 code-complete, plus multi-device sync (client + accountless E2E server),
 both API backends, a security audit, a design mockup canvas, and now (morning session) a
 homelab deploy bundle, RevenueCat store wiring, on-device verification, and a public GitHub
-push. `flutter analyze` clean, 115 tests, both flavors build.
+push. `flutter analyze` clean, 249 tests, both flavors build.
+
+### Evening session 2026-09-11 (done, pushed through c6237d7)
+
+Ten commits closing the spec audit gaps, every one verified on the Pixel 3a emulator:
+
+- "Open with Cairn" for .gpx (Files app chooser, cold and warm), Open-Meteo elevation
+  fallback, Conditions without a route, CI obfuscation flags.
+- Fires: live WFIGS field names (perimeter-less fires had no acres or dates), tappable on the
+  map with a card, flame icons sized by acres, "Open on InciWeb" lands on the incident page.
+- GPX `<wpt>` pins import as user waypoints; Nominatim place search on submit; "Section in
+  view" for trails over 30 mi; camps along the route; water ticks and sparklines; AQI forecast.
+- Route editor: insert on the line, long-press drag, Redo; "Navigate this route / track" from
+  the saved detail screens; trails drawn under the route on Navigate.
+- F-Droid screenshots and README images, real base-map previews in the layer sheet, the
+  offline overlay chip, the A5 text-scale widget test.
+
+Four bugs that had been hiding behind cached test data are fixed and regression-tested: the
+Overpass parse closure that Isolate.run refused (no new map cell had ingested trails or POIs
+since Fix Pass 1), MapLibreMap capturing tap callbacks once (customize mode never got taps),
+the POI layer that never rendered on Android (default glyph font 404), and Explore losing its
+trails after a tab switch. Details in each commit and in docs/DECISIONS.md. Open items and
+new questions: "Questions for you" 12 to 18 below.
 
 ### Morning session (done)
 
