@@ -32,7 +32,9 @@ cairn-sync, and Express 5 in both backends. The audit's release-build checks ran
 community APK and caught one real problem: Play services classes were in the community binary
 (geolocator's fused-provider dependency). The community flavor now excludes the Google groups in
 Gradle, geolocator falls back to the platform LocationManager, and `tool/check_apk_clean.py` gates
-the APK locally and in the CI release job. Questions 7, 12, and 13 below are closed.
+the APK locally and in the CI release job. Questions 7, 12, and 13 below are closed. CI is green
+on the pinned actions with the new OSV job (run 34708139947); question 19 covers the Dependabot
+PRs that followed.
 
 ### Evening session 2026-09-11 (done, pushed through c6237d7)
 
@@ -184,6 +186,12 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 18. **`connectivity_plus` was added** for the offline overlay chip (state only, no requests,
    normal ACCESS_NETWORK_STATE permission, no Google code). Flagging it because the plugin
    list is part of the F-Droid story.
+19. **Dependabot opened three pull requests within a minute of the first push** (#1, #2, #3):
+   the pinned `actions/checkout`, `actions/setup-java`, and `softprops/action-gh-release` all
+   have newer major versions. CI runs on each PR; merging is your call since they are major
+   bumps (I pinned the current majors deliberately so nothing changed under the audit). The
+   release-job APK gate (`tool/check_apk_clean.py`) only runs on a `v*` tag, so its first CI
+   run will be your first tagged release; it passed locally on both community APKs.
 
 ---
 
