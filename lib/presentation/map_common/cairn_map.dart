@@ -100,7 +100,15 @@ class _CairnMapState extends ConsumerState<CairnMap> {
     // dispose this map while its style is still loading; the platform view
     // is gone, so stop quietly rather than surface a MissingPluginException.
     try {
-      await addCairnIcons(c, accent: cairn.accent, track: cairn.track);
+      await addCairnIcons(
+        c,
+        accent: cairn.accent,
+        track: cairn.track,
+        // Chevrons sit on the route line: dark ink on a light route color,
+        // white on a dark one (custom themes can pick either).
+        routeInk:
+            cairn.route.computeLuminance() > 0.45 ? Colors.black : Colors.white,
+      );
       if (!mounted) return;
       await ref.read(overlayControllerProvider.notifier).reinstall();
       if (!mounted) return;

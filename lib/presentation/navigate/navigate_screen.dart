@@ -14,7 +14,6 @@ import 'package:uuid/uuid.dart';
 import '../../core/geo/resample.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/cairn_colors.dart';
 import '../../core/theme/theme_codec.dart';
 import '../../core/units/unit_formatter.dart';
@@ -174,7 +173,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
             await waypointIconPng(
               i,
               fill: colors.accent,
-              ink: AppColors.inkDeep,
+              ink: colors.onAccent,
               size: markerPx,
             ),
           );

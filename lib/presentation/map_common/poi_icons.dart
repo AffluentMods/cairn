@@ -32,6 +32,7 @@ Future<void> addCairnIcons(
   MapLibreMapController controller, {
   required Color accent,
   required Color track,
+  required Color routeInk,
 }) async {
   const size = 56;
   for (final entry in _iconColors(accent, track).entries) {
@@ -43,10 +44,11 @@ Future<void> addCairnIcons(
     }
   }
   // Direction chevrons along the active route (the `route-arrows` symbol
-  // layer in every style, z14 and up): ink on the gold line, white-edged so
-  // they read on any base map.
+  // layer in every style, z14 and up): [routeInk] on the route line (the
+  // theme's contrast for its route color), white-edged so they read on any
+  // base map.
   try {
-    await controller.addImage('route-arrow', await _chevronPng(36));
+    await controller.addImage('route-arrow', await _chevronPng(36, routeInk));
   } catch (_) {
     // Non-fatal.
   }
@@ -92,7 +94,7 @@ Future<Uint8List> waypointIconPng(
 
 /// A right-pointing chevron (the line's direction is 0 degrees for a symbol
 /// placed along it), with a light outline.
-Future<Uint8List> _chevronPng(int size) async {
+Future<Uint8List> _chevronPng(int size, Color ink) async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
   final s = size.toDouble();
@@ -112,7 +114,7 @@ Future<Uint8List> _chevronPng(int size) async {
   canvas.drawPath(
     path,
     Paint()
-      ..color = AppColors.inkDeep
+      ..color = ink
       ..style = PaintingStyle.stroke
       ..strokeWidth = s * 0.13
       ..strokeCap = StrokeCap.round
