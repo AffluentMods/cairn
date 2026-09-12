@@ -392,6 +392,14 @@ waypoint pin lands, the 3D view's base-map attribution (compact, bottom left), t
 named after the active route, the designer preview's Start label and the GPX import fallbacks
 localized.
 
+Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
+recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
+sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,
+track detail, Saved tabs, Appearance, Theme Designer and color picker, Sync, Sources, Privacy,
+Diagnostics, offline sheet): fixed the doubled "#" in the color picker's HEX field, the
+conditions panel titled "Navigate" instead of the route, recordings drawn in the route color on
+the track detail, the unstructured privacy text, and the incomplete sources list.
+
 ## Numbered phases 0-9: all implemented
 
 Recorded here for accuracy (Phases 4-8 were built during the overnight and Phase R work but never

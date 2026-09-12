@@ -484,6 +484,12 @@ abstract class AppLocalizations {
   /// **'Waiting for a good GPS fix'**
   String get recordWaitingGps;
 
+  /// No description provided for @recordClimbLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'Climb: {distance} and {gain} to the top'**
+  String recordClimbLeft(String distance, String gain);
+
   /// No description provided for @recordToGo.
   ///
   /// In en, this message translates to:
@@ -1479,6 +1485,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Colors'**
   String get designerColors;
+
+  /// No description provided for @designerHex.
+  ///
+  /// In en, this message translates to:
+  /// **'HEX'**
+  String get designerHex;
 
   /// No description provided for @designerExportFile.
   ///
@@ -2533,7 +2545,7 @@ abstract class AppLocalizations {
   /// No description provided for @attributionUsgs3dep.
   ///
   /// In en, this message translates to:
-  /// **'Elevation: USGS 3DEP'**
+  /// **'Slope and lidar: USGS 3DEP'**
   String get attributionUsgs3dep;
 
   /// No description provided for @attributionOsmGps.
@@ -2541,6 +2553,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'GPS traces © OpenStreetMap contributors'**
   String get attributionOsmGps;
+
+  /// No description provided for @attributionUsfs.
+  ///
+  /// In en, this message translates to:
+  /// **'Official trails and boundaries: USDA Forest Service EDW'**
+  String get attributionUsfs;
+
+  /// No description provided for @attributionMapLibre.
+  ///
+  /// In en, this message translates to:
+  /// **'Map engine: MapLibre Native and MapLibre GL JS'**
+  String get attributionMapLibre;
 }
 
 class _AppLocalizationsDelegate

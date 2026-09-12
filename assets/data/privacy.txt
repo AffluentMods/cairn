@@ -1,20 +1,35 @@
-Cairn privacy
+# Cairn privacy
 
 Short version: Cairn has no account, no analytics, no ads, and no third-party tracking. Your location and your hikes stay on your device.
 
-What stays on your device
-Your saved routes, recorded tracks, offline map regions, trail cache, and settings live in a database on your phone. Cairn never uploads them anywhere unless you turn on sync, which is off by default. Location is used to show where you are and to record a hike. It is not sent to anyone.
+## What stays on your device
 
-What leaves your device, and only this
-Cairn is a map, so it fetches map and conditions data. Each request sends only a coordinate or a rectangular map area, never an identifier, to public sources: OpenFreeMap and OpenMapTiles, USGS The National Map, Mapzen and AWS Terrain Tiles, OpenStreetMap via Overpass, USFS EDW, NIFC WFIGS, NOAA National Weather Service, and Open-Meteo. Optionally, the Affluent Labs proxy for the few sources that need an API key; the proxy holds the keys, not the app, and logs nothing but a per-address rate-limit counter. Requests carry a User-Agent that identifies the app, not you.
+- Your saved routes, recorded tracks, offline map regions, trail cache, and settings live in a database on your phone. Cairn never uploads them anywhere unless you turn on sync, which is off by default.
+- Location is used to show where you are on the map and to record a hike. It is not sent to anyone.
+- While you record a hike, the fixes are appended to a private file in the app's own storage so the track survives the app being closed or the phone running out of power; it is folded into your Activity when you finish and then deleted. Cairn also notes the battery percentage at the start and end of a hike to show you a "% per hour" figure. Both stay on the phone.
+- Some map overlays are fetched through a tiny server that runs on 127.0.0.1 inside the app. It only talks to the app itself and to the overlay sources listed below; nothing about it leaves the phone.
+- The diagnostics log (Settings > Diagnostics) records crashes and slow frames to a small file on the phone with coordinates removed. It is never uploaded. You can share it yourself or clear it.
 
-Optional multi-device sync
-If you turn on sync, your routes and tracks are encrypted on your device with a key derived from a passphrase you choose (Argon2id, then AES-256-GCM) before anything leaves the phone. The sync server, whether ours or one you self-host, only ever stores an encrypted blob it cannot read. It never sees your passphrase, your key, or your data. Sync uses a random sync id as its only identifier; there is no account and no email.
+## What leaves your device, and only this
 
-Permissions
-Location for the map and recordings, background location only when you start a recording, notifications for the recording notification, and internet. Nothing else.
+Cairn is a map, so it fetches map and conditions data. Each request sends only a coordinate or a rectangular map area, never an identifier, to these public sources:
 
-Your data is yours
+- OpenFreeMap and OpenMapTiles (basemap), USGS The National Map (topo, imagery, slope, lidar), Mapzen / AWS Terrain Tiles (elevation), OpenStreetMap via Overpass (trails and points), USFS EDW (official trails and boundaries), NIFC WFIGS (fires), NOAA National Weather Service (weather and weather maps), Open-Meteo (air quality and fallback weather), IGN (France base map).
+- The optional Affluent Labs proxy, for the few sources that need an API key (air quality monitors, park alerts, campgrounds). The proxy holds the keys, not the app, and logs nothing but a per-address rate-limit counter.
+- Directions: tapping Directions hands the trailhead coordinate to your own maps app (a geo: link). Only if no maps app is installed does it open Google Maps in the browser, with that one coordinate and nothing else.
+
+Requests carry a User-Agent of Cairn/<version> (contact@affluentlabs.dev) because some of these services require one. That string identifies the app, not you.
+
+## Optional multi-device sync
+
+If you turn on sync, your routes and tracks are encrypted on your device with a key derived from a passphrase you choose (Argon2id, then AES-256-GCM) before anything leaves the phone. The sync server, whether ours or one you self-host, only ever stores an encrypted blob it cannot read. It never sees your passphrase, your key, or your data. Sync uses a random sync id as its only identifier; there is still no account, no email, and no password stored on a server in readable form.
+
+## Permissions
+
+Location (for the puck and recordings), background location (only requested when you start a recording, so the track continues with the screen off), notifications (for the recording notification), and internet. Nothing else.
+
+## Your data is yours
+
 Export any route or track as a GPX file at any time. Deleting the app deletes the on-device data. If you used sync, purge it from the sync screen.
 
 Questions: privacy@affluentlabs.dev

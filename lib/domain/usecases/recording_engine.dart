@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../core/geo/elevation_stats.dart';
 import '../../core/geo/haversine.dart';
 import '../../core/geo/nearest_point.dart';
+import 'climbs.dart';
 
 /// The power profile a recording runs with (Settings > Recording). Precise is
 /// GPS-only at 5 m; Balanced uses the fused provider at 10 m every 4 s; Saver
@@ -234,6 +235,8 @@ class RecordingSnapshot {
     this.remainingGainM,
     this.etaSeconds,
     this.arrived = false,
+    this.climbRemainingM,
+    this.climbGainLeftM,
     this.events = const [],
   });
 
@@ -258,6 +261,11 @@ class RecordingSnapshot {
   final double? etaSeconds;
   final bool arrived;
 
+  /// Inside a sustained climb on the route: distance and gain left to its
+  /// top (the climb pill); null between climbs or without a route profile.
+  final double? climbRemainingM;
+  final double? climbGainLeftM;
+
   /// One-shot events since the previous snapshot: offRoute, arrived, paused,
   /// resumed, autoPaused, autoResumed.
   final List<String> events;
@@ -280,6 +288,8 @@ class RecordingSnapshot {
         'rg': remainingGainM,
         'eta': etaSeconds,
         'arr': arrived,
+        'cr': climbRemainingM,
+        'cg': climbGainLeftM,
         'ev': events,
       };
 
@@ -302,6 +312,8 @@ class RecordingSnapshot {
         remainingGainM: (m['rg'] as num?)?.toDouble(),
         etaSeconds: (m['eta'] as num?)?.toDouble(),
         arrived: m['arr'] as bool? ?? false,
+        climbRemainingM: (m['cr'] as num?)?.toDouble(),
+        climbGainLeftM: (m['cg'] as num?)?.toDouble(),
         events: [for (final e in (m['ev'] as List? ?? const [])) e as String],
       );
 }
@@ -369,6 +381,7 @@ class RecordingEngine {
   double _routeLen = 0;
   List<double>? _gainPrefix;
   List<double>? _lossPrefix;
+  List<Climb> _climbs = const [];
   int _lastSeg = 0;
   double? _progressM;
   double? _offDistM;
@@ -423,7 +436,21 @@ class RecordingEngine {
       }
       _gainPrefix = g;
       _lossPrefix = l;
+      _climbs = findClimbs(cum, elev);
     }
+  }
+
+  /// The climb in progress, as (distance left, gain left) to its top.
+  ({double remainingM, double gainLeftM})? get currentClimb {
+    final p = _progressM;
+    if (p == null) return null;
+    final c = climbAt(_climbs, p);
+    if (c == null || c.lengthM <= 0) return null;
+    final remaining = c.endM - p;
+    return (
+      remainingM: remaining,
+      gainLeftM: c.gainM * (remaining / c.lengthM).clamp(0.0, 1.0),
+    );
   }
 
   /// Feeds a live fix. Returns true when it was accepted. Manual pause drops
@@ -818,6 +845,8 @@ class RecordingEngine {
       remainingGainM: remainingGainM,
       etaSeconds: etaSeconds(),
       arrived: _arrived,
+      climbRemainingM: currentClimb?.remainingM,
+      climbGainLeftM: currentClimb?.gainLeftM,
       events: events,
     );
   }

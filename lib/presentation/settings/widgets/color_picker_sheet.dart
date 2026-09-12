@@ -173,9 +173,8 @@ class _ColorPickerSheetState extends State<_ColorPickerSheet> {
                 width: 130,
                 child: TextField(
                   controller: _hex,
-                  decoration: const InputDecoration(
-                    labelText: 'HEX',
-                    prefixText: '#',
+                  decoration: InputDecoration(
+                    labelText: context.l10n.designerHex,
                     isDense: true,
                   ),
                   onSubmitted: (t) {

@@ -223,6 +223,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordWaitingGps => 'Waiting for a good GPS fix';
 
   @override
+  String recordClimbLeft(String distance, String gain) {
+    return 'Climb: $distance and $gain to the top';
+  }
+
+  @override
   String recordToGo(String distance) {
     return '$distance to go';
   }
@@ -777,6 +782,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get designerColors => 'Colors';
+
+  @override
+  String get designerHex => 'HEX';
 
   @override
   String get designerExportFile => 'Export as file';
@@ -1353,8 +1361,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get attributionNoaa => 'Weather maps: NOAA National Weather Service';
 
   @override
-  String get attributionUsgs3dep => 'Elevation: USGS 3DEP';
+  String get attributionUsgs3dep => 'Slope and lidar: USGS 3DEP';
 
   @override
   String get attributionOsmGps => 'GPS traces © OpenStreetMap contributors';
+
+  @override
+  String get attributionUsfs =>
+      'Official trails and boundaries: USDA Forest Service EDW';
+
+  @override
+  String get attributionMapLibre =>
+      'Map engine: MapLibre Native and MapLibre GL JS';
 }

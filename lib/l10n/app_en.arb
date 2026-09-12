@@ -81,6 +81,8 @@
   "recordOnRoute": "On route",
   "recordOffRoute": "Off route",
   "recordWaitingGps": "Waiting for a good GPS fix",
+  "recordClimbLeft": "Climb: {distance} and {gain} to the top",
+  "@recordClimbLeft": { "placeholders": { "distance": { "type": "String" }, "gain": { "type": "String" } } },
   "recordToGo": "{distance} to go",
   "@recordToGo": { "placeholders": { "distance": { "type": "String" } } },
   "recordEta": "ETA {time}",
@@ -280,6 +282,7 @@
   "designerNameHint": "My theme",
   "designerStartFrom": "Start from",
   "designerColors": "Colors",
+  "designerHex": "HEX",
   "designerExportFile": "Export as file",
   "designerExportCode": "Copy theme code",
   "designerImport": "Import a theme",
@@ -485,6 +488,8 @@
 
   "attributionIgn": "© IGN",
   "attributionNoaa": "Weather maps: NOAA National Weather Service",
-  "attributionUsgs3dep": "Elevation: USGS 3DEP",
-  "attributionOsmGps": "GPS traces © OpenStreetMap contributors"
+  "attributionUsgs3dep": "Slope and lidar: USGS 3DEP",
+  "attributionOsmGps": "GPS traces © OpenStreetMap contributors",
+  "attributionUsfs": "Official trails and boundaries: USDA Forest Service EDW",
+  "attributionMapLibre": "Map engine: MapLibre Native and MapLibre GL JS"
 }

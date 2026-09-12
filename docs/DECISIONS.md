@@ -223,6 +223,15 @@ option that ships fastest and record it here.
   needed and it follows the theme.
 - **The debug location simulator toggle is persisted.** Reason: it is debug-only, and a
   reinstall-and-test loop reset it on every build.
+- **Climbs are runs where the grade smoothed over 100 m stays at or above 6 percent (a dip
+  under 60 m does not end one) gaining at least 30 m; the recording sheet shows distance and
+  gain left to the top of the climb under way.** Reason: AllTrails' Android climb pill and
+  its 6 percent shading threshold (benchmark sections 2 and 6). Computed once from the
+  route's DEM profile when a recording starts, so it works offline and costs nothing per fix.
+- **The privacy screen renders a markdown-lite asset (title, headings, bullets) generated
+  from docs/PRIVACY.md, and the sources screen lists every feed and the map engine.** Reason:
+  the plain-text version had no structure and had fallen behind the policy; the sources list
+  lacked USFS, the NWS weather maps, USGS 3DEP, OSM GPS traces, IGN and MapLibre.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

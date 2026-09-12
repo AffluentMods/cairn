@@ -1130,6 +1130,33 @@ class _RecordingSheet extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleSmall,
               )
+            else if (following &&
+                state.onRoute &&
+                state.climbRemainingM != null &&
+                state.climbGainLeftM != null)
+              // The climb pill (AllTrails' elevation mode): how far and how
+              // much higher to the top of the climb under way.
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.trending_up, size: 16, color: scheme.primary),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      l10n.recordClimbLeft(
+                        ref.watch(unitFormatterProvider).distance(
+                              state.climbRemainingM!,
+                            ),
+                        ref.watch(unitFormatterProvider).elevation(
+                              state.climbGainLeftM!,
+                            ),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              )
             else if (following && state.routeKnown)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

@@ -157,6 +157,8 @@ class RecordingState {
   double? get progressM => snapshot?.progressM;
   double? get etaSeconds => snapshot?.etaSeconds;
   bool get arrived => snapshot?.arrived ?? false;
+  double? get climbRemainingM => snapshot?.climbRemainingM;
+  double? get climbGainLeftM => snapshot?.climbGainLeftM;
   double? get currentLat => snapshot?.lat;
   double? get currentLon => snapshot?.lon;
   double? get heading => snapshot?.heading;
