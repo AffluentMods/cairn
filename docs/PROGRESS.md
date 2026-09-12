@@ -293,3 +293,26 @@ Remaining (best done with real-device GPS, or lower priority):
   the reskin already works because chrome reads the ColorScheme/tokens).
 - X1.5 re-run the full scripted session on the physical phone (the source of truth for maps,
   location, and performance).
+
+## Fix Pass 1 status (final for this session)
+
+All emulator-verifiable Fix Pass 1 work is done and committed. Added since the previous status:
+
+- X2.2 "Navigate this trail" section logic (whole trail under 15 mi, else the viewport section
+  + 25%, oriented to start nearest the user). Partial: the trailhead-within-500m preference and
+  the from-to / start-far banners still need POI naming and Navigate plumbing.
+- X2.8 LocationSource + route simulator + Settings > Developer toggle + docs/BUILDING.md.
+  Verified end to end: with the toggle on, Start walks the loaded route and the camera follows.
+- X4.6 tool/check_theme_tokens.sh CI guard (raw Color(0x in presentation), wired into CI.
+- Ran dart format across the tree so the CI format gate passes; build_runner output is current.
+
+Full local CI gate is green: SPDX, theme-token check, dart format, build_runner (no diff),
+flutter analyze, flutter test (168).
+
+Needs the physical phone (the source of truth) and is the only Fix Pass 1 work left:
+
+- X1.5 re-run the scripted session on the phone (locate/pan/Show route/Navigate/3D/overlays;
+  confirm the X1.4 budgets: cold start < 2.5 s, no frame > 32 ms after the first second,
+  memory < 350 MB, zero ANRs).
+- 3D rendering (emulator WebView has no WebGL) and the Recenter pill's pan-triggered appearance
+  (synthetic swipes don't fire the MapLibre dismiss callback).
