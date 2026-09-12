@@ -16,6 +16,8 @@ class FireIncident {
     this.lat,
     this.lon,
     this.polygons = const [],
+    this.unitId,
+    this.irwinId,
     this.distanceToRouteM,
     this.crossesRoute = false,
   });
@@ -31,6 +33,12 @@ class FireIncident {
   final double? lat;
   final double? lon;
   final List<List<List<double>>> polygons; // [ring][point][lat,lon]
+
+  /// WFIGS POOProtectingUnit ("WAGPF"), the prefix InciWeb titles use.
+  final String? unitId;
+
+  /// IRWIN id shared by a perimeter and its incident point.
+  final String? irwinId;
 
   /// Filled by the route-proximity use case.
   final double? distanceToRouteM;
@@ -54,6 +62,8 @@ class FireIncident {
       lat: lat,
       lon: lon,
       polygons: polygons,
+      unitId: unitId,
+      irwinId: irwinId,
       distanceToRouteM: distanceM,
       crossesRoute: crosses,
     );

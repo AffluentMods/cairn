@@ -24,13 +24,37 @@ class GpxRouteData {
   final List<GpxPt> points;
 }
 
-/// What a GPX file yielded: tracks (`<trk>`) and routes (`<rte>`).
+/// A user waypoint, for GPX `<wpt>` import and export: `<name>`, `<desc>`
+/// (the note) and `<type>` (the kind) round-trip (Addendum A4.5).
+class GpxWaypoint {
+  const GpxWaypoint({
+    required this.lat,
+    required this.lon,
+    this.name,
+    this.note,
+    this.kind,
+  });
+
+  final double lat;
+  final double lon;
+  final String? name;
+  final String? note;
+  final String? kind;
+}
+
+/// What a GPX file yielded: tracks (`<trk>`), routes (`<rte>`) and standalone
+/// waypoints (`<wpt>`), which become user pins attached to the route.
 class GpxImport {
-  const GpxImport({required this.tracks, required this.routes});
+  const GpxImport({
+    required this.tracks,
+    required this.routes,
+    this.waypoints = const [],
+  });
   final List<GpxTrackData> tracks;
   final List<GpxRouteData> routes;
+  final List<GpxWaypoint> waypoints;
 
-  bool get isEmpty => tracks.isEmpty && routes.isEmpty;
+  bool get isEmpty => tracks.isEmpty && routes.isEmpty && waypoints.isEmpty;
 }
 
 /// Parses a GPX document. Throws [FormatException] on malformed input so the UI
@@ -69,7 +93,23 @@ GpxImport parseGpx(String xml) {
     }
   }
 
-  return GpxImport(tracks: tracks, routes: routes);
+  final waypoints = <GpxWaypoint>[];
+  for (final w in gpx.wpts) {
+    final lat = w.lat;
+    final lon = w.lon;
+    if (lat == null || lon == null) continue;
+    final name = w.name?.trim();
+    final note = (w.desc ?? w.cmt)?.trim();
+    waypoints.add(GpxWaypoint(
+      lat: lat,
+      lon: lon,
+      name: name == null || name.isEmpty ? null : name,
+      note: note == null || note.isEmpty ? null : note,
+      kind: waypointKindFromGpx(w.type ?? w.sym, name: name),
+    ));
+  }
+
+  return GpxImport(tracks: tracks, routes: routes, waypoints: waypoints);
 }
 
 GpxPt? _toPt(Wpt w) {
@@ -79,24 +119,35 @@ GpxPt? _toPt(Wpt w) {
   return GpxPt(lat: lat, lon: lon, ele: w.ele, time: w.time);
 }
 
-/// Exports a route as GPX (creator Cairn). Elevations come from the caller (DEM).
-/// A user waypoint, for GPX `<wpt>` export.
-class GpxWaypoint {
-  const GpxWaypoint({
-    required this.lat,
-    required this.lon,
-    this.name,
-    this.note,
-    this.kind,
-  });
+/// The user-waypoint kinds Cairn knows (Addendum A4.5).
+const waypointKinds = [
+  'water',
+  'camp',
+  'hazard',
+  'viewpoint',
+  'parking',
+  'note'
+];
 
-  final double lat;
-  final double lon;
-  final String? name;
-  final String? note;
-  final String? kind;
+/// Maps a GPX `<type>` (or `<sym>`) to a Cairn waypoint kind. Cairn's own
+/// exports round-trip exactly; other apps' free-text types are matched on
+/// keywords, with the pin's name as a hint, and fall back to "note".
+String waypointKindFromGpx(String? type, {String? name}) {
+  final t = type?.trim().toLowerCase() ?? '';
+  if (waypointKinds.contains(t)) return t;
+  final text = '$t ${name?.toLowerCase() ?? ''}';
+  bool has(List<String> words) => words.any(text.contains);
+  if (has(['water', 'spring', 'creek', 'stream', 'lake', 'river'])) {
+    return 'water';
+  }
+  if (has(['camp', 'shelter', 'tent'])) return 'camp';
+  if (has(['hazard', 'danger', 'warning', 'caution'])) return 'hazard';
+  if (has(['view', 'summit', 'peak', 'photo', 'scenic'])) return 'viewpoint';
+  if (has(['parking', 'trailhead'])) return 'parking';
+  return 'note';
 }
 
+/// Exports a route as GPX (creator Cairn). Elevations come from the caller (DEM).
 String exportRouteGpx({
   required String name,
   required List<List<double>> geometry,

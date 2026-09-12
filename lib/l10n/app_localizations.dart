@@ -838,6 +838,54 @@ abstract class AppLocalizations {
   /// **'{name} is {distance} from here'**
   String condFireDistanceHere(String name, String distance);
 
+  /// No description provided for @fireWildfire.
+  ///
+  /// In en, this message translates to:
+  /// **'Wildfire'**
+  String get fireWildfire;
+
+  /// No description provided for @firePrescribedBurn.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescribed burn'**
+  String get firePrescribedBurn;
+
+  /// No description provided for @fireDiscovered.
+  ///
+  /// In en, this message translates to:
+  /// **'Discovered {date}'**
+  String fireDiscovered(String date);
+
+  /// No description provided for @fireBehavior.
+  ///
+  /// In en, this message translates to:
+  /// **'Behavior: {text}'**
+  String fireBehavior(String text);
+
+  /// No description provided for @agoJustNow.
+  ///
+  /// In en, this message translates to:
+  /// **'just now'**
+  String get agoJustNow;
+
+  /// No description provided for @agoMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} min'**
+  String agoMinutes(int n);
+
+  /// No description provided for @agoHours.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} h'**
+  String agoHours(int n);
+
+  /// No description provided for @agoDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{n} d'**
+  String agoDays(int n);
+
   /// No description provided for @condFireNone.
   ///
   /// In en, this message translates to:
@@ -1894,6 +1942,48 @@ abstract class AppLocalizations {
   /// **'{count} segments'**
   String searchMatches(int count);
 
+  /// No description provided for @searchTrailsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Trails'**
+  String get searchTrailsHeader;
+
+  /// No description provided for @searchPlacesHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Places'**
+  String get searchPlacesHeader;
+
+  /// No description provided for @searchPlacesAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Search places'**
+  String get searchPlacesAction;
+
+  /// No description provided for @searchPlacesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Press Search to look up a town, park or trailhead'**
+  String get searchPlacesHint;
+
+  /// No description provided for @searchPlacesNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No places found'**
+  String get searchPlacesNone;
+
+  /// No description provided for @searchPlacesFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Place search needs a connection'**
+  String get searchPlacesFailed;
+
+  /// No description provided for @searchPlacesAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'Places: OpenStreetMap Nominatim'**
+  String get searchPlacesAttribution;
+
   /// No description provided for @navEmptyTitle.
   ///
   /// In en, this message translates to:
@@ -2536,6 +2626,18 @@ abstract class AppLocalizations {
   /// **'{count} imported'**
   String gpxImported(int count);
 
+  /// No description provided for @gpxImportedPins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} imported, {pins} pins'**
+  String gpxImportedPins(int count, int pins);
+
+  /// No description provided for @gpxImportedPinsOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'{pins} pins imported'**
+  String gpxImportedPinsOnly(int pins);
+
   /// No description provided for @statEmpty.
   ///
   /// In en, this message translates to:
@@ -2577,6 +2679,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Map engine: MapLibre Native and MapLibre GL JS'**
   String get attributionMapLibre;
+
+  /// No description provided for @attributionNominatim.
+  ///
+  /// In en, this message translates to:
+  /// **'Place search: OpenStreetMap Nominatim'**
+  String get attributionNominatim;
 }
 
 class _AppLocalizationsDelegate

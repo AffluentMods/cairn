@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 566208,
+      "geometry": { "type": "Point", "coordinates": [-123.799682175729, 47.8223384650366] },
+      "properties": {
+        "OBJECTID": 566208,
+        "IncidentSize": 69,
+        "DiscoveryAcres": 0.1,
+        "FireBehaviorGeneral": null,
+        "FireDiscoveryDateTime": 1782329400000,
+        "IncidentName": "Mount Tom Creek",
+        "IncidentTypeCategory": "WF",
+        "IrwinID": "{7A4391A9-652A-4A28-BEDE-9856383B4CB4}",
+        "PercentContained": null,
+        "POOProtectingUnit": "WAOLP",
+        "POOState": "US-WA",
+        "UniqueFireIdentifier": "2026-WAOLP-000147",
+        "ModifiedOnDateTime_dt": 1789066337120
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 566301,
+      "geometry": { "type": "Point", "coordinates": [-121.75, 46.4] },
+      "properties": {
+        "OBJECTID": 566301,
+        "IncidentSize": 1200,
+        "DiscoveryAcres": null,
+        "FireBehaviorGeneral": "Minimal",
+        "FireDiscoveryDateTime": 1788800000000,
+        "IncidentName": "Cispus Rx",
+        "IncidentTypeCategory": "RX",
+        "IrwinID": "{11111111-2222-3333-4444-555555555555}",
+        "PercentContained": 40,
+        "POOProtectingUnit": "WAGPF",
+        "POOState": "US-WA",
+        "UniqueFireIdentifier": "2026-WAGPF-000310",
+        "ModifiedOnDateTime_dt": 1789000000000
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 566400,
+      "geometry": { "type": "Point", "coordinates": [-121.5, 46.5] },
+      "properties": {
+        "OBJECTID": 566400,
+        "IncidentSize": 3,
+        "FireDiscoveryDateTime": 1789000000000,
+        "IncidentName": "Backbone",
+        "IncidentTypeCategory": "WF",
+        "IrwinID": null,
+        "PercentContained": 90,
+        "POOProtectingUnit": "WAGPF",
+        "POOState": "US-WA",
+        "ModifiedOnDateTime_dt": 1789050000000
+      }
+    }
+  ]
+}

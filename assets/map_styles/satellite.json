@@ -426,7 +426,24 @@
       ],
       "layout": {
         "icon-image": "fire",
-        "icon-size": 0.9,
+        "icon-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "coalesce",
+            [
+              "get",
+              "sizeIdx"
+            ],
+            1.5
+          ],
+          0,
+          0.6,
+          5,
+          1.8
+        ],
         "icon-allow-overlap": true
       }
     },

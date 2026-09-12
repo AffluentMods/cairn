@@ -15,10 +15,6 @@ update the parser plus this note if they differ:
   `{base}?f=json` and record the field list. Trail name and number fields are guessed as
   `TRAIL_NAME` / `TRAIL_NO`; wilderness name as `NAME`; forest name as `FORESTNAME`. Coded in
   `lib/data/sources/usfs_source.dart` with a tolerant field lookup.
-- **NIFC WFIGS** perimeters: `poly_IncidentName`, `poly_GISAcres`, `attr_PercentContained`,
-  `attr_FireDiscoveryDateTime`, `attr_IncidentTypeCategory`, `attr_FireBehaviorGeneral`,
-  `attr_ModifiedOnDateTime_dt`. Incident points use `attr_` without the `poly_` prefix. Coded
-  in `lib/data/sources/nifc_source.dart` with a tolerant field lookup that tries both.
 - **NWS** (`api.weather.gov`): `/points/{lat},{lon}` gives `properties.forecast*`. Requires a
   User-Agent. Coded in `lib/data/sources/nws_source.dart`.
 - **Open-Meteo**: air quality `hourly.us_aqi`, `hourly.pm2_5`; forecast `hourly.*`. Coded in
@@ -28,6 +24,38 @@ update the parser plus this note if they differ:
 
 ## Verified
 
+- **NIFC WFIGS** (2026-09-11, live `?f=pjson` field lists and one record from each layer).
+  The **incident locations** layer (`WFIGS_Incident_Locations_Current/FeatureServer/0`) has
+  plain IRWIN field names, not the `attr_` prefix the spec assumed: `IncidentName`,
+  `IncidentSize`, `DiscoveryAcres`, `FinalAcres`, `PercentContained`, `FireDiscoveryDateTime`
+  (epoch ms), `ModifiedOnDateTime_dt` (epoch ms), `IncidentTypeCategory` (`WF` / `RX`),
+  `FireBehaviorGeneral`, `POOProtectingUnit` ("WAOLP"), `POOState` ("US-WA"), `IrwinID`
+  ("{7A43...}"), `UniqueFireIdentifier` ("2026-WAOLP-000147"). The **perimeters** layer
+  (`WFIGS_Interagency_Perimeters_Current/FeatureServer/0`) prefixes its polygon fields with
+  `poly_` (`poly_IncidentName`, `poly_GISAcres`, `poly_DateCurrent`, `poly_IRWINID`) and the
+  same IRWIN attributes with `attr_` (`attr_IncidentName`, `attr_PercentContained`, ...). The
+  two names can differ for one fire (`poly_IncidentName` "Mt Toms Creek" vs `attr_IncidentName`
+  "Mount Tom Creek"), so points are deduplicated against perimeters by IRWIN id first and the
+  `attr_` name is preferred. Until this check the incident points parsed only the `attr_`
+  spellings, so acres, containment, dates and prescribed-burn status were missing for every
+  fire without a perimeter. Fixtures in `test/fixtures/wfigs_*.json` mirror both shapes.
+- **NWS** (2026-09-11, live). `/points/46.47,-121.46` returns `properties.forecastHourly`
+  (`/gridpoints/SEW/142,10/forecast/hourly`); the hourly periods carry `startTime`,
+  `temperature` + `temperatureUnit` ("F"), `probabilityOfPrecipitation.value`, `windSpeed`
+  ("2 mph" or "5 to 10 mph"), `windGust`, `shortForecast`, as coded. Alerts use
+  `properties.event`, `severity`, `ends`. Fixtures in `test/fixtures/nws_*.json`.
+- **InciWeb** has no JSON API, as the spec says, but `https://inciweb.wildfire.gov/incidents/rss.xml`
+  lists every current incident as `<item><title>UNIT Name</title><link>...</link>` (for example
+  "WAOLP Mount Tom Creek Fire" and
+  `http://inciweb.wildfire.gov/incident-information/waolp-mount-tom-creek-fire`). "Open on
+  InciWeb" fetches the feed on demand (kept an hour), matches the WFIGS incident by normalized
+  name with `POOProtectingUnit` as the tie-breaker, and opens the incident page; the home page
+  is the fallback. Coded in `lib/data/sources/inciweb_source.dart`.
+- **Nominatim** usage policy (operations.osmfoundation.org/policies/nominatim, 2026-09-11): at
+  most one request per second, an identifying User-Agent, no autocomplete, cache repeats. The
+  place search runs on submit only, throttles to 1 req/s and caches the last 30 queries
+  (`lib/data/sources/nominatim_source.dart`). Response shape (`format=jsonv2`): `lat`, `lon`,
+  `name`, `display_name`, `type`, `boundingbox` [south, north, west, east] as strings.
 - **Solar times** (`lib/core/geo/solar.dart`): verified against api.sunrise-sunset.org
   (NOAA algorithm) for Tacoma 2026-09-10. Ours matches to within ~30 seconds (sunrise
   13:39:44Z ref vs 13:40:14Z ours; sunset 02:33:31Z ref vs 02:33:41Z ours). The spec's

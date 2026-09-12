@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>InciWeb Incidents</title>
+    <link>https://inciweb.wildfire.gov/</link>
+    <description>Current incidents</description>
+    <item>
+      <title>WAGPF Backbone Fire</title>
+      <link>http://inciweb.wildfire.gov/incident-information/wagpf-backbone-fire</link>
+      <description>Last updated: 2026-09-10 --- State: Washington</description>
+      <pubDate>Thu, 10 Sep 2026 02:38:28 EDT</pubDate>
+      <dc:creator>pio</dc:creator>
+      <guid isPermaLink="false">331745</guid>
+    </item>
+    <item>
+      <title>WAOLP Mount Tom Creek Fire</title>
+      <link>http://inciweb.wildfire.gov/incident-information/waolp-mount-tom-creek-fire</link>
+      <description>Last updated: 2026-09-11</description>
+      <pubDate>Fri, 11 Sep 2026 03:47:39 EDT</pubDate>
+      <dc:creator>pio</dc:creator>
+      <guid isPermaLink="false">331833</guid>
+    </item>
+    <item>
+      <title>ORMHF Backbone Fire</title>
+      <link>http://inciweb.wildfire.gov/incident-information/ormhf-backbone-fire</link>
+      <description>Last updated: 2026-09-09</description>
+      <pubDate>Wed, 09 Sep 2026 03:47:39 EDT</pubDate>
+      <guid isPermaLink="false">331900</guid>
+    </item>
+    <item>
+      <title>WYWYS 2026 Moonshine Fire</title>
+      <link>https://inciweb.wildfire.gov/incident-information/wywys-2026-moonshine-fire</link>
+      <description>Last updated: 2026-09-11</description>
+      <guid isPermaLink="false">331901</guid>
+    </item>
+    <item>
+      <title>Follow</title>
+      <link>http://inciweb.wildfire.gov/incident-information/txtxs-follow</link>
+      <description>An older title without a unit prefix</description>
+      <guid isPermaLink="false">331902</guid>
+    </item>
+    <item>
+      <title>No link here</title>
+      <description>Skipped: no link</description>
+      <guid isPermaLink="false">331903</guid>
+    </item>
+  </channel>
+</rss>

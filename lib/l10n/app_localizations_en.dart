@@ -435,6 +435,40 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get fireWildfire => 'Wildfire';
+
+  @override
+  String get firePrescribedBurn => 'Prescribed burn';
+
+  @override
+  String fireDiscovered(String date) {
+    return 'Discovered $date';
+  }
+
+  @override
+  String fireBehavior(String text) {
+    return 'Behavior: $text';
+  }
+
+  @override
+  String get agoJustNow => 'just now';
+
+  @override
+  String agoMinutes(int n) {
+    return '$n min';
+  }
+
+  @override
+  String agoHours(int n) {
+    return '$n h';
+  }
+
+  @override
+  String agoDays(int n) {
+    return '$n d';
+  }
+
+  @override
   String get condFireNone => 'No active fires within 50 mi';
 
   @override
@@ -1012,6 +1046,28 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get searchTrailsHeader => 'Trails';
+
+  @override
+  String get searchPlacesHeader => 'Places';
+
+  @override
+  String get searchPlacesAction => 'Search places';
+
+  @override
+  String get searchPlacesHint =>
+      'Press Search to look up a town, park or trailhead';
+
+  @override
+  String get searchPlacesNone => 'No places found';
+
+  @override
+  String get searchPlacesFailed => 'Place search needs a connection';
+
+  @override
+  String get searchPlacesAttribution => 'Places: OpenStreetMap Nominatim';
+
+  @override
   String get navEmptyTitle => 'No route loaded';
 
   @override
@@ -1360,6 +1416,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String gpxImportedPins(int count, int pins) {
+    return '$count imported, $pins pins';
+  }
+
+  @override
+  String gpxImportedPinsOnly(int pins) {
+    return '$pins pins imported';
+  }
+
+  @override
   String get statEmpty => '--';
 
   @override
@@ -1381,4 +1447,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get attributionMapLibre =>
       'Map engine: MapLibre Native and MapLibre GL JS';
+
+  @override
+  String get attributionNominatim => 'Place search: OpenStreetMap Nominatim';
 }

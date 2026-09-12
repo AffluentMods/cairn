@@ -1,5 +1,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:convert';
+
 import '../../core/geo/haversine.dart';
+import '../../core/worker/geo_worker.dart';
+
+/// [parseOverpassWays] on a worker isolate, from the raw response body. Kept
+/// top-level so the closure captures only [raw]; built inside a repository
+/// method it would drag the repository and its database into the isolate
+/// message and be refused as unsendable (see GeoWorker).
+Future<OverpassWays> parseOverpassWaysAsync(String raw) => GeoWorker.run(
+      'overpass-ways',
+      () => parseOverpassWays(jsonDecode(raw) as Map<String, dynamic>),
+    );
+
+/// [parseOverpassPois] on a worker isolate, from the raw response body.
+Future<List<ParsedPoi>> parseOverpassPoisAsync(String raw) => GeoWorker.run(
+      'overpass-pois',
+      () => parseOverpassPois(jsonDecode(raw) as Map<String, dynamic>),
+    );
 
 /// A trail way resolved from an Overpass response: geometry, tags, bbox, and the
 /// endpoint node ids the routing graph needs (spec Section 8, Phase 2).

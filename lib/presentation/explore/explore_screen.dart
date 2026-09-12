@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+import '../../core/geo/tile_math.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../data/data_providers.dart';
+import '../../domain/models/fire_incident.dart';
+import '../../domain/repositories/trail_repository.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
@@ -17,9 +20,14 @@ import '../map_common/widgets/location_fab.dart';
 import '../shell/shell_providers.dart';
 import 'highlight_provider.dart';
 import 'nearby_trails_provider.dart';
+import 'widgets/fire_card_sheet.dart';
 import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
 import 'widgets/trail_search.dart';
+
+/// The most z10 cells one viewport may fetch from Overpass (a 2 by 2 block,
+/// roughly zoom 10 and closer on a phone). Wider views render cached trails.
+const maxCellsPerRefresh = 4;
 
 /// The Explore tab (Addendum A4.1): a full-screen map with switchable base maps,
 /// OSM trails and POIs loaded per viewport, search, and a "Trails in view" sheet
@@ -48,6 +56,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   /// source is currently cleared.
   int? _trailsSig;
   int? _poisSig;
+
+  /// The fires currently drawn, so a tap on a flame or perimeter can open
+  /// the incident's card.
+  List<FireIncident> _fires = const [];
 
   MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
@@ -132,10 +144,18 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     bool stale() => gen != _generation;
     try {
       final layers = ref.read(mapLayersProvider);
+      // A wide view spans dozens of z10 cells (one Overpass query each, about
+      // 20 miles square). Fetch only when the view is close enough to be
+      // worth it; further out, draw what is cached and the list says "zoom
+      // in". Cells load center first and stop when the view moves on.
+      final fetchCells =
+          tilesForBbox(viewport.bbox, 10).length <= maxCellsPerRefresh;
 
       if (layers.contains(MapOverlay.trails)) {
         final repo = ref.read(trailRepositoryProvider);
-        final result = await repo.ensureArea(viewport.bbox);
+        final result = fetchCells
+            ? await repo.ensureArea(viewport.bbox, isCancelled: stale)
+            : const TrailLoadResult(networkError: false, cellsFetched: 0);
         if (stale()) return;
         final trails = await repo.trailsInBbox(viewport.bbox);
         if (stale()) return;
@@ -161,7 +181,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
       if (layers.contains(MapOverlay.pois)) {
         final repo = ref.read(poiRepositoryProvider);
-        await repo.ensureArea(viewport.bbox);
+        if (fetchCells) {
+          await repo.ensureArea(viewport.bbox, isCancelled: stale);
+        }
         if (stale()) return;
         final pois = await repo.poisInBbox(viewport.bbox);
         if (stale()) return;
@@ -181,8 +203,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             .read(conditionsRepositoryProvider)
             .firesInBbox(viewport.bbox);
         if (stale()) return;
+        _fires = fires;
         await controller.setGeoJsonSource('cairn-fires', firesToGeoJson(fires));
       } else {
+        _fires = const [];
         await controller.setGeoJsonSource(
             'cairn-fires', emptyFeatureCollection());
       }
@@ -212,6 +236,22 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final controller = _controller;
     if (controller == null) return;
     try {
+      // A flame or perimeter wins over the trail under it: the fire is the
+      // reason the user is looking (spec Phase 7 tap card).
+      if (_fires.isNotEmpty) {
+        final hits = await controller.queryRenderedFeatures(
+            point, ['fires-point', 'fires-fill'], null);
+        if (hits.isNotEmpty) {
+          final props = (hits.first as Map)['properties'];
+          final id = props is Map ? props['id']?.toString() : null;
+          for (final f in _fires) {
+            if (f.id == id) {
+              if (mounted) await showFireCard(context, f);
+              return;
+            }
+          }
+        }
+      }
       final features = await controller.queryRenderedFeatures(
           point, ['trails', 'trails-informal'], null);
       if (features.isEmpty) return;

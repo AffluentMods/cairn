@@ -400,6 +400,32 @@ unknown instead of a flat sea-level profile (tested); the Conditions button work
 route (map center, "Conditions for this area", verified); CI's release build uses
 `--obfuscate --split-debug-info`.
 
+Fires, GPX pins and place search (spec Phases 2, 4 and 7): the WFIGS incident layer was checked
+live and its field names have no `attr_` prefix, so every fire without a perimeter had been
+showing without acres, containment or dates; the parser now reads both spellings, dedupes points
+against perimeters by IRWIN id, and has fixtures in the live shape (`nifc_parse_test`, plus NWS
+hourly and alert fixtures in `nws_parse_test`). Fires are tappable on Explore (card: name,
+wildfire or prescribed burn, acres, containment, updated, discovered, behavior) and flame icons
+scale with acres. "Open on InciWeb" resolves the incident's own page through InciWeb's RSS feed
+(`inciweb_source_test`) instead of the home page; verified on the emulator (busy state on the
+button, Chrome opens the incident page). GPX `<wpt>` pins import as user waypoints attached to
+the route, with kinds mapped from type, symbol or name (`gpx_importer_test`, codec tests).
+Explore search gained Nominatim places on submit (trails as you type, places on Search; tapping
+a place frames it), verified on the emulator ("Gifford Pinchot National Forest" frames the
+forest). Time-ago strings are now l10n keys.
+
+Critical fix found in logcat during that verification: since Fix Pass 1 X1.3.1 the Overpass
+parse ran through a closure built inside the repository method, which captured the repository
+and its database, so `Isolate.run` refused it and no new map cell ever ingested trails or POIs
+(only cells cached before that change worked, which is why every emulator pass over Goat Rocks
+looked fine). The worker calls now live in top-level async variants next to the parsers,
+GeoWorker falls back to inline work (counted) rather than failing, and `overpass_ingest_test`
+covers both repositories end to end with a recorded response. Verified on the emulator by
+panning to an area with no cached cells. With ingestion alive again, wide views turned out to
+queue every z10 cell on screen (36 Overpass queries at the forest-wide zoom, uncancellable), so
+Explore now fetches only when the view spans at most four cells, loads them center first, and
+stops between cells when the view has moved on (`tile_order_test`, cancellation test).
+
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
 sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,

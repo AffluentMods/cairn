@@ -27,6 +27,10 @@ or a rectangular map area, never an identifier, to these public sources:
 - Directions: tapping Directions hands the trailhead coordinate to your own maps app (a `geo:`
   link). Only if no maps app is installed does it open Google Maps in the browser, with that one
   coordinate and nothing else.
+- Place search: the text you type in Explore's search box is sent to OpenStreetMap's Nominatim
+  only when you press Search, never as you type, and only that text.
+- InciWeb: "Open on InciWeb" downloads InciWeb's public incident list (a request with nothing
+  of yours in it) to find the fire's page, then opens that page in your browser.
 
 Requests carry a User-Agent of `Cairn/<version> (contact@affluentlabs.dev)` because some of
 these services require one. That string identifies the app, not you.

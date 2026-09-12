@@ -17,6 +17,8 @@ Cairn is a map, so it fetches map and conditions data. Each request sends only a
 - OpenFreeMap and OpenMapTiles (basemap), USGS The National Map (topo, imagery, slope, lidar), Mapzen / AWS Terrain Tiles (elevation), OpenStreetMap via Overpass (trails and points), USFS EDW (official trails and boundaries), NIFC WFIGS (fires), NOAA National Weather Service (weather and weather maps), Open-Meteo (air quality and fallback weather), IGN (France base map).
 - The optional Affluent Labs proxy, for the few sources that need an API key (air quality monitors, park alerts, campgrounds). The proxy holds the keys, not the app, and logs nothing but a per-address rate-limit counter.
 - Directions: tapping Directions hands the trailhead coordinate to your own maps app (a geo: link). Only if no maps app is installed does it open Google Maps in the browser, with that one coordinate and nothing else.
+- Place search: the text you type in Explore's search box is sent to OpenStreetMap's Nominatim only when you press Search, never as you type, and only that text.
+- InciWeb: "Open on InciWeb" downloads InciWeb's public incident list (a request with nothing of yours in it) to find the fire's page, then opens that page in your browser.
 
 Requests carry a User-Agent of Cairn/<version> (contact@affluentlabs.dev) because some of these services require one. That string identifies the app, not you.
 

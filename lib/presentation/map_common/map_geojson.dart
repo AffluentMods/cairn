@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:math' as math;
+
 import '../../core/geo/polyline_simplify.dart';
 import '../../core/worker/geo_worker.dart';
 import '../../domain/models/fire_incident.dart';
@@ -164,6 +166,12 @@ Map<String, dynamic> firesToGeoJson(List<FireIncident> fires) {
       'prescribed': f.prescribed,
       if (f.acres != null) 'acres': f.acres,
       if (f.percentContained != null) 'contained': f.percentContained,
+      // Flame icons scale with acres on a log scale (spec Phase 7): 0 for a
+      // spot fire up to 5 for 100,000 acres; the style interpolates the size.
+      if (f.acres != null)
+        'sizeIdx': math.log(f.acres! + 1) / math.ln10 > 5
+            ? 5.0
+            : math.log(f.acres! + 1) / math.ln10,
     };
     if (f.isPerimeter) {
       for (final ring in f.polygons) {

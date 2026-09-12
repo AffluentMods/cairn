@@ -247,6 +247,50 @@ option that ships fastest and record it here.
   that fails.** Reason: spec audit gap 28; a flat profile at 0 m read as data.
 - **Conditions opens for the map center when no route is loaded.** Reason: spec audit gap 30;
   fires, weather and alerts are useful while exploring, not only with a plan.
+- **"Open on InciWeb" resolves the incident page through InciWeb's RSS feed (fetched on the
+  tap, kept an hour), matching the WFIGS name with the protecting unit as tie-breaker, and
+  falls back to the home page.** Reason: the spec's "link out to a search" landed on the home
+  page every time; the feed is the only public listing with links, and one download on demand
+  is cheaper than guessing a slug that 404s.
+- **WFIGS incident points are parsed with the live, unprefixed field names (`IncidentName`,
+  `IncidentSize`, `PercentContained`), with the `attr_` spellings kept as fallbacks, and points
+  are deduplicated against perimeters by IRWIN id before name.** Reason: verified against the
+  live layer (docs/API_NOTES.md); the `attr_` only lookup left every perimeter-less fire without
+  acres, containment, dates or its prescribed-burn flag, and the two layers spell one fire's
+  name differently.
+- **Fires are tappable on Explore (flame or perimeter opens the incident card), and flame
+  icons scale with log10(acres) through a data-driven `icon-size` written by the style patch
+  tool.** Reason: spec Phase 7. Data-driven `icon-size` is supported by MapLibre Native, unlike
+  `line-dasharray`; a fire with no acreage draws at the middle size.
+- **GPX `<wpt>` elements import as user pins attached to the file's first route (standalone
+  when the file has none); the kind comes from `<type>` or `<sym>`, then keywords in the name,
+  else "note".** Reason: spec Phase 4 and Addendum A4.5 ("GPX import already maps `<wpt>`");
+  CalTopo and Garmin write free-text symbols, so a keyword map beats dropping the pins.
+- **Place search is Nominatim on submit only (keyboard Search or the globe button), throttled
+  to one request per second with a 30-query cache, called directly rather than through the
+  proxy.** Reason: the Nominatim usage policy (no autocomplete, 1 req/s, identifying
+  User-Agent, cache repeats) and Addendum A4.1's "then Nominatim". The endpoint is one constant
+  so it can move behind the Affluent Labs proxy without an app change if usage grows.
+- **"just now", "12 min", "3 h", "2 d" are l10n keys (`agoJustNow`, `agoMinutes`, ...) through
+  one `formatAgo` helper, and acres format as "0.1" under 10 and "3,047" above.** Reason: the
+  conditions panel had these hardcoded, against the l10n rule, and a spot fire read as "0 ac".
+- **GeoWorker closures are built in top-level `xAsync` functions next to the pure function
+  (`parseOverpassWaysAsync`, `parseOverpassPoisAsync`), never inside a repository method, and
+  GeoWorker runs the work inline (counting the fallback) if a closure is ever refused as
+  unsendable.** Reason: found in logcat while verifying the GPX import. Dart closures share
+  one context per scope, so the Overpass parse closure written inside `_ingestCell` captured
+  the repository and its Drift database as soon as the batch-insert closure in the same method
+  touched them; `Isolate.run` refused the message and every new map cell's trail and POI
+  ingestion failed silently since Fix Pass 1 X1.3.1 (cached cells kept working, which hid it).
+  `overpass_ingest_test` now ingests a recorded response through the worker and asserts the
+  fallback counter stays zero.
+- **Explore fetches trail and POI cells only when the view spans at most four z10 cells;
+  cells load center first and the loop stops between cells once the view has moved on.**
+  Reason: with ingestion working again, the forest-wide view (36 cells) started a minutes-long
+  chain of Overpass queries (one per 20-mile cell) that could not be cancelled and starved the
+  place the user had just flown to. The spec's "never query more than a z10 tile's bbox at
+  once" and "be polite" both point the same way; wider views draw cached trails and the list
+  already says "zoom in or pan to load them".
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

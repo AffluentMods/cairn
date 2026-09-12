@@ -20,6 +20,7 @@ String attributionText(AppLocalizations l10n, String key) => switch (key) {
       'attributionNoaa' => l10n.attributionNoaa,
       'attributionOsmGps' => l10n.attributionOsmGps,
       'attributionMapLibre' => l10n.attributionMapLibre,
+      'attributionNominatim' => l10n.attributionNominatim,
       _ => key,
     };
 

@@ -62,12 +62,20 @@ List<List<List<double>>> ringsFromGeoJson(Map<String, dynamic>? geometry) {
 }
 
 /// Parses NIFC perimeter and incident GeoJSON into fire incidents, deduping
-/// point incidents that already have a perimeter of the same name.
+/// point incidents that already have a perimeter (same IRWIN id, else same
+/// name).
+///
+/// Field names verified live on 2026-09-11 (docs/API_NOTES.md): the incident
+/// layer uses plain IRWIN names (`IncidentName`, `IncidentSize`,
+/// `PercentContained`, `POOProtectingUnit`); the perimeter layer prefixes
+/// polygon fields with `poly_` and the same IRWIN attributes with `attr_`.
+/// Both spellings are tried so a rename on either layer degrades gracefully.
 List<FireIncident> parseFires({
   Map<String, dynamic>? perimeters,
   Map<String, dynamic>? incidents,
 }) {
   final fires = <FireIncident>[];
+  final irwinWithPerimeter = <String>{};
   final namesWithPerimeter = <String>{};
 
   final perimeterFeatures =
@@ -75,22 +83,28 @@ List<FireIncident> parseFires({
           const [];
   for (final f in perimeterFeatures) {
     final props = (f['properties'] as Map?)?.cast<String, dynamic>() ?? {};
-    final name = pickField(props, [
-          'poly_IncidentName',
-          'IncidentName',
-          'attr_IncidentName',
-        ])?.toString() ??
-        'Fire';
+    // The IRWIN name (attr_) is the one InciWeb uses; poly_ is the GIS name.
+    final name = displayFireName(
+      pickField(props, ['attr_IncidentName', 'IncidentName'])?.toString(),
+      pickField(props, ['poly_IncidentName'])?.toString(),
+    );
     final rings = ringsFromGeoJson(f['geometry'] as Map<String, dynamic>?);
     final type =
         pickField(props, ['attr_IncidentTypeCategory', 'IncidentTypeCategory'])
             ?.toString();
+    final irwin = _irwin(pickField(props, ['poly_IRWINID', 'attr_IrwinID']));
+    if (irwin != null) irwinWithPerimeter.add(irwin);
     namesWithPerimeter.add(name.toLowerCase());
     fires.add(
       FireIncident(
         id: 'perim_${f['id'] ?? name}',
         name: name,
-        acres: (pickField(props, ['poly_GISAcres', 'GISAcres']) as num?)
+        acres: (pickField(props, [
+          'poly_GISAcres',
+          'GISAcres',
+          'attr_IncidentSize',
+          'attr_CalculatedAcres',
+        ]) as num?)
             ?.toDouble(),
         percentContained:
             (pickField(props, ['attr_PercentContained', 'PercentContained'])
@@ -101,12 +115,21 @@ List<FireIncident> parseFires({
               props, ['attr_FireDiscoveryDateTime', 'FireDiscoveryDateTime']),
         ),
         modifiedAt: _epochMs(
-          pickField(props,
-              ['attr_ModifiedOnDateTime_dt', 'poly_ModifiedOnDateTime_dt']),
+          pickField(props, [
+            'attr_ModifiedOnDateTime_dt',
+            'poly_DateCurrent',
+            'poly_ModifiedOnDateTime_dt',
+          ]),
         ),
-        behavior: pickField(props, ['attr_FireBehaviorGeneral'])?.toString(),
+        behavior: pickField(
+                props, ['attr_FireBehaviorGeneral', 'FireBehaviorGeneral'])
+            ?.toString(),
         prescribed: type == 'RX',
         polygons: rings,
+        unitId:
+            pickField(props, ['attr_POOProtectingUnit', 'POOProtectingUnit'])
+                ?.toString(),
+        irwinId: irwin,
       ),
     );
   }
@@ -116,11 +139,16 @@ List<FireIncident> parseFires({
           const [];
   for (final f in incidentFeatures) {
     final props = (f['properties'] as Map?)?.cast<String, dynamic>() ?? {};
-    final name =
-        pickField(props, ['attr_IncidentName', 'IncidentName'])?.toString() ??
-            'Fire';
-    // Skip an incident point that already has a perimeter of the same name.
-    if (namesWithPerimeter.contains(name.toLowerCase())) continue;
+    final name = displayFireName(
+      pickField(props, ['IncidentName', 'attr_IncidentName'])?.toString(),
+      null,
+    );
+    final irwin = _irwin(pickField(props, ['IrwinID', 'attr_IrwinID']));
+    // Skip an incident point whose perimeter is already listed.
+    if (irwin != null && irwinWithPerimeter.contains(irwin)) continue;
+    if (irwin == null && namesWithPerimeter.contains(name.toLowerCase())) {
+      continue;
+    }
     final geom = f['geometry'] as Map<String, dynamic>?;
     final coords = geom?['coordinates'];
     double? lat;
@@ -129,25 +157,73 @@ List<FireIncident> parseFires({
       lon = (coords[0] as num).toDouble();
       lat = (coords[1] as num).toDouble();
     }
-    final type = pickField(props, ['attr_IncidentTypeCategory'])?.toString();
+    final type =
+        pickField(props, ['IncidentTypeCategory', 'attr_IncidentTypeCategory'])
+            ?.toString();
     fires.add(
       FireIncident(
         id: 'inc_${f['id'] ?? name}',
         name: name,
-        acres:
-            (pickField(props, ['attr_IncidentSize', 'attr_DailyAcres']) as num?)
-                ?.toDouble(),
+        acres: (pickField(props, [
+          'IncidentSize',
+          'attr_IncidentSize',
+          'FinalAcres',
+          'attr_DailyAcres',
+        ]) as num?)
+            ?.toDouble(),
         percentContained:
-            (pickField(props, ['attr_PercentContained']) as num?)?.round(),
-        discoveredAt:
-            _epochMs(pickField(props, ['attr_FireDiscoveryDateTime'])),
-        modifiedAt: _epochMs(pickField(props, ['attr_ModifiedOnDateTime_dt'])),
+            (pickField(props, ['PercentContained', 'attr_PercentContained'])
+                    as num?)
+                ?.round(),
+        discoveredAt: _epochMs(pickField(
+            props, ['FireDiscoveryDateTime', 'attr_FireDiscoveryDateTime'])),
+        modifiedAt: _epochMs(pickField(
+            props, ['ModifiedOnDateTime_dt', 'attr_ModifiedOnDateTime_dt'])),
+        behavior: pickField(
+                props, ['FireBehaviorGeneral', 'attr_FireBehaviorGeneral'])
+            ?.toString(),
         prescribed: type == 'RX',
         lat: lat,
         lon: lon,
+        unitId:
+            pickField(props, ['POOProtectingUnit', 'attr_POOProtectingUnit'])
+                ?.toString(),
+        irwinId: irwin,
       ),
     );
   }
 
   return fires;
+}
+
+/// The name to show for a fire. IRWIN names are often typed in capitals
+/// ("HIGH LAVA") while the GIS perimeter name is cased ("High Lava"), so a
+/// shouting IRWIN name yields to a cased [polyName] and otherwise gets title
+/// case. Falls back to "Fire" when both are missing.
+String displayFireName(String? irwinName, String? polyName) {
+  final a = irwinName?.trim() ?? '';
+  final b = polyName?.trim() ?? '';
+  if (a.isEmpty) return b.isEmpty ? 'Fire' : (_isShouting(b) ? _title(b) : b);
+  if (!_isShouting(a)) return a;
+  if (b.isNotEmpty && !_isShouting(b)) return b;
+  return _title(a);
+}
+
+bool _isShouting(String s) =>
+    s.contains(RegExp(r'[A-Z]')) && !s.contains(RegExp(r'[a-z]'));
+
+/// "HIGH LAVA" to "High Lava"; short all-caps tokens that read as codes
+/// ("RX", "II") keep their case.
+String _title(String s) => s
+    .split(' ')
+    .map((w) => w.length <= 2
+        ? w
+        : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+    .join(' ');
+
+/// IRWIN ids come as "{7A43...}"; compare them without braces or case.
+String? _irwin(Object? v) {
+  if (v == null) return null;
+  final s = v.toString().replaceAll(RegExp(r'[{}]'), '').trim().toUpperCase();
+  return s.isEmpty ? null : s;
 }

@@ -16,7 +16,7 @@ const maxGpxBytes = 20 * 1024 * 1024;
 
 /// Imports GPX [bytes] into the library and reports through [messenger]:
 /// shared by the Import GPX button and "Open with Cairn" (spec Phase 4).
-/// Returns true when at least one route or track was saved.
+/// Returns true when at least one route, track or pin was saved.
 Future<bool> importGpxBytes(
   WidgetRef ref, {
   required Uint8List bytes,
@@ -37,10 +37,17 @@ Future<bool> importGpxBytes(
       say(l10n.gpxImportFailed);
       return false;
     }
-    await ref.read(gpxImporterProvider).import(data, fallbackName: name);
+    final summary =
+        await ref.read(gpxImporterProvider).import(data, fallbackName: name);
     bumpLibrary(ref);
-    say(l10n.gpxImported(data.tracks.length + data.routes.length));
-    return true;
+    if (summary.waypoints == 0) {
+      say(l10n.gpxImported(summary.total));
+    } else if (summary.total == 0) {
+      say(l10n.gpxImportedPinsOnly(summary.waypoints));
+    } else {
+      say(l10n.gpxImportedPins(summary.total, summary.waypoints));
+    }
+    return summary.total + summary.waypoints > 0;
   } on FormatException {
     say(l10n.gpxImportFailed);
     return false;

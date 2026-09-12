@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/geo/moon.dart';
 import '../../../core/l10n/l10n_ext.dart';
@@ -17,6 +16,9 @@ import '../../../domain/repositories/conditions_repository.dart';
 import '../../../domain/usecases/compute_route_stats.dart';
 import '../../../domain/usecases/water_along_route.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../shared/fire_format.dart';
+import '../../shared/inciweb_button.dart';
+import '../../shared/time_ago.dart';
 
 const _waterKinds = {'spring', 'drinking_water', 'stream', 'river', 'water'};
 
@@ -297,7 +299,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
 
   Widget _fireCard(BuildContext c, FireIncident f, AppLocalizations l10n) {
     final parts = <String>[
-      if (f.acres != null) l10n.condFireAcres(f.acres!.round().toString()),
+      if (f.acres != null) l10n.condFireAcres(formatAcres(f.acres!)),
       if (f.percentContained != null)
         l10n.condFireContained(f.percentContained!),
       if (f.modifiedAt != null) l10n.condUpdatedAgo(_ago(f.modifiedAt!)),
@@ -316,13 +318,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
               ),
               const SizedBox(width: 6),
               Expanded(child: Text(f.name)),
-              TextButton(
-                onPressed: () => launchUrl(
-                  Uri.parse('https://inciweb.wildfire.gov/'),
-                  mode: LaunchMode.externalApplication,
-                ),
-                child: Text(l10n.condOpenInciweb),
-              ),
+              InciwebButton(fire: f),
             ],
           ),
           if (parts.isNotEmpty)
@@ -460,13 +456,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
         ),
       );
 
-  String _ago(DateTime t) {
-    final d = DateTime.now().difference(t);
-    if (d.inMinutes < 1) return 'just now';
-    if (d.inMinutes < 60) return '${d.inMinutes} min';
-    if (d.inHours < 24) return '${d.inHours} h';
-    return '${d.inDays} d';
-  }
+  String _ago(DateTime t) => formatAgo(context.l10n, t);
 }
 
 class _StaleChip extends StatelessWidget {

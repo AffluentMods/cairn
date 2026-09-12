@@ -159,6 +159,19 @@
   "@condFireDistance": { "placeholders": { "name": { "type": "String" }, "distance": { "type": "String" } } },
   "condFireDistanceHere": "{name} is {distance} from here",
   "@condFireDistanceHere": { "placeholders": { "name": { "type": "String" }, "distance": { "type": "String" } } },
+  "fireWildfire": "Wildfire",
+  "firePrescribedBurn": "Prescribed burn",
+  "fireDiscovered": "Discovered {date}",
+  "@fireDiscovered": { "placeholders": { "date": { "type": "String" } } },
+  "fireBehavior": "Behavior: {text}",
+  "@fireBehavior": { "placeholders": { "text": { "type": "String" } } },
+  "agoJustNow": "just now",
+  "agoMinutes": "{n} min",
+  "@agoMinutes": { "placeholders": { "n": { "type": "int" } } },
+  "agoHours": "{n} h",
+  "@agoHours": { "placeholders": { "n": { "type": "int" } } },
+  "agoDays": "{n} d",
+  "@agoDays": { "placeholders": { "n": { "type": "int" } } },
   "condFireNone": "No active fires within 50 mi",
   "condFireAcres": "{acres} ac",
   "@condFireAcres": { "placeholders": { "acres": { "type": "String" } } },
@@ -363,6 +376,13 @@
   "poiKindRiver": "River",
   "searchMatches": "{count} segments",
   "@searchMatches": { "placeholders": { "count": { "type": "int" } } },
+  "searchTrailsHeader": "Trails",
+  "searchPlacesHeader": "Places",
+  "searchPlacesAction": "Search places",
+  "searchPlacesHint": "Press Search to look up a town, park or trailhead",
+  "searchPlacesNone": "No places found",
+  "searchPlacesFailed": "Place search needs a connection",
+  "searchPlacesAttribution": "Places: OpenStreetMap Nominatim",
 
   "navEmptyTitle": "No route loaded",
   "navEmptyBody": "Pick a trail in Explore, or draw your own.",
@@ -486,6 +506,10 @@
 
   "gpxImported": "{count} imported",
   "@gpxImported": { "placeholders": { "count": { "type": "int" } } },
+  "gpxImportedPins": "{count} imported, {pins} pins",
+  "@gpxImportedPins": { "placeholders": { "count": { "type": "int" }, "pins": { "type": "int" } } },
+  "gpxImportedPinsOnly": "{pins} pins imported",
+  "@gpxImportedPinsOnly": { "placeholders": { "pins": { "type": "int" } } },
 
   "statEmpty": "--",
 
@@ -494,5 +518,6 @@
   "attributionUsgs3dep": "Slope and lidar: USGS 3DEP",
   "attributionOsmGps": "GPS traces © OpenStreetMap contributors",
   "attributionUsfs": "Official trails and boundaries: USDA Forest Service EDW",
-  "attributionMapLibre": "Map engine: MapLibre Native and MapLibre GL JS"
+  "attributionMapLibre": "Map engine: MapLibre Native and MapLibre GL JS",
+  "attributionNominatim": "Place search: OpenStreetMap Nominatim"
 }

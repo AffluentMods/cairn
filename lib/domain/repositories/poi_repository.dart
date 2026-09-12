@@ -3,8 +3,13 @@ import '../models/poi.dart';
 
 /// Points of interest from OpenStreetMap, cached locally (spec Phase 2).
 abstract interface class PoiRepository {
-  /// Fetch any missing or stale z10 cells covering [bbox] and cache them.
-  Future<void> ensureArea(List<double> bbox, {bool force = false});
+  /// Fetch any missing or stale z10 cells covering [bbox] and cache them,
+  /// center first; [isCancelled] stops the loop between cells.
+  Future<void> ensureArea(
+    List<double> bbox, {
+    bool force = false,
+    bool Function()? isCancelled,
+  });
 
   /// POIs within [bbox] from the local DB.
   Future<List<PoiPoint>> poisInBbox(List<double> bbox, {int limit = 2000});

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/geo/tile_math.dart';
-import '../../core/worker/geo_worker.dart';
 import '../../domain/models/trail.dart';
 import '../../domain/repositories/trail_repository.dart';
 import '../../domain/usecases/route_between_waypoints.dart';
@@ -29,12 +28,16 @@ class TrailRepositoryImpl implements TrailRepository {
   final UsfsSource usfs;
 
   @override
-  Future<TrailLoadResult> ensureArea(List<double> bbox,
-      {bool force = false}) async {
-    final cells = tilesForBbox(bbox, 10);
+  Future<TrailLoadResult> ensureArea(
+    List<double> bbox, {
+    bool force = false,
+    bool Function()? isCancelled,
+  }) async {
+    final cells = tilesForBboxCenterFirst(bbox, 10);
     var networkError = false;
     var fetched = 0;
     for (final cell in cells) {
+      if (isCancelled?.call() ?? false) break;
       if (!force && await _isFresh(cell)) continue;
       final ok = await _ingestCell(cell);
       if (ok) {
@@ -61,11 +64,11 @@ class TrailRepositoryImpl implements TrailRepository {
     final bounds = tileBounds(cell);
     try {
       final raw = await overpass.fetchWays(bounds);
-      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3).
-      final parsed = await GeoWorker.run(
-        'overpass-ways',
-        () => parseOverpassWays(jsonDecode(raw) as Map<String, dynamic>),
-      );
+      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3). The
+      // worker call lives next to the parser: a closure built here would
+      // capture this repository and its database, which cannot cross an
+      // isolate boundary.
+      final parsed = await parseOverpassWaysAsync(raw);
       await db.batch((b) {
         b.insertAllOnConflictUpdate(
           db.osmWays,

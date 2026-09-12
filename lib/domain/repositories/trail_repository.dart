@@ -18,7 +18,13 @@ class TrailLoadResult {
 abstract interface class TrailRepository {
   /// Fetch any missing or stale z10 cells covering [bbox], ingest them, and
   /// record the cache. Renders from the DB regardless of network outcome.
-  Future<TrailLoadResult> ensureArea(List<double> bbox, {bool force = false});
+  /// Cells nearest the bbox center go first; [isCancelled] is consulted
+  /// between cells so a viewport that has moved on stops the loop.
+  Future<TrailLoadResult> ensureArea(
+    List<double> bbox, {
+    bool force = false,
+    bool Function()? isCancelled,
+  });
 
   /// Trails whose bounding box intersects [bbox], read from the local DB.
   Future<List<Trail>> trailsInBbox(List<double> bbox, {int limit = 4000});

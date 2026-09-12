@@ -1,0 +1,56 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": 55237,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-123.81, 47.81], [-123.79, 47.81], [-123.79, 47.83], [-123.81, 47.83], [-123.81, 47.81]
+        ]]
+      },
+      "properties": {
+        "OBJECTID": 55237,
+        "poly_IncidentName": "Mt Toms Creek",
+        "poly_GISAcres": 86,
+        "poly_DateCurrent": 1782413224113,
+        "poly_IRWINID": "{7A4391A9-652A-4A28-BEDE-9856383B4CB4}",
+        "attr_IncidentName": "Mount Tom Creek",
+        "attr_IncidentSize": 69,
+        "attr_PercentContained": null,
+        "attr_FireDiscoveryDateTime": 1782329400000,
+        "attr_IncidentTypeCategory": "WF",
+        "attr_FireBehaviorGeneral": "Creeping",
+        "attr_POOProtectingUnit": "WAOLP",
+        "attr_POOState": "US-WA",
+        "attr_IrwinID": "{7A4391A9-652A-4A28-BEDE-9856383B4CB4}",
+        "attr_ModifiedOnDateTime_dt": 1789066337120
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 55300,
+      "geometry": {
+        "type": "MultiPolygon",
+        "coordinates": [
+          [[[-121.51, 46.49], [-121.49, 46.49], [-121.49, 46.51], [-121.51, 46.51], [-121.51, 46.49]]],
+          [[[-121.48, 46.49], [-121.47, 46.49], [-121.47, 46.50], [-121.48, 46.50], [-121.48, 46.49]]]
+        ]
+      },
+      "properties": {
+        "OBJECTID": 55300,
+        "poly_IncidentName": "Backbone",
+        "poly_GISAcres": 17.4,
+        "poly_DateCurrent": 1789050000000,
+        "poly_IRWINID": null,
+        "attr_IncidentName": "BACKBONE",
+        "attr_PercentContained": 90,
+        "attr_FireDiscoveryDateTime": 1789000000000,
+        "attr_IncidentTypeCategory": "WF",
+        "attr_POOProtectingUnit": "WAGPF",
+        "attr_ModifiedOnDateTime_dt": null
+      }
+    }
+  ]
+}

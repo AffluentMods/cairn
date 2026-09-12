@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
 import '../../core/geo/elevation_stats.dart';
@@ -9,29 +10,41 @@ import '../../domain/repositories/elevation_repository.dart';
 import '../../domain/repositories/route_repository.dart';
 import '../../domain/repositories/track_repository.dart';
 import '../../domain/usecases/compute_route_stats.dart';
+import '../db/app_database.dart';
+import '../repositories/user_waypoints_repository.dart';
 import 'gpx_codec.dart';
 
 /// How many items a GPX import produced.
 class GpxImportSummary {
-  const GpxImportSummary({required this.routes, required this.tracks});
+  const GpxImportSummary({
+    required this.routes,
+    required this.tracks,
+    this.waypoints = 0,
+  });
   final int routes;
   final int tracks;
+
+  /// User pins from `<wpt>` elements, attached to the imported route.
+  final int waypoints;
   int get total => routes + tracks;
 }
 
 /// Turns parsed GPX into saved routes and tracks, computing statistics with DEM
 /// elevation (spec Phase 4). GPX `<ele>` is kept as gpsAltM but not trusted for
-/// gain.
+/// gain. `<wpt>` pins become user waypoints attached to the file's route (or
+/// standalone pins when the file has none).
 class GpxImporter {
   GpxImporter({
     required this.routes,
     required this.tracks,
     required this.elevation,
+    this.userWaypoints,
   });
 
   final RouteRepository routes;
   final TrackRepository tracks;
   final ElevationRepository elevation;
+  final UserWaypointsRepository? userWaypoints;
 
   static const _uuid = Uuid();
 
@@ -43,25 +56,50 @@ class GpxImporter {
   }) async {
     var routeCount = 0;
     var trackCount = 0;
+    String? firstRouteId;
 
     for (final t in data.tracks) {
       await _saveTrack(t, fallbackName);
       trackCount++;
     }
     for (final r in data.routes) {
-      await _saveRoute(r, fallbackName);
+      final id = await _saveRoute(r, fallbackName);
+      firstRouteId ??= id;
       routeCount++;
     }
-    return GpxImportSummary(routes: routeCount, tracks: trackCount);
+
+    var pinCount = 0;
+    final pins = userWaypoints;
+    if (pins != null && data.waypoints.isNotEmpty) {
+      final now = DateTime.now();
+      for (final w in data.waypoints) {
+        await pins.upsert(UserWaypointsCompanion.insert(
+          id: _uuid.v4(),
+          kind: w.kind ?? 'note',
+          name: Value(w.name),
+          note: Value(w.note),
+          lat: w.lat,
+          lon: w.lon,
+          routeId: Value(firstRouteId),
+          createdAt: now,
+        ));
+        pinCount++;
+      }
+    }
+    return GpxImportSummary(
+      routes: routeCount,
+      tracks: trackCount,
+      waypoints: pinCount,
+    );
   }
 
-  Future<void> _saveRoute(GpxRouteData data, String fallbackName) async {
+  Future<String> _saveRoute(GpxRouteData data, String fallbackName) async {
     final geometry = [
       for (final p in data.points) [p.lat, p.lon],
     ];
     final stats = await computeRouteStats(geometry, elevation);
     final now = DateTime.now();
-    await routes.save(
+    return routes.save(
       SavedRoute(
         id: _uuid.v4(),
         name: data.name ?? fallbackName,

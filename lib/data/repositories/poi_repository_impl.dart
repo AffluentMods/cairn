@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 
 import '../../core/geo/tile_math.dart';
-import '../../core/worker/geo_worker.dart';
 import '../../domain/models/poi.dart';
 import '../../domain/repositories/poi_repository.dart';
 import '../db/app_database.dart';
@@ -21,8 +20,13 @@ class PoiRepositoryImpl implements PoiRepository {
   final OverpassSource overpass;
 
   @override
-  Future<void> ensureArea(List<double> bbox, {bool force = false}) async {
-    for (final cell in tilesForBbox(bbox, 10)) {
+  Future<void> ensureArea(
+    List<double> bbox, {
+    bool force = false,
+    bool Function()? isCancelled,
+  }) async {
+    for (final cell in tilesForBboxCenterFirst(bbox, 10)) {
+      if (isCancelled?.call() ?? false) break;
       if (!force && await _isFresh(cell)) continue;
       await _ingestCell(cell);
     }
@@ -41,11 +45,9 @@ class PoiRepositoryImpl implements PoiRepository {
     final bounds = tileBounds(cell);
     try {
       final raw = await overpass.fetchPois(bounds);
-      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3).
-      final pois = await GeoWorker.run(
-        'overpass-pois',
-        () => parseOverpassPois(jsonDecode(raw) as Map<String, dynamic>),
-      );
+      // Decode and parse off the UI isolate (Fix Pass 1 X1.3.1, H3), through
+      // the parser's own top-level async variant (see trail_repository_impl).
+      final pois = await parseOverpassPoisAsync(raw);
       await db.batch((b) {
         b.insertAllOnConflictUpdate(
           db.pois,

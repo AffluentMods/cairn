@@ -1,0 +1,60 @@
+{
+  "type": "Feature",
+  "geometry": { "type": "Polygon", "coordinates": [[[-121.47, 46.48], [-121.45, 46.48], [-121.45, 46.46], [-121.47, 46.46], [-121.47, 46.48]]] },
+  "properties": {
+    "units": "us",
+    "forecastGenerator": "HourlyForecastGenerator",
+    "generatedAt": "2026-09-12T03:03:49+00:00",
+    "updateTime": "2026-09-11T18:26:49+00:00",
+    "validTimes": "2026-09-11T12:00:00+00:00/P7DT13H",
+    "elevation": { "unitCode": "wmoUnit:m", "value": 1385 },
+    "periods": [
+      {
+        "number": 1,
+        "name": "",
+        "startTime": "2026-09-11T20:00:00-07:00",
+        "endTime": "2026-09-11T21:00:00-07:00",
+        "isDaytime": false,
+        "temperature": 45,
+        "temperatureUnit": "F",
+        "temperatureTrend": null,
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 1 },
+        "dewpoint": { "unitCode": "wmoUnit:degC", "value": 2.2222222222222223 },
+        "relativeHumidity": { "unitCode": "wmoUnit:percent", "value": 71 },
+        "windSpeed": "2 mph",
+        "windDirection": "S",
+        "icon": "https://api.weather.gov/icons/land/night/bkn?size=small",
+        "shortForecast": "Mostly Cloudy",
+        "detailedForecast": ""
+      },
+      {
+        "number": 2,
+        "name": "",
+        "startTime": "2026-09-11T21:00:00-07:00",
+        "endTime": "2026-09-11T22:00:00-07:00",
+        "isDaytime": false,
+        "temperature": 43,
+        "temperatureUnit": "F",
+        "temperatureTrend": null,
+        "probabilityOfPrecipitation": { "unitCode": "wmoUnit:percent", "value": 0 },
+        "dewpoint": { "unitCode": "wmoUnit:degC", "value": 1.1111111111111112 },
+        "relativeHumidity": { "unitCode": "wmoUnit:percent", "value": 71 },
+        "windSpeed": "5 to 10 mph",
+        "windGust": "20 mph",
+        "windDirection": "SE",
+        "icon": "https://api.weather.gov/icons/land/night/bkn?size=small",
+        "shortForecast": "Mostly Cloudy",
+        "detailedForecast": ""
+      },
+      {
+        "number": 3,
+        "name": "",
+        "startTime": "not a date",
+        "temperature": 40,
+        "temperatureUnit": "F",
+        "windSpeed": "3 mph",
+        "shortForecast": "Clear"
+      }
+    ]
+  }
+}

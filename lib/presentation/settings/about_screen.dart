@@ -23,6 +23,7 @@ class AboutSourcesScreen extends StatelessWidget {
     'attributionNoaa',
     'attributionOpenMeteo',
     'attributionOsmGps',
+    'attributionNominatim',
     'attributionMapLibre',
   ];
 

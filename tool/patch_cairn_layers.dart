@@ -25,12 +25,41 @@ void main() {
     final a = splitDashLayer(layers, 'trails', 'trails-informal', 'informal');
     final b = splitDashLayer(layers, 'route', 'route-offtrail', 'offTrail');
     final c = ensureLayerAfter(layers, 'route-offtrail', routeArrowsLayer());
+    final d = sizeFirePoints(layers);
     style['layers'] = layers;
     file.writeAsStringSync(
         '${const JsonEncoder.withIndent('  ').convert(style)}\n');
     stdout.writeln('${file.path}: trails ${a ? "split" : "ok"}, '
-        'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}');
+        'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}, '
+        'fire size ${d ? "set" : "ok"}');
   }
+}
+
+/// Flame icons sized by acres on a log scale (spec Phase 7). `sizeIdx` is
+/// log10(acres + 1) capped at 5, written by `firesToGeoJson`; a fire with no
+/// acreage draws at the middle size. `icon-size` accepts data expressions on
+/// MapLibre Native, unlike `line-dasharray`. Returns true when changed.
+bool sizeFirePoints(List<Map<String, dynamic>> layers) {
+  final i = layers.indexWhere((l) => l['id'] == 'fires-point');
+  if (i < 0) return false;
+  final layout = (layers[i]['layout'] as Map?)?.cast<String, dynamic>() ?? {};
+  const want = [
+    'interpolate',
+    ['linear'],
+    [
+      'coalesce',
+      ['get', 'sizeIdx'],
+      1.5
+    ],
+    0,
+    0.6,
+    5,
+    1.8
+  ];
+  if (jsonEncode(layout['icon-size']) == jsonEncode(want)) return false;
+  layout['icon-size'] = want;
+  layers[i]['layout'] = layout;
+  return true;
 }
 
 /// Direction chevrons along the active route at trail zooms. The icon is

@@ -28,7 +28,9 @@ import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
 import 'repositories/user_waypoints_repository.dart';
 import 'sources/affluent_proxy_source.dart';
+import 'sources/inciweb_source.dart';
 import 'sources/nifc_source.dart';
+import 'sources/nominatim_source.dart';
 import 'sources/nws_source.dart';
 import 'sources/open_meteo_source.dart';
 import 'sources/overpass_source.dart';
@@ -70,6 +72,16 @@ final nifcSourceProvider = Provider<NifcSource>(
 
 final nwsSourceProvider = Provider<NwsSource>(
   (ref) => NwsSource(ref.watch(dioProvider)),
+);
+
+/// InciWeb's incident feed, fetched on demand for "Open on InciWeb".
+final inciwebSourceProvider = Provider<InciwebSource>(
+  (ref) => InciwebSource(ref.watch(dioProvider)),
+);
+
+/// Nominatim place search (towns, parks, trailheads), on submit only.
+final nominatimSourceProvider = Provider<NominatimSource>(
+  (ref) => NominatimSource(ref.watch(dioProvider)),
 );
 
 final openMeteoSourceProvider = Provider<OpenMeteoSource>(
@@ -159,6 +171,7 @@ final gpxImporterProvider = Provider<GpxImporter>(
     routes: ref.watch(routeRepositoryProvider),
     tracks: ref.watch(trackRepositoryProvider),
     elevation: ref.watch(elevationRepositoryProvider),
+    userWaypoints: ref.watch(userWaypointsRepositoryProvider),
   ),
 );
 

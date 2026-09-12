@@ -63,6 +63,27 @@ TilePixel latLonToPixel(double lat, double lon, int z) {
   return TilePixel(tile, (xf - tile.x) * 256, (yf - tile.y) * 256);
 }
 
+/// [tilesForBbox], ordered by distance from the bbox center so a fetch loop
+/// fills the middle of the screen first and a cancelled pan loses the edges.
+List<TileXY> tilesForBboxCenterFirst(List<double> bbox, int z) {
+  final tiles = tilesForBbox(bbox, z);
+  if (tiles.length < 2) return tiles;
+  final n = math.pow(2, z).toDouble();
+  final cLon = (bbox[1] + bbox[3]) / 2;
+  final cLat = (bbox[0] + bbox[2]) / 2;
+  final cx = (cLon + 180) / 360 * n;
+  final latRad = cLat * math.pi / 180;
+  final cy =
+      (1 - math.log(math.tan(latRad) + 1 / math.cos(latRad)) / math.pi) / 2 * n;
+  double d2(TileXY t) {
+    final dx = t.x + 0.5 - cx;
+    final dy = t.y + 0.5 - cy;
+    return dx * dx + dy * dy;
+  }
+
+  return tiles..sort((a, b) => d2(a).compareTo(d2(b)));
+}
+
 /// All tiles at zoom [z] covering the bounding box (south, west, north, east).
 List<TileXY> tilesForBbox(List<double> bbox, int z) {
   final sw = latLonToTile(bbox[0], bbox[1], z);

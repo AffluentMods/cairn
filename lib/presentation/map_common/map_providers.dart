@@ -33,7 +33,14 @@ class ViewportNotifier extends Notifier<MapViewport?> {
   MapViewport? build() => null;
 
   Future<void> updateFrom(MapLibreMapController controller) async {
-    final bounds = await controller.getVisibleRegion();
+    final LatLngBounds bounds;
+    try {
+      bounds = await controller.getVisibleRegion();
+    } catch (_) {
+      // The platform view was torn down between the idle event and this
+      // call (a tab switch mid-settle); the next map reports its own view.
+      return;
+    }
     final zoom = controller.cameraPosition?.zoom ?? 0;
     state = MapViewport(
       south: bounds.southwest.latitude,

@@ -43,6 +43,52 @@ void main() {
     expect(() => parseGpx('this is not gpx <<<'), throwsFormatException);
   });
 
+  test('wpt pins parse with name, note and kind, and round-trip on export', () {
+    const xml = '''
+<?xml version="1.0"?>
+<gpx version="1.1" creator="test" xmlns="http://www.topografix.com/GPX/1/1">
+  <wpt lat="46.4" lon="-121.4"><name>Goat Creek</name><desc>Runs all summer</desc><type>water</type></wpt>
+  <wpt lat="46.5" lon="-121.5"><name>Lookout</name><cmt>Big view</cmt><sym>Scenic Area</sym></wpt>
+  <wpt lat="46.6" lon="-121.6"></wpt>
+</gpx>''';
+    final parsed = parseGpx(xml);
+    expect(parsed.isEmpty, isFalse);
+    expect(parsed.waypoints.length, 3);
+    final w = parsed.waypoints.first;
+    expect(w.name, 'Goat Creek');
+    expect(w.note, 'Runs all summer');
+    expect(w.kind, 'water');
+    expect(parsed.waypoints[1].note, 'Big view'); // cmt when desc is absent
+    expect(parsed.waypoints[1].kind, 'viewpoint'); // from sym "Scenic Area"
+    expect(parsed.waypoints[2].name, isNull);
+    expect(parsed.waypoints[2].kind, 'note');
+
+    final out = exportRouteGpx(
+      name: 'R',
+      geometry: [
+        [46.4, -121.4],
+        [46.5, -121.5],
+      ],
+      waypoints: parsed.waypoints,
+    );
+    final again = parseGpx(out);
+    expect(again.waypoints.length, 3);
+    expect(again.waypoints.first.kind, 'water');
+    expect(again.waypoints.first.note, 'Runs all summer');
+  });
+
+  test('waypoint kinds map from GPX types and names', () {
+    expect(waypointKindFromGpx('camp'), 'camp');
+    expect(waypointKindFromGpx('Campground'), 'camp');
+    expect(waypointKindFromGpx('Drinking Water'), 'water');
+    expect(waypointKindFromGpx(null, name: 'Snowgrass Creek'), 'water');
+    expect(waypointKindFromGpx('Flag, Red', name: 'Rockfall hazard'), 'hazard');
+    expect(waypointKindFromGpx('Summit'), 'viewpoint');
+    expect(waypointKindFromGpx('Trailhead'), 'parking');
+    expect(waypointKindFromGpx('Waypoint'), 'note');
+    expect(waypointKindFromGpx(null), 'note');
+  });
+
   test('a rte becomes a route', () {
     const xml = '''
 <?xml version="1.0"?>
