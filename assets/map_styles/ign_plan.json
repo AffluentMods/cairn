@@ -4,60 +4,165 @@
   "sources": {
     "ign-plan": {
       "type": "raster",
-      "tiles": ["https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png"],
+      "tiles": [
+        "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image/png"
+      ],
       "tileSize": 256,
       "maxzoom": 18,
       "attribution": "© IGN"
     },
     "terrain-dem": {
       "type": "raster-dem",
-      "tiles": ["https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"],
+      "tiles": [
+        "https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png"
+      ],
       "tileSize": 256,
       "encoding": "terrarium",
       "minzoom": 0,
       "maxzoom": 15,
       "attribution": "Terrain: Mapzen / AWS Terrain Tiles"
     },
-    "cairn-land": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } },
-    "cairn-fires": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } },
-    "cairn-trails": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } },
-    "cairn-route": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } },
-    "cairn-track": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } },
-    "cairn-pois": { "type": "geojson", "data": { "type": "FeatureCollection", "features": [] } }
+    "cairn-land": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "cairn-fires": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "cairn-trails": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "cairn-route": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "cairn-track": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    },
+    "cairn-pois": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
+    }
   },
   "layers": [
-    { "id": "ign-plan", "type": "raster", "source": "ign-plan" },
+    {
+      "id": "ign-plan",
+      "type": "raster",
+      "source": "ign-plan"
+    },
     {
       "id": "hillshade",
       "type": "hillshade",
       "source": "terrain-dem",
-      "paint": { "hillshade-exaggeration": 0.2, "hillshade-shadow-color": "#2b2b2b" }
+      "paint": {
+        "hillshade-exaggeration": 0.2,
+        "hillshade-shadow-color": "#2b2b2b"
+      }
     },
     {
       "id": "land-fill",
       "type": "fill",
       "source": "cairn-land",
-      "paint": { "fill-color": ["get", "fill"], "fill-opacity": 0.12 }
+      "paint": {
+        "fill-color": [
+          "get",
+          "fill"
+        ],
+        "fill-opacity": 0.12
+      }
     },
     {
       "id": "land-line",
       "type": "line",
       "source": "cairn-land",
-      "paint": { "line-color": ["get", "stroke"], "line-width": 1.5, "line-dasharray": [3, 2] }
+      "paint": {
+        "line-color": [
+          "get",
+          "stroke"
+        ],
+        "line-width": 1.5,
+        "line-dasharray": [
+          3,
+          2
+        ]
+      }
     },
     {
       "id": "fires-fill",
       "type": "fill",
       "source": "cairn-fires",
-      "filter": ["==", ["geometry-type"], "Polygon"],
-      "paint": { "fill-color": ["case", ["==", ["get", "prescribed"], true], "#F5A524", "#E5484D"], "fill-opacity": 0.28 }
+      "filter": [
+        "==",
+        [
+          "geometry-type"
+        ],
+        "Polygon"
+      ],
+      "paint": {
+        "fill-color": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "prescribed"
+            ],
+            true
+          ],
+          "#F5A524",
+          "#E5484D"
+        ],
+        "fill-opacity": 0.28
+      }
     },
     {
       "id": "fires-line",
       "type": "line",
       "source": "cairn-fires",
-      "filter": ["==", ["geometry-type"], "Polygon"],
-      "paint": { "line-color": ["case", ["==", ["get", "prescribed"], true], "#F5A524", "#E5484D"], "line-width": 2 }
+      "filter": [
+        "==",
+        [
+          "geometry-type"
+        ],
+        "Polygon"
+      ],
+      "paint": {
+        "line-color": [
+          "case",
+          [
+            "==",
+            [
+              "get",
+              "prescribed"
+            ],
+            true
+          ],
+          "#F5A524",
+          "#E5484D"
+        ],
+        "line-width": 2
+      }
     },
     {
       "id": "trails-casing",
@@ -66,8 +171,34 @@
       "minzoom": 12,
       "paint": {
         "line-color": "#F6F3EC",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 2, 14, 4, 17, 6],
-        "line-opacity": ["interpolate", ["linear"], ["zoom"], 12, 0.3, 14, 0.7]
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          2,
+          14,
+          4,
+          17,
+          6
+        ],
+        "line-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          0.3,
+          14,
+          0.7
+        ]
       }
     },
     {
@@ -75,71 +206,253 @@
       "type": "line",
       "source": "cairn-trails",
       "minzoom": 12,
-      "filter": ["==", ["get", "highway"], "track"],
+      "filter": [
+        "==",
+        [
+          "get",
+          "highway"
+        ],
+        "track"
+      ],
       "paint": {
         "line-color": "#8C7A5E",
-        "line-width": ["interpolate", ["linear"], ["zoom"], 12, 0.8, 16, 2],
-        "line-dasharray": [4, 2]
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          0.8,
+          16,
+          2
+        ],
+        "line-dasharray": [
+          4,
+          2
+        ]
       }
     },
     {
       "id": "trails",
       "type": "line",
       "source": "cairn-trails",
-      "filter": ["!=", ["get", "highway"], "track"],
-      "layout": { "line-cap": "round", "line-join": "round" },
+      "filter": [
+        "all",
+        [
+          "!=",
+          [
+            "get",
+            "highway"
+          ],
+          "track"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "informal"
+          ],
+          true
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
       "paint": {
-        "line-color": ["case", ["==", ["get", "informal"], true], "#9C8A6E", "#6B4F2A"],
-        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 14, 2.5, 17, 4],
-        "line-dasharray": ["case", ["==", ["get", "informal"], true], ["literal", [2, 2]], ["literal", [1, 0]]]
+        "line-color": "#6B4F2A",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          1,
+          14,
+          2.5,
+          17,
+          4
+        ]
+      }
+    },
+    {
+      "id": "trails-informal",
+      "type": "line",
+      "source": "cairn-trails",
+      "filter": [
+        "all",
+        [
+          "!=",
+          [
+            "get",
+            "highway"
+          ],
+          "track"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "informal"
+          ],
+          true
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#9C8A6E",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          1,
+          14,
+          2.5,
+          17,
+          4
+        ],
+        "line-dasharray": [
+          2,
+          2
+        ]
       }
     },
     {
       "id": "route-casing",
       "type": "line",
       "source": "cairn-route",
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#0E1412", "line-width": 7, "line-opacity": 0.6 }
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#0E1412",
+        "line-width": 7,
+        "line-opacity": 0.6
+      }
     },
     {
       "id": "route",
       "type": "line",
       "source": "cairn-route",
-      "layout": { "line-cap": "round", "line-join": "round" },
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#D9A441",
+        "line-width": 4
+      },
+      "filter": [
+        "all",
+        [
+          "!=",
+          [
+            "get",
+            "offTrail"
+          ],
+          true
+        ]
+      ]
+    },
+    {
+      "id": "route-offtrail",
+      "type": "line",
+      "source": "cairn-route",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
       "paint": {
         "line-color": "#D9A441",
         "line-width": 4,
-        "line-dasharray": ["case", ["==", ["get", "offTrail"], true], ["literal", [2, 2]], ["literal", [1, 0]]]
-      }
+        "line-dasharray": [
+          2,
+          2
+        ]
+      },
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "offTrail"
+          ],
+          true
+        ]
+      ]
     },
     {
       "id": "track",
       "type": "line",
       "source": "cairn-track",
-      "layout": { "line-cap": "round", "line-join": "round" },
-      "paint": { "line-color": "#3FB8AF", "line-width": 3.5 }
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#3FB8AF",
+        "line-width": 3.5
+      }
     },
     {
       "id": "fires-point",
       "type": "symbol",
       "source": "cairn-fires",
-      "filter": ["==", ["geometry-type"], "Point"],
-      "layout": { "icon-image": "fire", "icon-size": 0.9, "icon-allow-overlap": true }
+      "filter": [
+        "==",
+        [
+          "geometry-type"
+        ],
+        "Point"
+      ],
+      "layout": {
+        "icon-image": "fire",
+        "icon-size": 0.9,
+        "icon-allow-overlap": true
+      }
     },
     {
       "id": "pois",
       "type": "symbol",
       "source": "cairn-pois",
       "layout": {
-        "icon-image": ["get", "icon"],
+        "icon-image": [
+          "get",
+          "icon"
+        ],
         "icon-size": 0.9,
         "icon-allow-overlap": false,
-        "text-field": ["get", "name"],
+        "text-field": [
+          "get",
+          "name"
+        ],
         "text-size": 11,
-        "text-offset": [0, 1.2],
+        "text-offset": [
+          0,
+          1.2
+        ],
         "text-optional": true
       },
-      "paint": { "text-halo-color": "#F6F3EC", "text-halo-width": 1.2 }
+      "paint": {
+        "text-halo-color": "#F6F3EC",
+        "text-halo-width": 1.2
+      }
     }
   ]
 }

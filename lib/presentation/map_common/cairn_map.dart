@@ -94,23 +94,40 @@ class _CairnMapState extends ConsumerState<CairnMap> {
       _loadTimer?.cancel();
     }
     final c = _controller;
-    if (c == null) return;
+    if (c == null || !mounted) return;
     final cairn = context.cairn;
-    await addCairnIcons(c, accent: cairn.accent, track: cairn.track);
-    await ref.read(overlayControllerProvider.notifier).reinstall();
-    if (ref.read(tiltProvider)) {
-      await c.animateCamera(CameraUpdate.tiltTo(60));
+    // A quick tab switch (or the launch-time jump to a live recording) can
+    // dispose this map while its style is still loading; the platform view
+    // is gone, so stop quietly rather than surface a MissingPluginException.
+    try {
+      await addCairnIcons(c, accent: cairn.accent, track: cairn.track);
+      if (!mounted) return;
+      await ref.read(overlayControllerProvider.notifier).reinstall();
+      if (!mounted) return;
+      if (ref.read(tiltProvider)) {
+        await c.animateCamera(CameraUpdate.tiltTo(60));
+      }
+      if (!mounted) return;
+      await ref.read(viewportProvider.notifier).updateFrom(c);
+      if (!mounted) return;
+      await widget.onStyleLoaded?.call(c);
+    } catch (_) {
+      if (mounted) rethrow;
     }
-    await ref.read(viewportProvider.notifier).updateFrom(c);
-    await widget.onStyleLoaded?.call(c);
   }
 
   Future<void> _onCameraIdle() async {
     final c = _controller;
-    if (c == null) return;
-    await ref.read(viewportProvider.notifier).updateFrom(c);
-    await ref.read(cameraProvider.notifier).captureFromActiveController();
-    await widget.onCameraIdle?.call(c);
+    if (c == null || !mounted) return;
+    try {
+      await ref.read(viewportProvider.notifier).updateFrom(c);
+      if (!mounted) return;
+      await ref.read(cameraProvider.notifier).captureFromActiveController();
+      if (!mounted) return;
+      await widget.onCameraIdle?.call(c);
+    } catch (_) {
+      if (mounted) rethrow;
+    }
   }
 
   @override

@@ -86,22 +86,21 @@ List<Map<String, dynamic>> _overlayLayers() => [
           'line-opacity': 0.7
         },
       },
+      // Informal trails are their own dashed layer: MapLibre Native rejects a
+      // data-driven line-dasharray and drops the layer (see
+      // tool/patch_cairn_layers.dart).
       {
         'id': 'trails',
         'type': 'line',
         'source': 'cairn-trails',
+        'filter': [
+          '!=',
+          ['get', 'informal'],
+          true
+        ],
         'layout': {'line-cap': 'round', 'line-join': 'round'},
         'paint': {
-          'line-color': [
-            'case',
-            [
-              '==',
-              ['get', 'informal'],
-              true
-            ],
-            '#9C8A6E',
-            '#6B4F2A'
-          ],
+          'line-color': '#6B4F2A',
           'line-width': [
             'interpolate',
             ['linear'],
@@ -113,22 +112,32 @@ List<Map<String, dynamic>> _overlayLayers() => [
             17,
             4
           ],
-          'line-dasharray': [
-            'case',
-            [
-              '==',
-              ['get', 'informal'],
-              true
-            ],
-            [
-              'literal',
-              [2, 2]
-            ],
-            [
-              'literal',
-              [1, 0]
-            ]
+        },
+      },
+      {
+        'id': 'trails-informal',
+        'type': 'line',
+        'source': 'cairn-trails',
+        'filter': [
+          '==',
+          ['get', 'informal'],
+          true
+        ],
+        'layout': {'line-cap': 'round', 'line-join': 'round'},
+        'paint': {
+          'line-color': '#9C8A6E',
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10,
+            1,
+            14,
+            2.5,
+            17,
+            4
           ],
+          'line-dasharray': [2, 2],
         },
       },
       {
@@ -146,26 +155,28 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'id': 'route',
         'type': 'line',
         'source': 'cairn-route',
+        'filter': [
+          '!=',
+          ['get', 'offTrail'],
+          true
+        ],
+        'layout': {'line-cap': 'round', 'line-join': 'round'},
+        'paint': {'line-color': '#D9A441', 'line-width': 4},
+      },
+      {
+        'id': 'route-offtrail',
+        'type': 'line',
+        'source': 'cairn-route',
+        'filter': [
+          '==',
+          ['get', 'offTrail'],
+          true
+        ],
         'layout': {'line-cap': 'round', 'line-join': 'round'},
         'paint': {
           'line-color': '#D9A441',
           'line-width': 4,
-          'line-dasharray': [
-            'case',
-            [
-              '==',
-              ['get', 'offTrail'],
-              true
-            ],
-            [
-              'literal',
-              [2, 2]
-            ],
-            [
-              'literal',
-              [1, 0]
-            ]
-          ],
+          'line-dasharray': [2, 2],
         },
       },
       {

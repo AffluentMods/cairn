@@ -212,8 +212,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final controller = _controller;
     if (controller == null) return;
     try {
-      final features =
-          await controller.queryRenderedFeatures(point, ['trails'], null);
+      final features = await controller.queryRenderedFeatures(
+          point, ['trails', 'trails-informal'], null);
       if (features.isEmpty) return;
       final props = (features.first as Map)['properties'];
       final id = (props is Map) ? props['id'] : null;
