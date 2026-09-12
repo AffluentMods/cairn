@@ -101,10 +101,16 @@ class SettingsNotifier extends Notifier<Settings> {
     await _prefs.setBool(_kShowConditions, show);
   }
 
-  Future<void> setProxyBaseUrl(String url) async {
-    final trimmed = url.trim();
-    state = state.copyWith(proxyBaseUrl: trimmed);
-    await _prefs.setString(_kProxyBaseUrl, trimmed);
+  /// Returns false and leaves the setting unchanged when [url] is not an
+  /// `https://` address (empty disables the proxy). Coordinates are sent to this
+  /// host, so a cleartext or malformed value is refused instead of failing
+  /// silently under the network security config (security re-audit, finding 7).
+  Future<bool> setProxyBaseUrl(String url) async {
+    final normalized = normalizeProxyUrl(url);
+    if (normalized == null) return false;
+    state = state.copyWith(proxyBaseUrl: normalized);
+    await _prefs.setString(_kProxyBaseUrl, normalized);
+    return true;
   }
 }
 
@@ -123,4 +129,19 @@ T _enumByName<T extends Enum>(List<T> values, String? name, T fallback) {
     if (v.name == name) return v;
   }
   return fallback;
+}
+
+/// Normalizes a user-typed proxy base URL: trimmed, `https://` with a host,
+/// trailing slashes removed. Returns an empty string for an empty input (proxy
+/// off) and null for anything that is not a valid https address.
+String? normalizeProxyUrl(String raw) {
+  final t = raw.trim();
+  if (t.isEmpty) return '';
+  final uri = Uri.tryParse(t);
+  if (uri == null || uri.scheme != 'https' || uri.host.isEmpty) return null;
+  var s = t;
+  while (s.endsWith('/')) {
+    s = s.substring(0, s.length - 1);
+  }
+  return s;
 }

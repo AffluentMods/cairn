@@ -891,6 +891,17 @@ class AppLocalizationsEn extends AppLocalizations {
       'Walk the loaded route instead of using GPS. Start recording to begin.';
 
   @override
+  String get settingsProxyUrl => 'Data proxy URL';
+
+  @override
+  String get settingsProxyExplainer =>
+      'Optional. Sends only a coordinate to this HTTPS host for air quality, alerts, and campgrounds.';
+
+  @override
+  String get settingsProxyInvalid =>
+      'Enter an https:// address, or leave it empty to turn the proxy off.';
+
+  @override
   String get settingsDiagnostics => 'Diagnostics';
 
   @override

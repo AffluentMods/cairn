@@ -8,6 +8,15 @@ import 'cairn_theme.dart';
 /// Prefix for a shareable theme code (Fix Pass 1 X4.4).
 const cairnThemeCodePrefix = 'cairn-theme-1:';
 
+/// Import payloads over this size are refused before decoding, so a huge or
+/// deeply nested paste cannot spike memory or the decoder stack (security
+/// re-audit, finding 6).
+const int maxThemeImportChars = 65536;
+
+/// The longest theme name stored or shown; applied by the import codec and the
+/// Theme Designer field alike.
+const int maxThemeNameLength = 60;
+
 /// Formats a color as `#RRGGBB` (alpha is always opaque for themes).
 String hexOf(Color c) =>
     '#${(c.toARGB32() & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
@@ -50,6 +59,10 @@ CairnThemeSpec themeFromJson(Map<String, dynamic> j, {required String id}) {
   if (name is! String || name.trim().isEmpty) {
     throw const FormatException('theme has no name');
   }
+  final trimmedName = name.trim();
+  final cappedName = trimmedName.length > maxThemeNameLength
+      ? trimmedName.substring(0, maxThemeNameLength)
+      : trimmedName;
   Color col(String key) {
     final v = j[key];
     if (v is! String) throw FormatException('theme is missing color: $key');
@@ -58,7 +71,7 @@ CairnThemeSpec themeFromJson(Map<String, dynamic> j, {required String id}) {
 
   return CairnThemeSpec(
     id: id,
-    name: name.trim(),
+    name: cappedName,
     brightness: j['dark'] == true ? Brightness.dark : Brightness.light,
     accent: col('accent'),
     background: col('background'),
@@ -84,6 +97,9 @@ String themeToCode(CairnThemeSpec s) =>
 /// Parses a `.cairntheme` file body or a `cairn-theme-1:` code into a spec with
 /// [id]. Throws [FormatException] if it is neither or the schema is wrong.
 CairnThemeSpec themeFromImport(String input, {required String id}) {
+  if (input.length > maxThemeImportChars) {
+    throw const FormatException('theme is too large');
+  }
   final t = input.trim();
   if (t.startsWith(cairnThemeCodePrefix)) {
     final body = t.substring(cairnThemeCodePrefix.length).trim();

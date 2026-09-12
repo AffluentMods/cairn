@@ -106,8 +106,12 @@ class SettingsScreen extends ConsumerWidget {
           ),
           ListTile(
             leading: const Icon(Icons.dns_outlined),
-            title: const Text('Data proxy URL'),
-            subtitle: Text(s.proxyBaseUrl.isEmpty ? '--' : s.proxyBaseUrl),
+            title: Text(l10n.settingsProxyUrl),
+            subtitle: Text(
+              s.proxyBaseUrl.isEmpty
+                  ? l10n.settingsProxyExplainer
+                  : s.proxyBaseUrl,
+            ),
             onTap: () => _editProxy(context, ref, s.proxyBaseUrl),
           ),
           const Divider(),
@@ -238,6 +242,7 @@ class SettingsScreen extends ConsumerWidget {
   ) async {
     final controller = TextEditingController(text: current);
     final l10n = context.l10n;
+    final messenger = ScaffoldMessenger.of(context);
     final url = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -258,8 +263,12 @@ class SettingsScreen extends ConsumerWidget {
         ],
       ),
     );
-    if (url != null) {
-      await ref.read(settingsProvider.notifier).setProxyBaseUrl(url);
+    if (url == null) return;
+    final ok = await ref.read(settingsProvider.notifier).setProxyBaseUrl(url);
+    if (!ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(l10n.settingsProxyInvalid)),
+      );
     }
   }
 }

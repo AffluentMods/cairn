@@ -1714,6 +1714,24 @@ abstract class AppLocalizations {
   /// **'Walk the loaded route instead of using GPS. Start recording to begin.'**
   String get settingsSimulateLocationSub;
 
+  /// No description provided for @settingsProxyUrl.
+  ///
+  /// In en, this message translates to:
+  /// **'Data proxy URL'**
+  String get settingsProxyUrl;
+
+  /// No description provided for @settingsProxyExplainer.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Sends only a coordinate to this HTTPS host for air quality, alerts, and campgrounds.'**
+  String get settingsProxyExplainer;
+
+  /// No description provided for @settingsProxyInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter an https:// address, or leave it empty to turn the proxy off.'**
+  String get settingsProxyInvalid;
+
   /// No description provided for @settingsDiagnostics.
   ///
   /// In en, this message translates to:

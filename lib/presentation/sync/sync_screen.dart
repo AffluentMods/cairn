@@ -108,6 +108,10 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
       TextField(
         controller: _passphrase,
         obscureText: true,
+        // A secret: keep the keyboard from learning or suggesting it
+        // (security re-audit, finding 9).
+        autocorrect: false,
+        enableSuggestions: false,
         onChanged: (_) => setState(() {}),
         decoration: InputDecoration(
           labelText: l10n.syncPassphrase,

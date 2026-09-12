@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'dart:io';
+import 'dart:math';
 
 /// A tiny on-device tile proxy (Addendum A5.3). MapLibre Native does not
 /// substitute the `{bbox-epsg-3857}` token in a raster tile URL, so ArcGIS
@@ -15,6 +16,20 @@ class TileProxy {
 
   HttpServer? _server;
   final Map<String, String> _templates = {};
+
+  /// A random per-launch secret that must be the first path segment. Android
+  /// does not isolate localhost between apps, so without it any app on the
+  /// device could drive this proxy (security re-audit, finding 8).
+  final String _token = _newToken();
+
+  static String _newToken() {
+    final r = Random.secure();
+    return List.generate(
+      16,
+      (_) => r.nextInt(256).toRadixString(16).padLeft(2, '0'),
+    ).join();
+  }
+
   final HttpClient _client = HttpClient()
     ..userAgent = 'Cairn (contact@affluentlabs.dev)'
     ..connectionTimeout = const Duration(seconds: 15);
@@ -24,7 +39,7 @@ class TileProxy {
   Future<String> register(String key, String upstreamTemplate) async {
     _templates[key] = upstreamTemplate;
     final port = await _ensureStarted();
-    return 'http://127.0.0.1:$port/$key/{z}/{x}/{y}';
+    return 'http://127.0.0.1:$port/$_token/$key/{z}/{x}/{y}';
   }
 
   Future<int> _ensureStarted() async {
@@ -40,16 +55,18 @@ class TileProxy {
     final res = req.response;
     try {
       final parts = req.uri.pathSegments;
-      if (parts.length < 4) {
+      // Token first, then key/z/x/y. Anything else is 404, including requests
+      // from other apps that do not know this launch's token.
+      if (parts.length < 5 || parts[0] != _token) {
         res.statusCode = HttpStatus.notFound;
         await res.close();
         return;
       }
-      final key = parts[0];
+      final key = parts[1];
       final template = _templates[key];
-      final z = int.tryParse(parts[1]);
-      final x = int.tryParse(parts[2]);
-      final y = int.tryParse(parts[3].split('.').first);
+      final z = int.tryParse(parts[2]);
+      final x = int.tryParse(parts[3]);
+      final y = int.tryParse(parts[4].split('.').first);
       if (template == null || z == null || x == null || y == null) {
         res.statusCode = HttpStatus.notFound;
         await res.close();

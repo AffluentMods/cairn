@@ -321,6 +321,9 @@
   "settingsDeveloper": "Developer",
   "settingsSimulateLocation": "Simulate location",
   "settingsSimulateLocationSub": "Walk the loaded route instead of using GPS. Start recording to begin.",
+  "settingsProxyUrl": "Data proxy URL",
+  "settingsProxyExplainer": "Optional. Sends only a coordinate to this HTTPS host for air quality, alerts, and campgrounds.",
+  "settingsProxyInvalid": "Enter an https:// address, or leave it empty to turn the proxy off.",
 
   "settingsDiagnostics": "Diagnostics",
   "diagnosticsSubtitle": "On-device crash and stall log",

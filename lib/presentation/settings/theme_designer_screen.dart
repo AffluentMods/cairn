@@ -158,9 +158,12 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
               controller: _name,
+              // Same cap the import codec applies (security re-audit, 6).
+              maxLength: maxThemeNameLength,
               decoration: InputDecoration(
                 labelText: l10n.designerName,
                 hintText: l10n.designerNameHint,
+                counterText: '',
               ),
               onChanged: (_) => setState(() {}),
             ),
