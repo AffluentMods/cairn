@@ -413,3 +413,20 @@ option that ships fastest and record it here.
   rendering could not be verified on the CI emulator because its WebView has no working WebGL
   (MESA rendernode failure); it renders on a real device (the original grey-terrain report proves
   the phone's WebView WebGL works). Verify on the physical phone.
+
+## Security batch (2026-09-12, user asked for every audit item to be applied)
+
+- **The community flavor excludes the `com.google.android.gms` and `com.google.firebase` Gradle
+  groups outright (`android/app/build.gradle.kts`).** Reason: the release-build check in the
+  security audit found about 450 KB of Play services classes in the community APK, pulled in by
+  `geolocator_android`'s `play-services-location` dependency; spec Section 12.3 says the community
+  build carries no Google libraries and F-Droid scans the binary. geolocator falls back to the
+  platform LocationManager when the Play classes are absent (its `isGooglePlayServicesAvailable`
+  catches `NoClassDefFoundError` for exactly this case), so no Dart change was needed and the
+  store flavor keeps the fused provider. `tool/check_apk_clean.py` guards the built APK, locally
+  and in the CI release job.
+- **Per-sync-id limits on pull and status are 60 per minute; the Argon2id default is OWASP's
+  first setting (46 MiB, t=1, p=1); Dependabot runs weekly with five open pub PRs at most.**
+  Reason: the audit asked for the controls but not the numbers; these are far above any client's
+  real rate, the KDF setting is the one OWASP lists first, and weekly keeps the PR noise low on a
+  one-person repo.

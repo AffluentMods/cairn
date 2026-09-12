@@ -17,16 +17,28 @@ class MainActivity : FlutterActivity() {
         // flag, cleared when the view goes away or the recording ends.
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.affluentlabs.cairn/screen")
             .setMethodCallHandler { call, result ->
-                if (call.method == "keepOn") {
-                    val on = call.arguments as? Boolean ?: false
-                    if (on) {
-                        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-                    } else {
-                        window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                when (call.method) {
+                    "keepOn" -> {
+                        val on = call.arguments as? Boolean ?: false
+                        if (on) {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        } else {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+                        }
+                        result.success(null)
                     }
-                    result.success(null)
-                } else {
-                    result.notImplemented()
+                    // FLAG_SECURE while the sync passphrase is on screen: no
+                    // screenshots, no recents thumbnail (security audit finding 14).
+                    "secure" -> {
+                        val on = call.arguments as? Boolean ?: false
+                        if (on) {
+                            window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                        } else {
+                            window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                        }
+                        result.success(null)
+                    }
+                    else -> result.notImplemented()
                 }
             }
 

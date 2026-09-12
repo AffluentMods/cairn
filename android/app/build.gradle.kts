@@ -90,6 +90,20 @@ android {
     }
 }
 
+// The community flavor ships with no Google libraries (spec Section 12.3; F-Droid
+// scans the binary, not the intent). geolocator_android links
+// play-services-location for the fused provider and falls back to the platform
+// LocationManager when the Play classes are absent (it catches
+// NoClassDefFoundError for exactly this case), so every Play artifact is dropped
+// from the community configurations. The store flavor keeps them.
+// tool/check_apk_clean.py verifies the built APK.
+configurations.configureEach {
+    if (name.startsWith("community")) {
+        exclude(group = "com.google.android.gms")
+        exclude(group = "com.google.firebase")
+    }
+}
+
 flutter {
     source = "../.."
 }

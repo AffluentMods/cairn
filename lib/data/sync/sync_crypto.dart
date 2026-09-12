@@ -9,8 +9,11 @@ import 'package:cryptography/cryptography.dart';
 /// key (spec sync design). Defaults follow OWASP guidance for interactive use.
 class Argon2Params {
   const Argon2Params({
-    this.memoryKib = 19456, // 19 MiB
-    this.iterations = 2,
+    // OWASP's first recommended Argon2id setting (46 MiB, t=1, p=1), up from
+    // the 19 MiB / t=2 minimum (security audit finding 3). Existing blobs
+    // keep their stored parameters, so this only affects new setups.
+    this.memoryKib = 47104, // 46 MiB
+    this.iterations = 1,
     this.parallelism = 1,
   });
 
@@ -24,6 +27,9 @@ class Argon2Params {
         'parallelism': parallelism,
       };
 
+  /// A blob always carries its parameters; the fallbacks are the values the
+  /// first builds used, so a blob written before they were stored still
+  /// derives the same key.
   factory Argon2Params.fromJson(Map<String, dynamic> j) => Argon2Params(
         memoryKib: (j['memoryKib'] as num?)?.toInt() ?? 19456,
         iterations: (j['iterations'] as num?)?.toInt() ?? 2,

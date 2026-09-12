@@ -259,3 +259,42 @@ None.
 - Proposed, not applied: 10 (CI pinning, Dependabot, OSV scan) and 14 (`FLAG_SECURE`).
 - Accepted with a decision: 11, 15, 16, 17.
 - Cannot be completed from the codebase alone: none new.
+
+## Applied on request (2026-09-12)
+
+The user asked for every proposed item to be applied.
+
+- 2 (sync server): `pull` and `status` now carry per-sync-id limiters (60 per minute each), in
+  addition to the IP-keyed global limiter. cairn-sync `652a41e`, 27 tests green.
+- 3 (Argon2id): new setups derive with OWASP's first recommended setting, 46 MiB, t=1, p=1
+  (`Argon2Params` defaults). Existing blobs carry their own parameters, so nothing re-encrypts;
+  the JSON fallbacks stay at the original 19 MiB / t=2 for blobs written before parameters were
+  stored. Sync round-trip tests green.
+- 4 (Express): both backends moved to Express 5.2.1; 27 and 31 tests green, `npm audit` reports
+  0 vulnerabilities (the transitive `qs` advisory is gone). Local commits in each repo (neither
+  has a remote configured; push them when you deploy).
+- 10 (CI): every action pinned to a commit SHA with the tag in a comment (`actions/checkout`,
+  `subosito/flutter-action`, `actions/setup-java`, `softprops/action-gh-release`), a
+  `vulnerability-scan` job running `google/osv-scanner-action` v2.5.1 against `pubspec.lock`
+  (input name `scan-args` verified against the action's `action.yml`), and
+  `.github/dependabot.yml` for `pub` and `github-actions`, weekly.
+- 14 (`FLAG_SECURE`): the sync screen sets the flag on entry and clears it on exit through the
+  existing `com.affluentlabs.cairn/screen` channel (`ScreenWake.secure`).
+
+Release-build checks from the first audit, run locally on the obfuscated community APK
+(`flutter build apk --release --flavor community --obfuscate --split-debug-info`):
+
+- Manifest: `debuggable` absent, `allowBackup="false"`, `usesCleartextTraffic="false"`, only
+  MainActivity exported. PASS.
+- Strings: no Google API keys, no Stripe keys, no private key blocks, no RevenueCat or
+  `purchases_flutter` symbols, no baked proxy URL. PASS.
+- Play / Firebase classes: FAIL at first check, PASS after the fix. `com.google.android.gms`
+  (about 450 KB of dex, plus one Firebase reference inside it) was in the community APK, pulled in
+  by `geolocator_android`'s `play-services-location` dependency. The community flavor now excludes
+  the `com.google.android.gms` and `com.google.firebase` Gradle groups (geolocator falls back to
+  the platform LocationManager by design), and `tool/check_apk_clean.py` reads each dex file's
+  class table: the rebuilt community APK defines no Play, Firebase, billing, or RevenueCat class
+  (apkanalyzer agrees: the gms packages appear as referenced only, zero defined classes). The
+  19 dangling type references are geolocator's unused fused client naming absent classes; the
+  script reports them as a note. CI runs the script on every release build before attaching
+  the APK.

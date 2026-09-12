@@ -23,6 +23,17 @@ both API backends, a security audit, a design mockup canvas, and now (morning se
 homelab deploy bundle, RevenueCat store wiring, on-device verification, and a public GitHub
 push. `flutter analyze` clean, 249 tests, both flavors build.
 
+### Security batch 2026-09-12 (done)
+
+You said "do everything your audit found", so every propose-only item in
+docs/security-audit-2026-09.md is now applied: Actions pinned by SHA, Dependabot, an OSV scan job,
+`FLAG_SECURE` on the sync screen, the Argon2id bump, per-sync-id limits on pull and status in
+cairn-sync, and Express 5 in both backends. The audit's release-build checks ran on the obfuscated
+community APK and caught one real problem: Play services classes were in the community binary
+(geolocator's fused-provider dependency). The community flavor now excludes the Google groups in
+Gradle, geolocator falls back to the platform LocationManager, and `tool/check_apk_clean.py` gates
+the APK locally and in the CI release job. Questions 7, 12, and 13 below are closed.
+
 ### Evening session 2026-09-11 (done, pushed through c6237d7)
 
 Ten commits closing the spec audit gaps, every one verified on the Pixel 3a emulator:
@@ -134,7 +145,8 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 6. **Summit feature split.** I used spec Section 12.4 (unlimited offline, water/campsite
    helpers, follow-route, AirNow monitor). Confirm before Play launch.
 7. **Express 5 for the backends.** Both flag a transitive `qs` advisory via Express 4. Low
-   risk (JSON bodies, not query strings). Bump at a maintenance window?
+   risk (JSON bodies, not query strings). Bump at a maintenance window? (Done 2026-09-12:
+   Express 5.2.1 in both repos, tests green, `npm audit` clean; local commits, push on deploy.)
 8. **On-device QA.** I cannot drive a phone here, so all device-only acceptance items are
    unverified (marked NEEDS DEVICE per phase): map rendering and 60fps, GPS recording and
    screen-off survival, real offline behavior, the MapLibre offline basemap download (may
@@ -150,8 +162,9 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 12. **Supply-chain hardening (propose only, from the security audit).** Pin the GitHub Actions
    in `.github/workflows/ci.yml` to commit SHAs, add Dependabot for pub and Actions, and an
    OSV scan step. Config-only, but it changes how CI behaves, so say yes and I will do it.
+   (Done 2026-09-12 on your "do everything your audit found".)
 13. **`FLAG_SECURE` on the sync screen** (blocks screenshots of the sync passphrase). Small
-   platform change; also propose-only from the audit.
+   platform change; also propose-only from the audit. (Done 2026-09-12.)
 14. **Place search goes straight to Nominatim** (on submit, 1 req/s, cached). Their policy
    tolerates small apps; if Cairn grows, route it through cairn-proxy. Fine to leave for now?
 15. **Wide views load no new trails.** Explore fetches Overpass cells only when the view spans
@@ -161,6 +174,9 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 16. **Physical-phone pass still needed:** real GPS auto-pause and off-route, notification
    taps, multi-hour battery per hour, OEM battery prompts, real offline bundle download, 3D
    WebGL, and the X1.5 frame budgets. Everything above was verified on the Pixel 3a emulator.
+   Since 2026-09-12 the community build takes fixes from the platform LocationManager (Play
+   services are excluded from that flavor), so time-to-first-fix and battery per hour on the
+   phone are worth a fresh look.
 17. **Junction cues (Phase 10 candidate).** AllTrails calls out trail junctions while
    navigating ("keep left onto Bypass Trail #97 in 300 ft"). Cairn has the graph (cached ways
    with shared nodes) to derive them from the route; it is a day of work plus a voice or

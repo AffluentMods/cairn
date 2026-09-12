@@ -11,14 +11,17 @@ on:
 env:
   FLUTTER_VERSION: "3.38.9"
 
+# Actions are pinned to commit SHAs (security audit finding 10): a moved tag
+# would otherwise run unreviewed code with the repository checkout. Dependabot
+# (.github/dependabot.yml) proposes the bumps; the comment carries the tag.
 jobs:
   analyze-and-test:
     name: Analyze and test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -51,6 +54,18 @@ jobs:
       - name: Test
         run: flutter test
 
+  vulnerability-scan:
+    name: Dependency vulnerability scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # OSV against the resolved pub lockfile (security audit finding 10).
+      - uses: google/osv-scanner-action/osv-scanner-action@6e4298ebc4db23e847df9b2e2de2939d6f066c67 # v2.5.1
+        with:
+          scan-args: |-
+            --lockfile=pubspec.lock
+
   build-community-apk:
     name: Build community APK
     runs-on: ubuntu-latest
@@ -59,14 +74,14 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
         with:
           distribution: temurin
           java-version: "17"
 
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
@@ -81,6 +96,11 @@ jobs:
       - name: Build community APK
         run: flutter build apk --release --flavor community --obfuscate --split-debug-info=build/symbols
 
+      # F-Droid gate (spec Section 12.3): no Play services, Firebase, billing, or
+      # RevenueCat classes in the community binary, and no key-shaped strings.
+      - name: Verify the community APK carries no Google libraries or keys
+        run: python3 tool/check_apk_clean.py build/app/outputs/flutter-apk/app-community-release.apk
+
       - name: Compute SHA-256
         id: sha
         run: |
@@ -88,7 +108,7 @@ jobs:
           sha256sum "$APK" | tee "$APK.sha256"
 
       - name: Attach to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           files: |
             build/app/outputs/flutter-apk/app-community-release.apk

@@ -16,4 +16,17 @@ abstract final class ScreenWake {
       // ignore
     }
   }
+
+  /// FLAG_SECURE for a screen that shows a secret (the sync passphrase):
+  /// blocks screenshots, screen recording and the recents thumbnail
+  /// (security audit finding 14). Same channel; no-op where unsupported.
+  static Future<void> secure(bool on) async {
+    try {
+      await _channel.invokeMethod<void>('secure', on);
+    } on MissingPluginException {
+      // not Android, or a test
+    } on PlatformException {
+      // ignore
+    }
+  }
 }

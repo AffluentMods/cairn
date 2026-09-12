@@ -15,6 +15,12 @@ Two Android product flavors share one applicationId:
 - `community` (default, fully unlocked, no Google libraries).
 - `store` (Summit gate via `--dart-define=CAIRN_STORE=true`).
 
+"No Google libraries" is enforced, not assumed: `android/app/build.gradle.kts` excludes the
+`com.google.android.gms` and `com.google.firebase` groups from every community configuration
+(geolocator then uses the platform LocationManager instead of the Play fused provider), and
+`tool/check_apk_clean.py <apk>` scans a built APK for Play, Firebase, billing, or RevenueCat
+classes and key-shaped strings. CI runs it on every release build before attaching the APK.
+
 A flavor is required, so pass `--flavor`:
 
 ```

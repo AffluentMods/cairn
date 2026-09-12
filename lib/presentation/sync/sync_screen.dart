@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/platform/screen_wake.dart';
 import '../../data/data_providers.dart';
 import '../../data/sync/sync_service.dart';
 import '../../l10n/app_localizations.dart';
@@ -34,6 +35,9 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
   @override
   void initState() {
     super.initState();
+    // The passphrase and sync code are secrets: no screenshots or recents
+    // thumbnail while this screen is up (security audit finding 14).
+    ScreenWake.secure(true);
     _reload();
   }
 
@@ -49,6 +53,7 @@ class _SyncScreenState extends ConsumerState<SyncScreen> {
 
   @override
   void dispose() {
+    ScreenWake.secure(false);
     _server.dispose();
     _passphrase.dispose();
     _code.dispose();
