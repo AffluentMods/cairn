@@ -45,6 +45,12 @@ the POI layer that never rendered on Android (default glyph font 404), and Explo
 trails after a tab switch. Details in each commit and in docs/DECISIONS.md. Open items and
 new questions: "Questions for you" 12 to 18 below.
 
+CI note: GitHub Actions was red from the route-chevron commit until 0bf14af because
+`tool/check_theme_tokens.sh` rejects `AppColors.inkDeep` in presentation code and the local gate
+had only shown the script's note, not its exit code. Map icon ink now comes from the theme
+(`onAccent`, and a luminance check against the route color); CI passes again, obfuscated
+release build included.
+
 ### Morning session (done)
 
 - **Pushed to GitHub, public**: https://github.com/AffluentMods/cairn (branch `main`, CI
