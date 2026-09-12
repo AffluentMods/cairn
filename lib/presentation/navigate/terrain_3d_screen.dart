@@ -49,6 +49,18 @@ class _Terrain3dScreenState extends ConsumerState<Terrain3dScreen> {
       )
       ..setNavigationDelegate(
         NavigationDelegate(
+          // Only the bundled page (and the blank page used on dispose) may be
+          // navigated to. Tile, sprite, and glyph fetches are XHR, not
+          // navigations, so a redirecting map host cannot take over the
+          // WebView (Addendum A5.2; security re-audit finding 18).
+          onNavigationRequest: (request) {
+            final url = request.url;
+            if (url.startsWith('file:///android_asset/') ||
+                url == 'about:blank') {
+              return NavigationDecision.navigate;
+            }
+            return NavigationDecision.prevent;
+          },
           onPageFinished: (_) => _pushInit(),
           onWebResourceError: (_) {
             if (mounted && !_ready) setState(() => _error = true);
