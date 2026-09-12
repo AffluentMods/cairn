@@ -67,8 +67,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   /// The shared controller belongs to whichever tab's map is live; only act on
   /// it while this tab is the active one. While another tab is showing, work
   /// stays pending and the Navigate map's next style load runs it.
-  bool get _isActiveTab =>
-      ref.read(shellIndexProvider) == ShellTab.navigate;
+  bool get _isActiveTab => ref.read(shellIndexProvider) == ShellTab.navigate;
 
   @override
   void initState() {
