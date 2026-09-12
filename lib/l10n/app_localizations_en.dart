@@ -220,6 +220,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recordOffRoute => 'Off route';
 
   @override
+  String get recordWaitingGps => 'Waiting for a good GPS fix';
+
+  @override
   String recordToGo(String distance) {
     return '$distance to go';
   }

@@ -33,6 +33,49 @@ void main() {
       expect(r.length, greaterThanOrEqualTo(2));
     });
 
+    test('orientForPlanning keeps the choice of a hiker at an end', () {
+      final geom = [
+        [46.0, -121.0],
+        [46.0, -120.9],
+      ];
+      // 200 m from the east end: the section is left alone even though the
+      // west end is lower.
+      final r = orientForPlanning(
+        geom,
+        userLat: 46.0,
+        userLon: -120.9026,
+        startElevM: 1200,
+        endElevM: 900,
+      );
+      expect(r.first, [46.0, -121.0]);
+    });
+
+    test('orientForPlanning starts at the parking, else the low end', () {
+      final geom = [
+        [46.0, -121.0],
+        [46.0, -120.9],
+      ];
+      // Parking near the east end, user far away: start east.
+      final byParking = orientForPlanning(
+        geom,
+        userLat: 47.0,
+        userLon: -121.0,
+        parkingLat: 46.0,
+        parkingLon: -120.901,
+      );
+      expect(byParking.first, [46.0, -120.9]);
+      // No parking: the lower end (east) comes first so the climb is first.
+      final byElev = orientForPlanning(
+        geom,
+        startElevM: 1500,
+        endElevM: 1000,
+      );
+      expect(byElev.first, [46.0, -120.9]);
+      // Flat: unchanged.
+      final flat = orientForPlanning(geom, startElevM: 1000, endElevM: 1010);
+      expect(flat.first, [46.0, -121.0]);
+    });
+
     test('routeStartIsFar flags a distant trailhead', () {
       final geom = [
         [46.0, -121.0],

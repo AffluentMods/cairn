@@ -225,6 +225,7 @@ class RecordingSnapshot {
     this.lon,
     this.heading,
     this.onRoute = true,
+    this.routeKnown = false,
     this.offRouteDistanceM,
     this.bearingBackDeg,
     this.offRouteMuted = false,
@@ -244,6 +245,10 @@ class RecordingSnapshot {
   final double? lon;
   final double? heading;
   final bool onRoute;
+
+  /// False until a fix good enough to judge the route has been projected;
+  /// the UI shows nothing rather than a confident "On route" from a poor fix.
+  final bool routeKnown;
   final double? offRouteDistanceM;
   final double? bearingBackDeg;
   final bool offRouteMuted;
@@ -266,6 +271,7 @@ class RecordingSnapshot {
         'lon': lon,
         'hd': heading,
         'on': onRoute,
+        'rk': routeKnown,
         'off': offRouteDistanceM,
         'bb': bearingBackDeg,
         'mu': offRouteMuted,
@@ -287,6 +293,7 @@ class RecordingSnapshot {
         lon: (m['lon'] as num?)?.toDouble(),
         heading: (m['hd'] as num?)?.toDouble(),
         onRoute: m['on'] as bool? ?? true,
+        routeKnown: m['rk'] as bool? ?? false,
         offRouteDistanceM: (m['off'] as num?)?.toDouble(),
         bearingBackDeg: (m['bb'] as num?)?.toDouble(),
         offRouteMuted: m['mu'] as bool? ?? false,
@@ -367,6 +374,7 @@ class RecordingEngine {
   double? _offDistM;
   double? _bearingBack;
   bool _onRoute = true;
+  bool _routeKnown = false;
   DateTime? _offSince;
   bool _muted = false;
   bool _arrived = false;
@@ -571,6 +579,7 @@ class RecordingEngine {
     final t = p.t;
     final goodFix =
         p.accuracyM == null || p.accuracyM! <= options.offRouteMaxAccuracyM;
+    if (goodFix) _routeKnown = true;
     if (_onRoute) {
       if (np.distanceM > options.offRouteM) {
         if (goodFix) {
@@ -800,6 +809,7 @@ class RecordingEngine {
       lon: _curLon,
       heading: _heading,
       onRoute: _onRoute,
+      routeKnown: _routeKnown,
       offRouteDistanceM: _offDistM,
       bearingBackDeg: _bearingBack,
       offRouteMuted: _muted,

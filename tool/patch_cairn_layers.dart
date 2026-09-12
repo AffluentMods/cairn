@@ -24,12 +24,45 @@ void main() {
     final layers = (style['layers'] as List).cast<Map<String, dynamic>>();
     final a = splitDashLayer(layers, 'trails', 'trails-informal', 'informal');
     final b = splitDashLayer(layers, 'route', 'route-offtrail', 'offTrail');
+    final c = ensureLayerAfter(layers, 'route-offtrail', routeArrowsLayer());
     style['layers'] = layers;
     file.writeAsStringSync(
         '${const JsonEncoder.withIndent('  ').convert(style)}\n');
     stdout.writeln('${file.path}: trails ${a ? "split" : "ok"}, '
-        'route ${b ? "split" : "ok"}');
+        'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}');
   }
+}
+
+/// Direction chevrons along the active route at trail zooms. The icon is
+/// registered at runtime by `addCairnIcons` (poi_icons.dart).
+Map<String, dynamic> routeArrowsLayer() => {
+      'id': 'route-arrows',
+      'type': 'symbol',
+      'source': 'cairn-route',
+      'minzoom': 14,
+      'layout': {
+        'symbol-placement': 'line',
+        'symbol-spacing': 90,
+        'icon-image': 'route-arrow',
+        'icon-size': 0.55,
+        'icon-allow-overlap': true,
+        'icon-ignore-placement': true,
+        'icon-rotation-alignment': 'map',
+      },
+    };
+
+/// Inserts [layer] right after the layer [afterId] unless a layer with the
+/// same id already exists. Returns true when it was added.
+bool ensureLayerAfter(
+  List<Map<String, dynamic>> layers,
+  String afterId,
+  Map<String, dynamic> layer,
+) {
+  if (layers.any((l) => l['id'] == layer['id'])) return false;
+  final i = layers.indexWhere((l) => l['id'] == afterId);
+  if (i < 0) return false;
+  layers.insert(i + 1, layer);
+  return true;
 }
 
 /// Turns a layer whose `line-dasharray` (and optionally `line-color`) is a

@@ -332,7 +332,7 @@ class _LivePreview extends StatelessWidget {
                           color: spec.accent,
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Text('Start',
+                        child: Text(context.l10n.navStart,
                             style: TextStyle(
                                 color: onAccent, fontWeight: FontWeight.w600)),
                       ),

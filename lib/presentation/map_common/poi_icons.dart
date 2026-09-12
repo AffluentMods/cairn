@@ -41,6 +41,49 @@ Future<void> addCairnIcons(
       // Non-fatal: the map still works without this one icon.
     }
   }
+  // Direction chevrons along the active route (the `route-arrows` symbol
+  // layer in every style, z14 and up): ink on the gold line, white-edged so
+  // they read on any base map.
+  try {
+    await controller.addImage('route-arrow', await _chevronPng(36));
+  } catch (_) {
+    // Non-fatal.
+  }
+}
+
+/// A right-pointing chevron (the line's direction is 0 degrees for a symbol
+/// placed along it), with a light outline.
+Future<Uint8List> _chevronPng(int size) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final s = size.toDouble();
+  final path = Path()
+    ..moveTo(s * 0.32, s * 0.22)
+    ..lineTo(s * 0.62, s * 0.50)
+    ..lineTo(s * 0.32, s * 0.78);
+  canvas.drawPath(
+    path,
+    Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.26
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round,
+  );
+  canvas.drawPath(
+    path,
+    Paint()
+      ..color = AppColors.inkDeep
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.13
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round,
+  );
+  final picture = recorder.endRecording();
+  final image = await picture.toImage(size, size);
+  final data = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  return data!.buffer.asUint8List();
 }
 
 Future<Uint8List> _dotPng(Color color, int size) async {

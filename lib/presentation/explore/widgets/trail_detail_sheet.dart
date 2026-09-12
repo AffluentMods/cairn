@@ -541,11 +541,30 @@ class _TrailDetailSheetState extends ConsumerState<_TrailDetailSheet> {
     } on Object {
       last = null;
     }
-    final section = selectRouteSection(
+    var section = selectRouteSection(
       trail.navGeometry,
       viewportBbox: vp?.bbox,
       userLat: last?.latitude,
       userLon: last?.longitude,
+    );
+    // Planning from afar: start at the parking, else at the low end.
+    final insights = await _insights;
+    final profile = insights?.stats.profile;
+    final reversedByUser = !identical(section.first, trail.navGeometry.first);
+    double? startElev;
+    double? endElev;
+    if (profile != null && profile.length >= 2) {
+      startElev = reversedByUser ? profile.last.elevM : profile.first.elevM;
+      endElev = reversedByUser ? profile.first.elevM : profile.last.elevM;
+    }
+    section = orientForPlanning(
+      section,
+      userLat: last?.latitude,
+      userLon: last?.longitude,
+      parkingLat: insights?.parking?.lat,
+      parkingLon: insights?.parking?.lon,
+      startElevM: startElev,
+      endElevM: endElev,
     );
     ref.read(routeStartDistanceProvider.notifier).state =
         (last != null && section.length >= 2)

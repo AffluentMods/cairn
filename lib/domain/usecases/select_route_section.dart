@@ -67,6 +67,43 @@ List<List<double>> _clipToViewport(
   return geom.sublist(first, last + 1);
 }
 
+/// A user standing at a trailhead decides the direction; from further away
+/// than this the trail's own cues do.
+const double _nearEndM = 2000;
+
+/// Orients a section for a hiker who is not at either end: start at the end
+/// nearer the parking or trailhead when one is known, else at the lower end
+/// so the climb comes first (how trails are usually walked), else as given.
+/// A hiker within 2 km of an end keeps [selectRouteSection]'s choice.
+List<List<double>> orientForPlanning(
+  List<List<double>> section, {
+  double? userLat,
+  double? userLon,
+  double? parkingLat,
+  double? parkingLon,
+  double? startElevM,
+  double? endElevM,
+}) {
+  if (section.length < 2) return section;
+  final a = section.first;
+  final b = section.last;
+  if (userLat != null && userLon != null) {
+    final toStart = haversineMeters(userLat, userLon, a[0], a[1]);
+    final toEnd = haversineMeters(userLat, userLon, b[0], b[1]);
+    if (toStart <= _nearEndM || toEnd <= _nearEndM) return section;
+  }
+  if (parkingLat != null && parkingLon != null) {
+    final pStart = haversineMeters(parkingLat, parkingLon, a[0], a[1]);
+    final pEnd = haversineMeters(parkingLat, parkingLon, b[0], b[1]);
+    if (pEnd + 50 < pStart) return section.reversed.toList();
+    return section;
+  }
+  if (startElevM != null && endElevM != null && endElevM + 30 < startElevM) {
+    return section.reversed.toList();
+  }
+  return section;
+}
+
 /// Whether the route's start is more than a mile from the user, so Navigate can
 /// warn that the trailhead is far and offer directions (Fix Pass 1 X2.2).
 bool routeStartIsFar(

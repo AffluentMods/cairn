@@ -35,9 +35,11 @@ class GpxImporter {
 
   static const _uuid = Uuid();
 
+  /// [fallbackName] names a route or track whose file carries no name; the
+  /// caller passes a localized string (the file name in practice).
   Future<GpxImportSummary> import(
     GpxImport data, {
-    String? fallbackName,
+    required String fallbackName,
   }) async {
     var routeCount = 0;
     var trackCount = 0;
@@ -53,7 +55,7 @@ class GpxImporter {
     return GpxImportSummary(routes: routeCount, tracks: trackCount);
   }
 
-  Future<void> _saveRoute(GpxRouteData data, String? fallbackName) async {
+  Future<void> _saveRoute(GpxRouteData data, String fallbackName) async {
     final geometry = [
       for (final p in data.points) [p.lat, p.lon],
     ];
@@ -62,7 +64,7 @@ class GpxImporter {
     await routes.save(
       SavedRoute(
         id: _uuid.v4(),
-        name: data.name ?? fallbackName ?? 'Imported route',
+        name: data.name ?? fallbackName,
         createdAt: now,
         updatedAt: now,
         geometry: geometry,
@@ -79,7 +81,7 @@ class GpxImporter {
     );
   }
 
-  Future<void> _saveTrack(GpxTrackData data, String? fallbackName) async {
+  Future<void> _saveTrack(GpxTrackData data, String fallbackName) async {
     final pts = data.points;
     final geometry = [
       for (final p in pts) [p.lat, p.lon],
@@ -118,7 +120,7 @@ class GpxImporter {
     await tracks.saveTrack(
       TrackSummary(
         id: id,
-        name: data.name ?? fallbackName ?? 'Imported track',
+        name: data.name ?? fallbackName,
         startedAt: startedAt,
         endedAt: endedAt,
         distanceM: distanceM,

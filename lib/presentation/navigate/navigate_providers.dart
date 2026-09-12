@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
 import '../../domain/models/offline_region.dart';
@@ -37,8 +38,14 @@ final routeStartDistanceProvider = StateProvider<double?>((ref) => null);
 /// Dev-only: when on, recording walks a simulated route instead of using GPS,
 /// so navigation and follow mode can be exercised without moving (Fix Pass 1
 /// X2.8). Only surfaced in Settings > Developer in debug builds; ignored in
-/// release.
-final simulateLocationProvider = StateProvider<bool>((ref) => false);
+/// release. Persisted so a reinstall-and-test loop does not reset it.
+const kSimulateLocationPref = 'dev.simulateLocation';
+
+final simulateLocationProvider = StateProvider<bool>(
+  (ref) =>
+      ref.watch(sharedPreferencesProvider).getBool(kSimulateLocationPref) ??
+      false,
+);
 
 /// The route's bounding box as [minLat, minLon, maxLat, maxLon], or null when
 /// there is no route.

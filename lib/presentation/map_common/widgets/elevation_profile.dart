@@ -355,7 +355,7 @@ class _ProfilePainter extends CustomPainter {
         text: text,
         style: TextStyle(
           color: textColor,
-          fontSize: 10,
+          fontSize: 11, // the spec's floor (Section 9.2)
           fontFeatures: const [FontFeature.tabularFigures()],
         ),
       ),

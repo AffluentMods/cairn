@@ -80,6 +80,7 @@
   "@recordNotificationBody": { "placeholders": { "distance": { "type": "String" }, "time": { "type": "String" } } },
   "recordOnRoute": "On route",
   "recordOffRoute": "Off route",
+  "recordWaitingGps": "Waiting for a good GPS fix",
   "recordToGo": "{distance} to go",
   "@recordToGo": { "placeholders": { "distance": { "type": "String" } } },
   "recordEta": "ETA {time}",

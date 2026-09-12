@@ -196,8 +196,12 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(l10n.settingsSimulateLocation),
               subtitle: Text(l10n.settingsSimulateLocationSub),
               value: ref.watch(simulateLocationProvider),
-              onChanged: (v) =>
-                  ref.read(simulateLocationProvider.notifier).state = v,
+              onChanged: (v) {
+                ref.read(simulateLocationProvider.notifier).state = v;
+                ref
+                    .read(sharedPreferencesProvider)
+                    .setBool(kSimulateLocationPref, v);
+              },
             ),
           ],
           ListTile(

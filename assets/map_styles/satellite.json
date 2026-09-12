@@ -386,6 +386,21 @@
       ]
     },
     {
+      "id": "route-arrows",
+      "type": "symbol",
+      "source": "cairn-route",
+      "minzoom": 14,
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 90,
+        "icon-image": "route-arrow",
+        "icon-size": 0.55,
+        "icon-allow-overlap": true,
+        "icon-ignore-placement": true,
+        "icon-rotation-alignment": "map"
+      }
+    },
+    {
       "id": "track",
       "type": "line",
       "source": "cairn-track",

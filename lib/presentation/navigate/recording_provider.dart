@@ -99,6 +99,9 @@ class RecordingState {
     this.recovered = false,
     this.batteryRestricted = false,
     this.clock = 0,
+    this.trackPoints = const [],
+    this.trackVersion = 0,
+    this.simulated = false,
   });
 
   final RecordingStatus status;
@@ -129,10 +132,23 @@ class RecordingState {
   /// Bumped once a second while the app is visible so the clock repaints.
   final int clock;
 
+  /// Every accepted fix so far as `[lat, lon]`, for the traveled-path layer
+  /// (AllTrails draws it in a second color under the puck).
+  final List<List<double>> trackPoints;
+
+  /// Bumped whenever [trackPoints] changes, so the map redraws only then.
+  final int trackVersion;
+
+  /// Debug builds only: the fixes come from the route simulator, so the map
+  /// draws its own puck at the simulated position instead of following the
+  /// device location (Fix Pass 1 X2.8).
+  final bool simulated;
+
   bool get isActive => status != RecordingStatus.idle;
   RecordingStats get stats => snapshot?.stats ?? RecordingStats.zero;
   bool get autoPaused => snapshot?.phase == RecordingPhase.autoPaused;
   bool get onRoute => snapshot?.onRoute ?? true;
+  bool get routeKnown => snapshot?.routeKnown ?? false;
   bool get offRouteMuted => snapshot?.offRouteMuted ?? false;
   double? get offRouteDistanceM => snapshot?.offRouteDistanceM;
   double? get bearingBackDeg => snapshot?.bearingBackDeg;
@@ -172,6 +188,9 @@ class RecordingState {
     bool? recovered,
     bool? batteryRestricted,
     int? clock,
+    List<List<double>>? trackPoints,
+    int? trackVersion,
+    bool? simulated,
   }) {
     return RecordingState(
       status: status ?? this.status,
@@ -186,6 +205,9 @@ class RecordingState {
       recovered: recovered ?? this.recovered,
       batteryRestricted: batteryRestricted ?? this.batteryRestricted,
       clock: clock ?? this.clock,
+      trackPoints: trackPoints ?? this.trackPoints,
+      trackVersion: trackVersion ?? this.trackVersion,
+      simulated: simulated ?? this.simulated,
     );
   }
 }
@@ -264,6 +286,16 @@ class RecordingController extends Notifier<RecordingState> {
           if (p.name == m['profile']) profile = p;
         }
         _applySnapshot(snap, profile);
+      case RecordingMessage.polyline:
+        if (!state.isActive) return;
+        final data = m['data'] as List? ?? const [];
+        state = state.copyWith(
+          trackPoints: [
+            for (final p in data)
+              [(p[0] as num).toDouble(), (p[1] as num).toDouble()],
+          ],
+          trackVersion: state.trackVersion + 1,
+        );
       case RecordingMessage.stop:
         unawaited(finish());
     }
@@ -271,6 +303,16 @@ class RecordingController extends Notifier<RecordingState> {
 
   void _applySnapshot(RecordingSnapshot snap, RecordingProfile? profile) {
     if (!state.isActive) return;
+    // A new accepted fix extends the traveled path.
+    var points = state.trackPoints;
+    var version = state.trackVersion;
+    if (snap.fixSeq > state.fixSeq && snap.lat != null && snap.lon != null) {
+      points = [
+        ...points,
+        [snap.lat!, snap.lon!]
+      ];
+      version++;
+    }
     state = state.copyWith(
       status: snap.phase == RecordingPhase.recording
           ? RecordingStatus.recording
@@ -279,6 +321,8 @@ class RecordingController extends Notifier<RecordingState> {
       receivedAt: DateTime.now(),
       profile: profile,
       recovered: false,
+      trackPoints: points,
+      trackVersion: version,
     );
     for (final e in snap.events) {
       switch (e) {
@@ -405,6 +449,7 @@ class RecordingController extends Notifier<RecordingState> {
         profile: settings.recordingProfile,
         batteryRestricted: restricted,
         receivedAt: now,
+        simulated: session.simulate,
       );
       _syncClock();
       return true;
@@ -649,10 +694,12 @@ class RecordingController extends Notifier<RecordingState> {
           session.route == null ? null : polylineLengthMeters(session.route!),
       profile: session.profile,
       receivedAt: DateTime.now(),
+      simulated: kDebugMode && session.simulate,
     );
     if (running) {
       state = base.copyWith(status: RecordingStatus.recording);
       _send({'cmd': RecordingCommand.snapshot});
+      _send({'cmd': RecordingCommand.polyline});
     } else {
       // The service died with the app. Treat the gap as a pause, starting at
       // the log's last write (the best estimate of when it stopped).
@@ -666,11 +713,16 @@ class RecordingController extends Notifier<RecordingState> {
       ]);
       await log.close();
       final lines = await logFile.readAsLines();
-      final snap = await GeoWorker.run(
+      final recovered = await GeoWorker.run(
         'recording-recover',
         () => snapshotAfterReplay(session, lines, DateTime.now()),
       );
-      state = base.copyWith(snapshot: snap, recovered: true);
+      state = base.copyWith(
+        snapshot: recovered.snapshot,
+        recovered: true,
+        trackPoints: recovered.points,
+        trackVersion: 1,
+      );
     }
     _syncClock();
     if (ref.read(settingsProvider).keepScreenOn && running) {
@@ -700,15 +752,21 @@ class RecordingController extends Notifier<RecordingState> {
   return (points: engine.points, stats: engine.stats(endedAt));
 }
 
-/// Replays a session's log and reports the state, for recovery on launch.
-RecordingSnapshot snapshotAfterReplay(
+/// Replays a session's log and reports the state and the path so far, for
+/// recovery on launch.
+({RecordingSnapshot snapshot, List<List<double>> points}) snapshotAfterReplay(
   RecordingSession session,
   List<String> lines,
   DateTime now,
 ) {
   final engine = session.newEngine();
   replayRecordingLines(lines, engine);
-  return engine.snapshot(now);
+  return (
+    snapshot: engine.snapshot(now),
+    points: [
+      for (final p in engine.points) [p.lat, p.lon],
+    ],
+  );
 }
 
 final recordingProvider = NotifierProvider<RecordingController, RecordingState>(

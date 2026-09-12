@@ -101,7 +101,12 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
   Future<void> _drawRoute(List<List<double>> geometry) async {
     final c = _controller;
     if (c == null || geometry.isEmpty) return;
-    await c.setGeoJsonSource('cairn-route', lineToGeoJson(geometry));
+    // A recorded track draws in the track color, a planned route in gold, the
+    // same way Navigate tells the two apart.
+    await c.setGeoJsonSource(
+      widget.kind == DetailKind.track ? 'cairn-track' : 'cairn-route',
+      lineToGeoJson(geometry),
+    );
     var minLat = geometry.first[0], maxLat = geometry.first[0];
     var minLon = geometry.first[1], maxLon = geometry.first[1];
     for (final p in geometry) {

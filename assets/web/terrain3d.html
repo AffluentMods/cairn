@@ -27,6 +27,11 @@
           bearing: opts.bearing || 0,
           maxPitch: 85
         });
+        // The base map's attribution, compact, away from the round buttons
+        // on the right (security re-audit, finding 12).
+        try {
+          map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
+        } catch (e) {}
         // Only a total failure to load is fatal. A full vector base map emits
         // routine tile/glyph/sprite errors that must not blank the view.
         setTimeout(function () {

@@ -210,6 +210,20 @@ option that ships fastest and record it here.
   of the start; matched in a worker.** Reason: AllTrails' "Top sights" and "Plan your visit"
   without any community data, and it works offline inside a downloaded region.
 
+## Navigation rendering (2026-09-11, AllTrails benchmark section 1)
+
+- **The traveled path is its own teal `track` layer above the gold route, fed from the
+  recording snapshots and refetched from the service on re-attach.** Reason: AllTrails draws
+  the planned route and the walked path in two colors; with one color you cannot tell a wrong
+  turn from the plan. Points ride along with each snapshot (one per accepted fix) so nothing
+  extra crosses the isolate boundary in the common case.
+- **Direction chevrons on the active route from z14 (`route-arrows`, a symbol layer with an
+  icon registered at runtime).** Reason: an out-and-back or a loop reads the same in both
+  directions without them; the icon is drawn in Dart like the POI dots so no sprite sheet is
+  needed and it follows the theme.
+- **The debug location simulator toggle is persisted.** Reason: it is debug-only, and a
+  reinstall-and-test loop reset it on every build.
+
 ## Divergences recorded after the spec audit (2026-09-12)
 
 - **Overpass budgets are 35 s query / 40 s receive, not the spec's 60 / 90.** Reason: Fix Pass 1

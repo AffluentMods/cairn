@@ -380,6 +380,18 @@ the elevation profile, parking or a trailhead near the start, and the sights alo
 cached OSM POIs. Search groups hits by trail name and uses the right hint. `trail_rating_test`
 checks the difficulty bands against the AllTrails labels sampled in the benchmark.
 
+Navigate rendering: the traveled path draws in teal above the gold route while recording (and
+after re-attaching or recovering), and the route carries direction chevrons from z14 in every
+style (`route-arrows`, icon drawn at runtime). The route status row says "Waiting for a good GPS
+fix" until a fix good enough to judge has been projected, instead of a confident "On route".
+In debug builds with the simulator on, the map draws its own puck at the simulated fix and
+follows it, since the native puck can only show the device.
+
+Small Tier 3 items closed: profile labels at 11 sp (the spec floor), a light haptic when a
+waypoint pin lands, the 3D view's base-map attribution (compact, bottom left), the GPX export
+named after the active route, the designer preview's Start label and the GPX import fallbacks
+localized.
+
 ## Numbered phases 0-9: all implemented
 
 Recorded here for accuracy (Phases 4-8 were built during the overnight and Phase R work but never

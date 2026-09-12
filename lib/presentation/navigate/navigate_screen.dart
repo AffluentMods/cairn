@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math' as math;
 
@@ -165,8 +166,63 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
 
   Future<void> _onStyleLoaded(MapLibreMapController c) async {
     await _syncRoute();
+    await _syncTrack();
     await _installUserWaypoints(c);
     if (_pendingFit) await _tryFit();
+  }
+
+  /// Debug builds with the route simulator on: the native puck still shows
+  /// the device, so draw a marker at the simulated fix and move the camera
+  /// there while following (Fix Pass 1 X2.8).
+  Circle? _simPuck;
+
+  Future<void> _syncSimPuck() async {
+    final c = _c;
+    if (c == null || !_isActiveTab) return;
+    final rec = ref.read(recordingProvider);
+    final lat = rec.currentLat;
+    final lon = rec.currentLon;
+    try {
+      if (!rec.isActive || !rec.simulated || lat == null || lon == null) {
+        if (_simPuck != null) {
+          await c.removeCircle(_simPuck!);
+          _simPuck = null;
+        }
+        return;
+      }
+      final options = CircleOptions(
+        geometry: LatLng(lat, lon),
+        circleRadius: 9,
+        circleColor: '#2E90FA',
+        circleStrokeColor: '#FFFFFF',
+        circleStrokeWidth: 3,
+      );
+      if (_simPuck == null) {
+        _simPuck = await c.addCircle(options);
+      } else {
+        await c.updateCircle(_simPuck!, options);
+      }
+      if (_follow) await c.moveCamera(CameraUpdate.newLatLng(LatLng(lat, lon)));
+    } catch (_) {
+      // disposed controller between tabs
+    }
+  }
+
+  /// The traveled path while recording (the style's teal `track` layer above
+  /// the route), cleared when idle.
+  Future<void> _syncTrack() async {
+    final c = _c;
+    if (c == null || !_isActiveTab) return;
+    final rec = ref.read(recordingProvider);
+    final points = rec.isActive ? rec.trackPoints : const <List<double>>[];
+    try {
+      await c.setGeoJsonSource(
+        'cairn-track',
+        points.length >= 2 ? lineToGeoJson(points) : emptyFeatureCollection(),
+      );
+    } catch (_) {
+      // disposed controller between tabs
+    }
   }
 
   Future<void> _installUserWaypoints(MapLibreMapController c) async {
@@ -212,6 +268,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     if (c == null) return;
     if (ref.read(dropWaypointModeProvider)) {
       ref.read(dropWaypointModeProvider.notifier).state = false;
+      unawaited(HapticFeedback.lightImpact()); // the pin landed (Section 9.7)
       await showWaypointEditor(context,
           lat: latLng.latitude, lon: latLng.longitude);
       return;
@@ -323,7 +380,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final pins =
         ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
     final gpx = exportRouteGpx(
-      name: 'Cairn route',
+      name: ref.read(activeRouteNameProvider) ?? context.l10n.routeUnnamed,
       geometry: state.polyline,
       elevations: [for (final p in state.stats.profile) p.elevM],
       waypoints: [
@@ -551,7 +608,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
 
     showConditions(
       context,
-      name: context.l10n.tabNavigate,
+      name: ref.read(activeRouteNameProvider) ?? context.l10n.routeUnnamed,
       routePolyline: poly,
       trailheadLat: poly.first[0],
       trailheadLon: poly.first[1],
@@ -605,6 +662,15 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
         startDist > 1609;
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
+    ref.listen(
+      recordingProvider.select((s) => (s.trackVersion, s.isActive)),
+      (_, __) => _syncTrack(),
+    );
+    ref.listen(
+      recordingProvider.select((s) => (s.fixSeq, s.simulated, s.isActive)),
+      (_, __) => _syncSimPuck(),
+    );
+    final simulated = ref.watch(recordingProvider.select((s) => s.simulated));
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
     ref.listen(userWaypointsProvider, (_, __) => _refreshUserWaypoints());
     ref.listen(fitRouteProvider, (_, __) {
@@ -618,7 +684,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
           CairnMap(
             tabIndex: ShellTab.navigate,
             myLocationEnabled: locationEnabled || recording,
-            trackingMode: recording && _follow
+            trackingMode: recording && _follow && !simulated
                 ? MyLocationTrackingMode.trackingCompass
                 : MyLocationTrackingMode.none,
             onCameraTrackingDismissed: recording
@@ -1064,7 +1130,7 @@ class _RecordingSheet extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: theme.textTheme.titleSmall,
               )
-            else if (following)
+            else if (following && state.routeKnown)
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -1077,6 +1143,13 @@ class _RecordingSheet extends ConsumerWidget {
                   Text(
                       state.onRoute ? l10n.recordOnRoute : l10n.recordOffRoute),
                 ],
+              )
+            else if (following)
+              Text(
+                l10n.recordWaitingGps,
+                textAlign: TextAlign.center,
+                style: theme.textTheme.bodySmall
+                    ?.copyWith(color: scheme.onSurfaceVariant),
               )
             else
               const SizedBox(height: 20),

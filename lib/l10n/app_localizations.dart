@@ -478,6 +478,12 @@ abstract class AppLocalizations {
   /// **'Off route'**
   String get recordOffRoute;
 
+  /// No description provided for @recordWaitingGps.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for a good GPS fix'**
+  String get recordWaitingGps;
+
   /// No description provided for @recordToGo.
   ///
   /// In en, this message translates to:

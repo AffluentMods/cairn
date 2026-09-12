@@ -23,13 +23,19 @@ abstract final class RecordingCommand {
   static const mute = 'mute';
   static const snapshot = 'snapshot';
   static const profile = 'profile';
+
+  /// Asks for every accepted fix so far (the traveled path on the map after
+  /// the app re-attaches).
+  static const polyline = 'polyline';
 }
 
 /// Messages the task sends the main isolate, JSON-encoded: `snapshot` carries
-/// a [RecordingSnapshot] under `data` plus the active `profile`; `stop` means
-/// the hiker pressed Stop on the notification.
+/// a [RecordingSnapshot] under `data` plus the active `profile`; `polyline`
+/// carries `[[lat, lon], ...]`; `stop` means the hiker pressed Stop on the
+/// notification.
 abstract final class RecordingMessage {
   static const snapshot = 'snapshot';
+  static const polyline = 'polyline';
   static const stop = 'stop';
 }
 
@@ -330,6 +336,18 @@ class RecordingTaskHandler extends TaskHandler {
         }
       case RecordingCommand.snapshot:
         break;
+      case RecordingCommand.polyline:
+        FlutterForegroundTask.sendDataToMain(jsonEncode({
+          'type': RecordingMessage.polyline,
+          'data': [
+            for (final p in engine.points)
+              [
+                double.parse(p.lat.toStringAsFixed(6)),
+                double.parse(p.lon.toStringAsFixed(6)),
+              ],
+          ],
+        }));
+        return;
     }
     _appendLog(engine.drainLogLines());
     _pushSnapshot();
