@@ -26,13 +26,45 @@ void main() {
     final b = splitDashLayer(layers, 'route', 'route-offtrail', 'offTrail');
     final c = ensureLayerAfter(layers, 'route-offtrail', routeArrowsLayer());
     final d = sizeFirePoints(layers);
+    final e = fixLabelFonts(style, layers);
     style['layers'] = layers;
     file.writeAsStringSync(
         '${const JsonEncoder.withIndent('  ').convert(style)}\n');
     stdout.writeln('${file.path}: trails ${a ? "split" : "ok"}, '
         'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}, '
-        'fire size ${d ? "set" : "ok"}');
+        'fire size ${d ? "set" : "ok"}, fonts ${e ? "fixed" : "ok"}');
   }
+}
+
+/// The glyph server every style can use for labels (the vector styles
+/// already point here). The raster styles had none, and no Cairn symbol layer
+/// named a `text-font`, so MapLibre asked for its default "Open Sans
+/// Regular,Arial Unicode MS Regular" stack, got a 404, and never rendered the
+/// POI layer at all (icons included). Returns true when changed.
+const glyphsUrl = 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf';
+const labelFont = ['Noto Sans Regular'];
+
+bool fixLabelFonts(
+  Map<String, dynamic> style,
+  List<Map<String, dynamic>> layers,
+) {
+  var changed = false;
+  if (style['glyphs'] != glyphsUrl) {
+    style['glyphs'] = glyphsUrl;
+    changed = true;
+  }
+  for (final layer in layers) {
+    if (layer['type'] != 'symbol') continue;
+    final source = layer['source'];
+    if (source is! String || !source.startsWith('cairn-')) continue;
+    final layout = (layer['layout'] as Map?)?.cast<String, dynamic>() ?? {};
+    if (!layout.containsKey('text-field')) continue;
+    if (jsonEncode(layout['text-font']) == jsonEncode(labelFont)) continue;
+    layout['text-font'] = labelFont;
+    layer['layout'] = layout;
+    changed = true;
+  }
+  return changed;
 }
 
 /// Flame icons sized by acres on a log scale (spec Phase 7). `sizeIdx` is

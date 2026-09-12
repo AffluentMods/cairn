@@ -5,6 +5,7 @@ import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
 import '../../domain/models/offline_region.dart';
+import '../../domain/usecases/water_along_route.dart';
 import '../saved/library_providers.dart';
 import 'route_editor_provider.dart';
 
@@ -61,6 +62,24 @@ List<double>? routeBboxOf(List<List<double>> poly) {
   }
   return [minLat, minLon, maxLat, maxLon];
 }
+
+/// Distances along the active route of the water sources near it, for the
+/// blue ticks on the elevation profile (spec Phase 8). Read from cached POIs
+/// only, so it is instant and offline.
+final routeWaterMarksProvider = FutureProvider<List<double>>((ref) async {
+  final poly = ref.watch(routeEditorProvider.select((s) => s.polyline));
+  final bbox = routeBboxOf(poly);
+  if (bbox == null) return const [];
+  final pois = await ref.read(poiRepositoryProvider).poisInBbox(
+    [bbox[0] - 0.003, bbox[1] - 0.003, bbox[2] + 0.003, bbox[3] + 0.003],
+  );
+  final water = waterAlongRoute(poly, [
+    for (final p in pois)
+      if (waterKinds.contains(p.kind))
+        WaterCandidate(lat: p.lat, lon: p.lon, kind: p.kind, name: p.name),
+  ]);
+  return [for (final w in water) w.distanceAlongM];
+});
 
 /// Whether a completed offline region already contains the active route, so the
 /// Download button becomes a quiet "Downloaded" label and Start turns gold

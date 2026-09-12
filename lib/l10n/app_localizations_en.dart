@@ -930,6 +930,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trailNavigate => 'Navigate this trail';
 
   @override
+  String get routeNavigate => 'Navigate this route';
+
+  @override
+  String get trackNavigate => 'Navigate this track';
+
+  @override
   String get trailSave => 'Save trail';
 
   @override

@@ -133,24 +133,36 @@ int poisSignature(List<PoiPoint> pois) {
   return hash;
 }
 
+/// Whether a cached POI earns a marker (spec Phase 2: springs, lakes, peaks,
+/// campsites, trailheads as icons). Streams and rivers stay in the cache for
+/// the water-along-route helper but never draw: the base map already draws
+/// them as lines, and a drop on every crossing buried the map. A lake shows
+/// only when it has a name, for the same reason.
+bool poiDrawsOnMap(PoiPoint p) => switch (p.kind) {
+      'stream' || 'river' => false,
+      'water' => p.name != null && p.name!.isNotEmpty,
+      _ => true,
+    };
+
 Map<String, dynamic> poisToGeoJson(List<PoiPoint> pois) {
   return {
     'type': 'FeatureCollection',
     'features': [
       for (final p in pois)
-        {
-          'type': 'Feature',
-          'properties': {
-            'id': p.id,
-            'kind': p.kind,
-            'icon': iconForKind(p.kind),
-            'name': p.name ?? '',
+        if (poiDrawsOnMap(p))
+          {
+            'type': 'Feature',
+            'properties': {
+              'id': p.id,
+              'kind': p.kind,
+              'icon': iconForKind(p.kind),
+              'name': p.name ?? '',
+            },
+            'geometry': {
+              'type': 'Point',
+              'coordinates': [p.lon, p.lat],
+            },
           },
-          'geometry': {
-            'type': 'Point',
-            'coordinates': [p.lon, p.lat],
-          },
-        },
     ],
   };
 }

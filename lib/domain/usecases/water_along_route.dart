@@ -28,6 +28,9 @@ class WaterPoint {
       );
 }
 
+/// POI kinds that count as water (spec Phase 8).
+const waterKinds = {'spring', 'drinking_water', 'stream', 'river', 'water'};
+
 /// A candidate water POI for [waterAlongRoute].
 class WaterCandidate {
   const WaterCandidate({

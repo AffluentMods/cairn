@@ -416,6 +416,10 @@ class _OverlayRow extends ConsumerWidget {
       Coverage.france => l10n.coverageFranceOnly,
       Coverage.world => '',
     };
+    // Tiles not reaching the device (offline, service down): the switch stays
+    // usable and the row says so (Addendum A5).
+    final needsConnection =
+        on && ref.watch(overlayOfflineProvider).contains(def.key);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -433,6 +437,10 @@ class _OverlayRow extends ConsumerWidget {
               if (coverage.isNotEmpty) ...[
                 const SizedBox(width: 8),
                 _CoverageChip(text: coverage),
+              ],
+              if (needsConnection) ...[
+                const SizedBox(width: 8),
+                _CoverageChip(text: l10n.overlayNeedsConnection),
               ],
             ],
           ),

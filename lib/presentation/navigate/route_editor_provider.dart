@@ -156,6 +156,33 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
     state = state.copyWith(stats: stats, computing: false);
   }
 
+  /// Loads a saved route with its shaping waypoints, so Customize picks up
+  /// where the route was left. A route with too many stored points (an
+  /// imported GPX keeps every vertex) falls back to endpoints only, since a
+  /// marker per vertex is unusable.
+  Future<void> loadSavedRoute(
+    List<List<double>> geometry,
+    List<List<double>> waypoints,
+  ) async {
+    if (waypoints.length < 2 || waypoints.length > 20) {
+      return loadPolyline(geometry);
+    }
+    _history.clear();
+    state = RouteEditorState(
+      waypoints: [
+        for (final w in waypoints)
+          EditorWaypoint(lat: w[0], lon: w[1], onTrail: true),
+      ],
+      polyline: geometry,
+      computing: true,
+    );
+    final stats = await computeRouteStats(
+      geometry,
+      ref.read(elevationRepositoryProvider),
+    );
+    state = state.copyWith(stats: stats, computing: false);
+  }
+
   Future<void> recompute() async {
     final wps = state.waypoints;
     if (wps.length < 2) {

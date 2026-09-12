@@ -23,8 +23,6 @@ import '../../shared/inciweb_button.dart';
 import '../../shared/sparkline.dart';
 import '../../shared/time_ago.dart';
 
-const _waterKinds = {'spring', 'drinking_water', 'stream', 'river', 'water'};
-
 typedef _PanelData = ({
   ConditionsBundle bundle,
   List<WaterPoint> water,
@@ -140,7 +138,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
     final pois = await ref.read(poiRepositoryProvider).poisInBbox(widget.bbox);
     final candidates = [
       for (final p in pois)
-        if (_waterKinds.contains(p.kind))
+        if (waterKinds.contains(p.kind))
           WaterCandidate(lat: p.lat, lon: p.lon, kind: p.kind, name: p.name),
     ];
     final water = waterAlongRoute(

@@ -11,6 +11,18 @@ import 'tile_proxy.dart';
 
 const _kOverlayPref = 'map.overlays';
 
+/// Overlay keys whose tiles are not reaching the device right now (Addendum
+/// A5: "network overlays stay toggleable but show the subtitle chip"). Fed by
+/// the tile proxy, so only proxied overlays report; a direct XYZ overlay has
+/// no failure signal from MapLibre.
+final overlayOfflineProvider = StateProvider<Set<String>>((ref) {
+  final proxy = TileProxy.instance;
+  void sync() => ref.controller.state = proxy.offline.value;
+  proxy.offline.addListener(sync);
+  ref.onDispose(() => proxy.offline.removeListener(sync));
+  return proxy.offline.value;
+});
+
 /// Tracks which raster overlays are on (persisted) and installs or removes them
 /// on the live MapLibre controller. Overlays are reinstalled on every style
 /// load (Addendum A5.3) and live ones (radar) refresh on their interval.

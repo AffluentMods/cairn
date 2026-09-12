@@ -334,6 +334,8 @@
   "@exploreDistanceAway": { "placeholders": { "distance": { "type": "String" } } },
   "exploreEmpty": "No trails in this area yet. Zoom in or pan to load them.",
   "trailNavigate": "Navigate this trail",
+  "routeNavigate": "Navigate this route",
+  "trackNavigate": "Navigate this track",
   "trailSave": "Save trail",
   "trailUnsave": "Remove from saved",
   "trailLengthOneWay": "{distance} one way",

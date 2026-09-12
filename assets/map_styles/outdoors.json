@@ -6479,7 +6479,10 @@
           0,
           1.2
         ],
-        "text-optional": true
+        "text-optional": true,
+        "text-font": [
+          "Noto Sans Regular"
+        ]
       },
       "paint": {
         "text-halo-color": "#F6F3EC",

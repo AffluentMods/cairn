@@ -1744,6 +1744,18 @@ abstract class AppLocalizations {
   /// **'Navigate this trail'**
   String get trailNavigate;
 
+  /// No description provided for @routeNavigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate this route'**
+  String get routeNavigate;
+
+  /// No description provided for @trackNavigate.
+  ///
+  /// In en, this message translates to:
+  /// **'Navigate this track'**
+  String get trackNavigate;
+
   /// No description provided for @trailSave.
   ///
   /// In en, this message translates to:

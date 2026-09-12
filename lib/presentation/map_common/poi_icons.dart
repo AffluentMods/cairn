@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -32,10 +33,10 @@ Future<void> addCairnIcons(
   required Color accent,
   required Color track,
 }) async {
-  const size = 44;
+  const size = 56;
   for (final entry in _iconColors(accent, track).entries) {
     try {
-      final bytes = await _dotPng(entry.value, size);
+      final bytes = await _poiPng(entry.key, entry.value, size);
       await controller.addImage(entry.key, bytes);
     } catch (_) {
       // Non-fatal: the map still works without this one icon.
@@ -124,37 +125,149 @@ Future<Uint8List> _chevronPng(int size) async {
   return data!.buffer.asUint8List();
 }
 
-Future<Uint8List> _dotPng(Color color, int size) async {
+/// A POI marker: a white-rimmed disc in the kind's color with a simple white
+/// glyph that says what it is at a glance (spec Phase 2 "icons with labels"):
+/// a drop for water, a peak for summits, a tent for camps, a hut, a flag for
+/// trailheads, a fan for viewpoints, a flame for fires, and letters for the
+/// two amenities. Drawn here so every base map, raster ones included, gets
+/// the same set without a sprite sheet.
+Future<Uint8List> _poiPng(String kind, Color color, int size) async {
   final recorder = ui.PictureRecorder();
   final canvas = Canvas(recorder);
-  final center = Offset(size / 2, size / 2);
-  final radius = size / 2 - 4;
+  final s = size.toDouble();
+  final c = Offset(s / 2, s / 2);
+  final radius = s / 2 - 4;
 
-  // White outline for contrast on any basemap, then the colored fill.
-  canvas.drawCircle(
-    center,
-    radius + 2,
-    Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill,
-  );
-  canvas.drawCircle(
-    center,
-    radius,
-    Paint()
-      ..color = color
-      ..style = PaintingStyle.fill,
-  );
-  // A small darker core so overlapping dots stay legible.
-  canvas.drawCircle(
-    center,
-    radius * 0.34,
-    Paint()..color = Colors.white.withValues(alpha: 0.85),
-  );
+  canvas.drawCircle(c, radius + 2, Paint()..color = Colors.white);
+  canvas.drawCircle(c, radius, Paint()..color = color);
+
+  final glyph = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.fill;
+  final stroke = Paint()
+    ..color = Colors.white
+    ..style = PaintingStyle.stroke
+    ..strokeWidth = s * 0.07
+    ..strokeCap = StrokeCap.round
+    ..strokeJoin = StrokeJoin.round;
+  final u = s / 2; // one unit is half the icon
+  Offset p(double x, double y) => Offset(c.dx + x * u, c.dy + y * u);
+
+  switch (kind) {
+    case 'water':
+      final drop = Path()
+        ..moveTo(p(0, -0.52).dx, p(0, -0.52).dy)
+        ..quadraticBezierTo(p(0.5, 0.05).dx, p(0.5, 0.05).dy, p(0.34, 0.28).dx,
+            p(0.34, 0.28).dy)
+        ..arcToPoint(p(-0.34, 0.28), radius: Radius.circular(0.36 * u))
+        ..quadraticBezierTo(
+            p(-0.5, 0.05).dx, p(-0.5, 0.05).dy, p(0, -0.52).dx, p(0, -0.52).dy)
+        ..close();
+      canvas.drawPath(drop, glyph);
+    case 'peak':
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.5, 0.36).dx, p(-0.5, 0.36).dy)
+          ..lineTo(p(0, -0.46).dx, p(0, -0.46).dy)
+          ..lineTo(p(0.5, 0.36).dx, p(0.5, 0.36).dy)
+          ..close(),
+        glyph,
+      );
+    case 'saddle':
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.52, -0.3).dx, p(-0.52, -0.3).dy)
+          ..quadraticBezierTo(
+              p(0, 0.55).dx, p(0, 0.55).dy, p(0.52, -0.3).dx, p(0.52, -0.3).dy),
+        stroke,
+      );
+    case 'camp':
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.55, 0.38).dx, p(-0.55, 0.38).dy)
+          ..lineTo(p(0, -0.45).dx, p(0, -0.45).dy)
+          ..lineTo(p(0.55, 0.38).dx, p(0.55, 0.38).dy)
+          ..close(),
+        glyph,
+      );
+      // The door, in the disc color.
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.16, 0.38).dx, p(-0.16, 0.38).dy)
+          ..lineTo(p(0, 0.05).dx, p(0, 0.05).dy)
+          ..lineTo(p(0.16, 0.38).dx, p(0.16, 0.38).dy)
+          ..close(),
+        Paint()..color = color,
+      );
+    case 'hut':
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.55, -0.05).dx, p(-0.55, -0.05).dy)
+          ..lineTo(p(0, -0.5).dx, p(0, -0.5).dy)
+          ..lineTo(p(0.55, -0.05).dx, p(0.55, -0.05).dy)
+          ..close(),
+        glyph,
+      );
+      canvas.drawRect(Rect.fromPoints(p(-0.38, -0.05), p(0.38, 0.42)), glyph);
+    case 'trailhead':
+      canvas.drawLine(p(-0.25, -0.5), p(-0.25, 0.48), stroke);
+      canvas.drawPath(
+        Path()
+          ..moveTo(p(-0.22, -0.5).dx, p(-0.22, -0.5).dy)
+          ..lineTo(p(0.42, -0.25).dx, p(0.42, -0.25).dy)
+          ..lineTo(p(-0.22, 0.0).dx, p(-0.22, 0.0).dy)
+          ..close(),
+        glyph,
+      );
+    case 'viewpoint':
+      // A fan of sight lines from a point, the classic viewpoint mark.
+      for (final a in [-0.45, -0.22, 0.0, 0.22, 0.45]) {
+        canvas.drawLine(
+          p(0, 0.4),
+          p(math.sin(a * 1.4) * 0.55, 0.4 - math.cos(a * 1.4) * 0.85),
+          stroke,
+        );
+      }
+    case 'fire':
+      final flame = Path()
+        ..moveTo(p(0, -0.55).dx, p(0, -0.55).dy)
+        ..cubicTo(p(0.55, -0.1).dx, p(0.55, -0.1).dy, p(0.5, 0.35).dx,
+            p(0.5, 0.35).dy, p(0, 0.5).dx, p(0, 0.5).dy)
+        ..cubicTo(p(-0.5, 0.35).dx, p(-0.5, 0.35).dy, p(-0.4, 0).dx,
+            p(-0.4, 0).dy, p(-0.12, -0.2).dx, p(-0.12, -0.2).dy)
+        ..cubicTo(p(-0.05, -0.05).dx, p(-0.05, -0.05).dy, p(0.15, -0.15).dx,
+            p(0.15, -0.15).dy, p(0, -0.55).dx, p(0, -0.55).dy)
+        ..close();
+      canvas.drawPath(flame, glyph);
+    case 'parking':
+      _glyphText(canvas, 'P', c, s * 0.62);
+    case 'toilets':
+      _glyphText(canvas, 'WC', c, s * 0.36);
+    default:
+      canvas.drawCircle(c, radius * 0.34, glyph);
+  }
 
   final picture = recorder.endRecording();
   final image = await picture.toImage(size, size);
   final data = await image.toByteData(format: ui.ImageByteFormat.png);
   image.dispose();
   return data!.buffer.asUint8List();
+}
+
+void _glyphText(Canvas canvas, String text, Offset center, double fontSize) {
+  final painter = TextPainter(
+    text: TextSpan(
+      text: text,
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: fontSize,
+        fontWeight: FontWeight.w800,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  painter.paint(
+    canvas,
+    Offset(center.dx - painter.width / 2, center.dy - painter.height / 2),
+  );
 }

@@ -1581,7 +1581,12 @@ class _LoadedSheet extends ConsumerWidget {
                   : null,
             ),
             const SizedBox(height: 12),
-            ElevationProfile(profile: profile, onScrub: onScrub),
+            ElevationProfile(
+              profile: profile,
+              onScrub: onScrub,
+              waterMarksM:
+                  ref.watch(routeWaterMarksProvider).valueOrNull ?? const [],
+            ),
             const SizedBox(height: 12),
             Row(
               children: [

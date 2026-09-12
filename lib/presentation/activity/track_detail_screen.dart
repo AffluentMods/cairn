@@ -4,6 +4,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -18,6 +19,8 @@ import '../map_common/basemaps/map_style.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/widgets/elevation_profile.dart';
+import '../navigate/navigate_providers.dart';
+import '../navigate/route_editor_provider.dart';
 import '../shared/empty_state.dart';
 import '../shared/stat_tile.dart';
 
@@ -42,6 +45,7 @@ class _DetailData {
     required this.stats,
     this.gpx,
     this.track,
+    this.waypoints = const [],
   });
   final String name;
   final List<List<double>> geometry;
@@ -50,6 +54,9 @@ class _DetailData {
 
   /// The recorded summary (times, calories, battery) for a track.
   final TrackSummary? track;
+
+  /// A saved route's shaping waypoints, restored into Customize.
+  final List<List<double>> waypoints;
 }
 
 class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
@@ -71,6 +78,9 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
           geometry: route.geometry,
           elevations: [for (final p in stats.profile) p.elevM],
         ),
+        waypoints: [
+          for (final w in route.waypoints) [w.lat, w.lon],
+        ],
       );
     } else {
       final track =
@@ -218,6 +228,21 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
                       if (data.track != null) _TrackRow(track: data.track!),
                       const SizedBox(height: 8),
                       ElevationProfile(profile: data.stats.profile),
+                      const SizedBox(height: 12),
+                      // The one gold element: take this line to Navigate
+                      // (Addendum A4.2 "opening a saved route").
+                      SizedBox(
+                        width: double.infinity,
+                        child: FilledButton.icon(
+                          onPressed: data.geometry.length < 2
+                              ? null
+                              : () => _navigate(data),
+                          icon: const Icon(Icons.navigation_outlined),
+                          label: Text(widget.kind == DetailKind.route
+                              ? l10n.routeNavigate
+                              : l10n.trackNavigate),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -227,6 +252,23 @@ class _TrackDetailScreenState extends ConsumerState<TrackDetailScreen> {
         },
       ),
     );
+  }
+
+  /// Loads the line as the active route (a saved route keeps its shaping
+  /// waypoints for Customize; a track becomes a route to follow), frames it,
+  /// and switches to Navigate.
+  Future<void> _navigate(_DetailData data) async {
+    final router = GoRouter.of(context);
+    final editor = ref.read(routeEditorProvider.notifier);
+    if (widget.kind == DetailKind.route) {
+      await editor.loadSavedRoute(data.geometry, data.waypoints);
+    } else {
+      await editor.loadPolyline(data.geometry);
+    }
+    ref.read(activeRouteNameProvider.notifier).state = data.name;
+    ref.read(routeStartDistanceProvider.notifier).state = null;
+    ref.read(fitRouteProvider.notifier).state++;
+    router.go('/navigate');
   }
 
   Future<void> _export(_DetailData data) async {

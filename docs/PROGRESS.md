@@ -463,7 +463,16 @@ snaps to trails you can see. Spec items filled in: elevation sparklines on Saved
 Activity track rows (Phase 4), the 3-day AQI sparkline (Phase 7), and camps along the route
 with the wilderness reminder (Phase 8, `campsites_along_route_test`). The "Section in view"
 chip (A4.1) now appears for trails over 30 mi, whose cards describe the clipped section
-(`nearby_trails_test`).
+(`nearby_trails_test`). Overlay rows show "Needs a connection" when the tile proxy cannot
+reach a service (A5), and water sources tick the Navigate profile's baseline (Phase 8). The
+saved route and track details gained the missing "Navigate this route / track" button (A4.2
+entry point), restoring a route's shaping waypoints into Customize.
+
+POI markers are now real glyph icons (drop, peak, tent, hut, flag, viewpoint fan, flame, P,
+WC), and in checking them the POI layer turned out never to have rendered on Android: no
+Cairn symbol layer named a `text-font`, MapLibre's default stack 404s on OpenFreeMap, and a
+failed glyph range blocks the whole layer. The style patch tool now sets `text-font` and a
+`glyphs` server (the raster styles had none) in every style.
 
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design

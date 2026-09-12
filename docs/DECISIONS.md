@@ -338,6 +338,33 @@ option that ships fastest and record it here.
   and carries the "Section in view" chip on its card and sheet; its length, gain, rating and
   Navigate line describe that section.** Reason: Addendum A4.1 item 2 (the PCT card); the
   clip is the same `clipToViewport` navigation already used for long trails.
+- **"Needs a connection" on an overlay row comes from the tile proxy: a proxied overlay whose
+  last upstream fetch failed (no route, 5xx) is flagged until a tile succeeds. Direct XYZ
+  overlays get no chip.** Reason: Addendum A5's offline overlay state; MapLibre gives Dart no
+  tile-failure signal, the proxy is the only place that sees one, and removing and re-adding
+  the layer buys nothing since a failed raster tile draws nothing anyway.
+- **Water sources draw as short blue ticks on the Navigate profile's baseline, from cached
+  POIs within 80 m of the route.** Reason: spec Phase 8 ("small blue ticks on the elevation
+  profile"), missing; the same `waterAlongRoute` as the conditions panel.
+- **Every Cairn symbol layer with a label names `text-font: ["Noto Sans Regular"]`, every
+  style (raster ones included) points `glyphs` at OpenFreeMap's font server, and POI markers
+  are drawn glyph icons (drop, peak, tent, hut, flag, fan, flame, P, WC) instead of colored
+  dots.** Reason: the `pois` layer never rendered on Android since Phase 2. With no
+  `text-font`, MapLibre requested its default "Open Sans Regular,Arial Unicode MS Regular"
+  stack, OpenFreeMap answered 404, and the failed glyph range kept every symbol in the layer,
+  icon included, from drawing (logcat: "Failed to load glyph range 0-255"). The raster styles
+  had no glyph server at all. Found while checking the new icons; the patch tool now enforces
+  both so a regenerated style cannot regress.
+- **Streams and rivers never draw as POI markers, and a lake draws only when named; all stay
+  cached for the water-along-route helper.** Reason: the first render of the POI layer put a
+  drop on every cached stream way (9,435 in the test cache) and buried Goat Rocks; the base
+  map already draws waterways as lines, and the spec's icon list is springs, lakes, peaks,
+  campsites and trailheads.
+- **The saved route and track detail screens end in a gold "Navigate this route" / "Navigate
+  this track" button; a saved route restores its shaping waypoints into Customize when it has
+  20 or fewer, else only its endpoints.** Reason: Addendum A4.2 lists "opening a saved route"
+  as a Navigate entry point, but nothing in the app loaded a saved route into Navigate; an
+  imported GPX stores every vertex as a waypoint, and a marker per vertex is unusable.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

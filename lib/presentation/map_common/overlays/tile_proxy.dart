@@ -2,6 +2,8 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart' show ValueNotifier;
+
 /// A tiny on-device tile proxy (Addendum A5.3). MapLibre Native does not
 /// substitute the `{bbox-epsg-3857}` token in a raster tile URL, so ArcGIS
 /// export overlays are served through here: it turns `{z}/{x}/{y}` into a Web
@@ -16,6 +18,17 @@ class TileProxy {
 
   HttpServer? _server;
   final Map<String, String> _templates = {};
+
+  /// Overlay keys whose last upstream fetch failed (offline, or the service
+  /// down). The layer sheet shows "Needs a connection" for these (Addendum
+  /// A5); a later successful tile clears the key.
+  final ValueNotifier<Set<String>> offline = ValueNotifier(const {});
+
+  void _markOffline(String key, bool failed) {
+    final current = offline.value;
+    if (failed == current.contains(key)) return;
+    offline.value = failed ? {...current, key} : ({...current}..remove(key));
+  }
 
   /// A random per-launch secret that must be the first path segment. Android
   /// does not isolate localhost between apps, so without it any app on the
@@ -81,12 +94,19 @@ class TileProxy {
           '${east.toStringAsFixed(2)},${north.toStringAsFixed(2)}';
       final url = template.replaceAll('{bbox-epsg-3857}', bbox);
 
-      final upstream = await (await _client.getUrl(Uri.parse(url))).close();
-      res.statusCode = upstream.statusCode;
-      res.headers.contentType = ContentType.parse(
-        upstream.headers.contentType?.mimeType ?? 'image/png',
-      );
-      await upstream.pipe(res);
+      try {
+        final upstream = await (await _client.getUrl(Uri.parse(url))).close();
+        res.statusCode = upstream.statusCode;
+        res.headers.contentType = ContentType.parse(
+          upstream.headers.contentType?.mimeType ?? 'image/png',
+        );
+        _markOffline(key, upstream.statusCode >= 500);
+        await upstream.pipe(res);
+      } on IOException {
+        // No route to the service: the tile fails and the sheet says so.
+        _markOffline(key, true);
+        rethrow;
+      }
     } catch (_) {
       try {
         res.statusCode = HttpStatus.internalServerError;

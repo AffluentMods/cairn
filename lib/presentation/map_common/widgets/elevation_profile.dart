@@ -113,10 +113,15 @@ class ElevationProfile extends ConsumerStatefulWidget {
     required this.profile,
     this.onScrub,
     this.progressDistanceM,
+    this.waterMarksM = const [],
     super.key,
   });
 
   final List<ProfilePoint> profile;
+
+  /// Distances along the route of water sources, drawn as small blue ticks
+  /// on the baseline (spec Phase 8).
+  final List<double> waterMarksM;
 
   /// Called with the scrubbed distance (meters), or null when the touch ends.
   final ValueChanged<double?>? onScrub;
@@ -199,6 +204,11 @@ class _ElevationProfileState extends ConsumerState<ElevationProfile> {
                     view: view,
                     scrubX: _scrubX,
                     progressX: progressX,
+                    waterX: [
+                      if (total > 0)
+                        for (final d in widget.waterMarksM)
+                          (d / total).clamp(0.0, 1.0) * w,
+                    ],
                     textColor: theme.colorScheme.onSurfaceVariant,
                     neutralColor: theme.colorScheme.onSurfaceVariant,
                     accentColor: theme.colorScheme.primary,
@@ -223,11 +233,13 @@ class _ProfilePainter extends CustomPainter {
     required this.accentColor,
     required this.formatElev,
     this.progressX,
+    this.waterX = const [],
   });
 
   final ProfileView view;
   final double? scrubX;
   final double? progressX;
+  final List<double> waterX;
   final Color textColor;
   final Color neutralColor;
   final Color accentColor;
@@ -300,6 +312,18 @@ class _ProfilePainter extends CustomPainter {
           ..strokeWidth = 2.5,
       );
       runStart = runEnd;
+    }
+
+    // Water sources as short blue ticks rising from the baseline (Phase 8).
+    if (waterX.isNotEmpty) {
+      final tick = Paint()
+        ..color = AppColors.water
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.round;
+      for (final x in waterX) {
+        canvas.drawLine(
+            Offset(x, size.height), Offset(x, size.height - 8), tick);
+      }
     }
 
     // Min and max labels in the right gutter: max at the top, min at the

@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'package:cairn/domain/models/poi.dart';
 import 'package:cairn/domain/models/trail.dart';
 import 'package:cairn/presentation/map_common/map_geojson.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -57,6 +58,28 @@ void main() {
       final trails = [_trail(1, name: 'A')];
       // z9 is the named-only bucket, z14 is not.
       expect(trailsSignature(trails, 9), isNot(trailsSignature(trails, 14)));
+    });
+  });
+
+  group('poisToGeoJson', () {
+    test('draws springs, peaks and named lakes but never streams', () {
+      const pois = [
+        PoiPoint(id: 'n1', kind: 'spring', lat: 46.4, lon: -121.4),
+        PoiPoint(id: 'w2', kind: 'stream', lat: 46.41, lon: -121.4),
+        PoiPoint(id: 'w3', kind: 'river', lat: 46.42, lon: -121.4),
+        PoiPoint(id: 'w4', kind: 'water', lat: 46.43, lon: -121.4),
+        PoiPoint(
+            id: 'w5',
+            kind: 'water',
+            lat: 46.44,
+            lon: -121.4,
+            name: 'Goat Lake'),
+        PoiPoint(id: 'n6', kind: 'peak', lat: 46.45, lon: -121.4, name: 'Pk'),
+      ];
+      final features = poisToGeoJson(pois)['features'] as List;
+      final ids = [for (final f in features) f['properties']['id']];
+      expect(ids, ['n1', 'w5', 'n6']);
+      expect(features.first['properties']['icon'], 'water');
     });
   });
 }
