@@ -316,3 +316,23 @@ Needs the physical phone (the source of truth) and is the only Fix Pass 1 work l
   memory < 350 MB, zero ANRs).
 - 3D rendering (emulator WebView has no WebGL) and the Recenter pill's pan-triggered appearance
   (synthetic swipes don't fire the MapLibre dismiss callback).
+
+## Numbered phases 0-9: all implemented
+
+Recorded here for accuracy (Phases 4-8 were built during the overnight and Phase R work but never
+got their own PROGRESS entry). Every numbered phase is implemented in code, with unit tests:
+
+- Phase 0 scaffold, 1 map core, 2 trails/POIs, 3 route planner, 9 settings/privacy: marked DONE above.
+- Phase 4 GPX import/export + Library: `lib/data/gpx/` (gpx_codec, gpx_importer), share via
+  share_plus; `gpx_codec_test`.
+- Phase 5 offline regions: `offline_repository_impl`, `offline_estimate` + Navigate Download;
+  `offline_estimate_test`.
+- Phase 6 track recording: `recording_provider`, `recording_service` (foreground service),
+  Naismith/Pandolf; `recording_test`. Extended in Fix Pass 1 with follow mode + the simulator.
+- Phase 7 conditions overlays: NWS/NIFC/Open-Meteo sources, `overlay_registry` + the tile proxy,
+  `water_along_route`; `water_along_route_test`.
+- Phase 8 Affluent Labs proxy: `affluent_proxy_source` + the Settings "Data proxy URL".
+
+Phase 10 and beyond is backlog and needs the user before starting (CLAUDE.md). On-device
+acceptance of each phase on the physical phone is the remaining verification, tracked with the
+Fix Pass 1 X1.5 scripted session.
