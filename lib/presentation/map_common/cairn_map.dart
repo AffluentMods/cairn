@@ -116,6 +116,14 @@ class _CairnMapState extends ConsumerState<CairnMap> {
     }
   }
 
+  void _onMapClick(math.Point<double> point, LatLng coords) =>
+      widget.onMapClick?.call(point, coords);
+
+  void _onMapLongClick(math.Point<double> point, LatLng coords) =>
+      widget.onMapLongClick?.call(point, coords);
+
+  void _onCameraTrackingDismissed() => widget.onCameraTrackingDismissed?.call();
+
   Future<void> _onCameraIdle() async {
     final c = _controller;
     if (c == null || !mounted) return;
@@ -160,9 +168,12 @@ class _CairnMapState extends ConsumerState<CairnMap> {
           onMapCreated: _onCreated,
           onStyleLoadedCallback: _onStyleLoaded,
           onCameraIdle: _onCameraIdle,
-          onCameraTrackingDismissed: widget.onCameraTrackingDismissed,
-          onMapClick: widget.onMapClick,
-          onMapLongClick: widget.onMapLongClick,
+          // MapLibreMap captures these callbacks once, when the platform view
+          // is created, and ignores later widget updates; route them through
+          // the state so a mode switch (customize, record) takes effect.
+          onCameraTrackingDismissed: _onCameraTrackingDismissed,
+          onMapClick: _onMapClick,
+          onMapLongClick: _onMapLongClick,
           attributionButtonPosition: AttributionButtonPosition.bottomLeft,
         ),
         if (!_styleLoaded)

@@ -51,6 +51,44 @@ Future<void> addCairnIcons(
   }
 }
 
+/// A numbered route waypoint marker: a [fill] disc with a dark rim and the
+/// number in [ink]. Drawn as an image because MapLibre Native refuses the
+/// annotation manager's data-driven `text-font`, so symbol text never shows
+/// on Android, and a raster base map has no glyphs to draw text with anyway.
+Future<Uint8List> waypointIconPng(
+  int number, {
+  required Color fill,
+  required Color ink,
+  int size = 56,
+}) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final s = size.toDouble();
+  final center = Offset(s / 2, s / 2);
+  canvas.drawCircle(center, s / 2 - 2, Paint()..color = ink);
+  canvas.drawCircle(center, s / 2 - 6, Paint()..color = fill);
+  final painter = TextPainter(
+    text: TextSpan(
+      text: '$number',
+      style: TextStyle(
+        color: ink,
+        fontSize: number >= 10 ? s * 0.38 : s * 0.46,
+        fontWeight: FontWeight.w700,
+      ),
+    ),
+    textDirection: TextDirection.ltr,
+  )..layout();
+  painter.paint(
+    canvas,
+    Offset(center.dx - painter.width / 2, center.dy - painter.height / 2),
+  );
+  final picture = recorder.endRecording();
+  final image = await picture.toImage(size, size);
+  final data = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  return data!.buffer.asUint8List();
+}
+
 /// A right-pointing chevron (the line's direction is 0 degrees for a symbol
 /// placed along it), with a light outline.
 Future<Uint8List> _chevronPng(int size) async {

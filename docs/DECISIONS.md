@@ -297,6 +297,30 @@ option that ships fastest and record it here.
   (Leavenworth at z13) that drew a lattice of brown sidewalk lines over the map and filled
   "Trails in view" with street furniture. They are not trails in any hiking sense, and dropping
   them shrinks the cells too.
+- **Waypoint drag uses MapLibre's draggable symbol annotations (long press a number, drag,
+  release); a tap within 24 px of the route line inserts a waypoint into that leg, found by
+  bracketing the tap between the waypoints' positions along the line; undo and redo are one
+  `EditHistory` value capped at 20.** Reason: spec Phase 3 waypoint UX and Addendum A4.3
+  (Undo, Redo). Native annotation drag avoids fighting the map's pan gesture; the insert
+  tolerance is in screen pixels so it feels the same at every zoom.
+- **User pins draw on Explore too (same runtime source and circle layer as Navigate), and a
+  tap opens the editor.** Reason: Addendum A4.5 puts the source in every style; a water
+  source or camp the user marked is planning information, not only navigation information.
+- **CairnMap routes `onMapClick`, `onMapLongClick` and `onCameraTrackingDismissed` through
+  its own state methods that read the current widget callback.** Reason: `MapLibreMap`
+  captures those callbacks once when the platform view is created and ignores later widget
+  updates, so switching Navigate into customize mode never changed what a tap did: the map
+  kept calling the non-edit handler and "Customize route" could not add a single waypoint
+  from a map created outside edit mode. Found with the route editor work.
+- **Route waypoint numbers are images (`wp-1`, `wp-2`, ...) in a runtime symbol layer, and the
+  drag handles are circle annotations underneath them in edit mode.** Reason: MapLibre Native
+  rejects the annotation manager's data-driven `text-font` ("output values must be literals"),
+  so `SymbolOptions(textField:)` numbers never rendered on Android, and the raster base maps
+  (topo, satellite) have no glyphs to render text with at all. Images work on every style.
+- **Explore resets its trail and POI source signatures on every style load.** Reason: the
+  signatures skip re-sending an unchanged set (Fix Pass 1 X1.3.4), but a tab switch creates a
+  new map with empty sources; keeping the old signature meant Explore came back from Navigate
+  with no trails drawn until the view changed.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

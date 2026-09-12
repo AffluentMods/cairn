@@ -14,19 +14,23 @@ import 'package:uuid/uuid.dart';
 import '../../core/geo/resample.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
+import '../../core/theme/app_colors.dart';
 import '../../core/theme/cairn_colors.dart';
+import '../../core/theme/theme_codec.dart';
 import '../../core/units/unit_formatter.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
 import '../../data/gpx/gpx_codec.dart';
 import '../../domain/models/offline_region.dart';
 import '../../domain/models/route_plan.dart';
+import '../../domain/usecases/edit_geometry.dart';
 import '../../domain/usecases/offline_estimate.dart';
 import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/camera_provider.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_providers.dart';
+import '../map_common/poi_icons.dart';
 import '../map_common/widgets/elevation_profile.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
@@ -107,10 +111,51 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     }
   }
 
+  /// Drag handle (circle annotation) id to waypoint index, for drag events.
+  final _handleIndex = <String, int>{};
+  final _handles = <Circle>[];
+
+  /// Waypoint marker images registered on the current style.
+  final _markerIcons = <String>{};
+
+  /// The controller whose drag events are already hooked.
+  MapLibreMapController? _dragHooked;
+
+  /// The numbered markers live in their own source and symbol layer, drawn
+  /// as images (see waypointIconPng). Installed once per style.
+  Future<void> _installWaypointLayer(MapLibreMapController c) async {
+    _markerIcons.clear();
+    try {
+      await c.addSource(
+        'cairn-waypoints',
+        const GeojsonSourceProperties(
+          data: {'type': 'FeatureCollection', 'features': <dynamic>[]},
+        ),
+      );
+      await c.addSymbolLayer(
+        'cairn-waypoints',
+        'waypoint-markers',
+        const SymbolLayerProperties(
+          iconImage: ['get', 'icon'],
+          iconAllowOverlap: true,
+          iconIgnorePlacement: true,
+        ),
+        enableInteraction: false,
+      );
+    } catch (_) {
+      // Already on this style.
+    }
+  }
+
   Future<void> _syncRoute() async {
     final c = _c;
     if (c == null || !_isActiveTab) return;
     final state = ref.read(routeEditorProvider);
+    final editing = ref.read(editModeProvider);
+    final colors = context.cairn;
+    // Added images render at their pixel size over the device ratio, so a
+    // 28 dp marker needs 28 physical pixels per dp of density.
+    final markerPx = (28 * MediaQuery.devicePixelRatioOf(context)).round();
     // The shared controller can belong to a map that was just disposed on a
     // tab switch; the next onStyleLoaded re-syncs, so a failure here is not
     // an error worth surfacing.
@@ -119,22 +164,105 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
         'cairn-route',
         lineToGeoJson(state.polyline, offTrail: state.hasOffTrailLeg),
       );
-      await c.clearSymbols();
-      for (var i = 0; i < state.waypoints.length; i++) {
-        final w = state.waypoints[i];
-        await c.addSymbol(
-          SymbolOptions(
-            geometry: LatLng(w.lat, w.lon),
-            textField: '${i + 1}',
-            textColor: '#0E1412',
-            textHaloColor: '#F6F3EC',
-            textHaloWidth: 1.6,
-            textSize: 14,
-          ),
-        );
+      for (var i = 1; i <= state.waypoints.length; i++) {
+        final name = 'wp-$i';
+        if (_markerIcons.add(name)) {
+          await c.addImage(
+            name,
+            await waypointIconPng(
+              i,
+              fill: colors.accent,
+              ink: AppColors.inkDeep,
+              size: markerPx,
+            ),
+          );
+        }
+      }
+      await c.setGeoJsonSource('cairn-waypoints', {
+        'type': 'FeatureCollection',
+        'features': [
+          for (var i = 0; i < state.waypoints.length; i++)
+            {
+              'type': 'Feature',
+              'properties': {'icon': 'wp-${i + 1}'},
+              'geometry': {
+                'type': 'Point',
+                'coordinates': [state.waypoints[i].lon, state.waypoints[i].lat],
+              },
+            },
+        ],
+      });
+      // While customizing, each marker sits on a draggable circle: a long
+      // press picks it up (spec Phase 3 waypoint UX) and the drop lands in
+      // moveWaypoint. The circles are annotations, drawn under the markers.
+      if (_handles.isNotEmpty) await c.removeCircles(List.of(_handles));
+      _handles.clear();
+      _handleIndex.clear();
+      if (editing) {
+        for (var i = 0; i < state.waypoints.length; i++) {
+          final w = state.waypoints[i];
+          final handle = await c.addCircle(
+            CircleOptions(
+              geometry: LatLng(w.lat, w.lon),
+              circleRadius: 14,
+              circleColor: hexOf(colors.accent),
+              circleStrokeColor: '#0E1412',
+              circleStrokeWidth: 2,
+              draggable: true,
+            ),
+          );
+          _handles.add(handle);
+          _handleIndex[handle.id] = i;
+        }
       }
     } catch (_) {
       // disposed controller between tabs
+    }
+  }
+
+  void _hookDrag(MapLibreMapController c) {
+    if (identical(_dragHooked, c)) return;
+    _dragHooked = c;
+    c.onFeatureDrag.add(_onFeatureDrag);
+  }
+
+  void _onFeatureDrag(
+    dynamic id, {
+    required math.Point<double> point,
+    required LatLng origin,
+    required LatLng current,
+    required LatLng delta,
+    required DragEventType eventType,
+  }) {
+    if (eventType != DragEventType.end) return;
+    final index = _handleIndex[id.toString()];
+    if (index == null || !ref.read(editModeProvider)) return;
+    unawaited(HapticFeedback.selectionClick());
+    unawaited(ref
+        .read(routeEditorProvider.notifier)
+        .moveWaypoint(index, current.latitude, current.longitude));
+  }
+
+  /// A tap while customizing: on the route line it inserts a waypoint into
+  /// that leg, anywhere else it appends one (spec Phase 3).
+  Future<void> _onEditTap(math.Point<double> point, LatLng latLng) async {
+    final state = ref.read(routeEditorProvider);
+    final zoom = _c?.cameraPosition?.zoom ?? 14;
+    final index = insertIndexForTap(
+      state.polyline,
+      [
+        for (final w in state.waypoints) [w.lat, w.lon]
+      ],
+      latLng.latitude,
+      latLng.longitude,
+      toleranceM: 24 * metersPerPixel(latLng.latitude, zoom),
+    );
+    final editor = ref.read(routeEditorProvider.notifier);
+    if (index != null) {
+      unawaited(HapticFeedback.lightImpact());
+      await editor.insertWaypoint(index, latLng.latitude, latLng.longitude);
+    } else {
+      await editor.addWaypoint(latLng.latitude, latLng.longitude);
     }
   }
 
@@ -166,6 +294,10 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   }
 
   Future<void> _onStyleLoaded(MapLibreMapController c) async {
+    _hookDrag(c);
+    _handles.clear();
+    _handleIndex.clear();
+    await _installWaypointLayer(c);
     await _syncRoute();
     await _syncTrack();
     await _installUserWaypoints(c);
@@ -688,6 +820,9 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
         startDist > 1609;
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
+    // Entering or leaving customize mode re-adds the numbers as draggable
+    // or fixed.
+    ref.listen(editModeProvider, (_, __) => _syncRoute());
     ref.listen(
       recordingProvider.select((s) => (s.trackVersion, s.isActive)),
       (_, __) => _syncTrack(),
@@ -719,11 +854,8 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                   }
                 : null,
             onStyleLoaded: _onStyleLoaded,
-            onMapClick: editing
-                ? (point, latLng) => ref
-                    .read(routeEditorProvider.notifier)
-                    .addWaypoint(latLng.latitude, latLng.longitude)
-                : (recording ? null : _onMapClickNav),
+            onMapClick:
+                editing ? _onEditTap : (recording ? null : _onMapClickNav),
             onMapLongClick: (editing || recording) ? null : _onLongPress,
           ),
 
@@ -1062,7 +1194,7 @@ class _EditStatsBar extends ConsumerWidget {
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            l10n.planEmpty,
+            has ? l10n.planEditHint : l10n.planEmpty,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

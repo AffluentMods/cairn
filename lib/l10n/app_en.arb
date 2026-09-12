@@ -44,6 +44,7 @@
   "planUndo": "Undo",
   "planRedo": "Redo",
   "planClear": "Clear",
+  "planEditHint": "Tap to add a waypoint. Tap the line to insert one. Hold a number to drag it.",
   "planNameHint": "Route name",
   "planOffTrail": "Off trail",
   "planEmpty": "Tap the map to drop a waypoint. Cairn snaps it to the nearest trail.",

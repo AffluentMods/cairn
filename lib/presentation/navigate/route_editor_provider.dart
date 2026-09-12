@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../data/data_providers.dart';
 import '../../domain/usecases/compute_route_stats.dart';
+import '../../domain/usecases/edit_history.dart';
 import '../../domain/usecases/snap_to_trail.dart';
 
 /// A tapped waypoint and whether it snapped to a trail.
@@ -24,6 +25,8 @@ class RouteEditorState {
     this.stats = RouteStats.empty,
     this.hasOffTrailLeg = false,
     this.computing = false,
+    this.canUndo = false,
+    this.canRedo = false,
   });
 
   final List<EditorWaypoint> waypoints;
@@ -31,6 +34,8 @@ class RouteEditorState {
   final RouteStats stats;
   final bool hasOffTrailLeg;
   final bool computing;
+  final bool canUndo;
+  final bool canRedo;
 
   bool get canSave => waypoints.length >= 2 && polyline.length >= 2;
 
@@ -40,6 +45,8 @@ class RouteEditorState {
     RouteStats? stats,
     bool? hasOffTrailLeg,
     bool? computing,
+    bool? canUndo,
+    bool? canRedo,
   }) {
     return RouteEditorState(
       waypoints: waypoints ?? this.waypoints,
@@ -47,48 +54,77 @@ class RouteEditorState {
       stats: stats ?? this.stats,
       hasOffTrailLeg: hasOffTrailLeg ?? this.hasOffTrailLeg,
       computing: computing ?? this.computing,
+      canUndo: canUndo ?? this.canUndo,
+      canRedo: canRedo ?? this.canRedo,
     );
   }
 }
 
 class RouteEditorNotifier extends Notifier<RouteEditorState> {
-  final _undo = <List<EditorWaypoint>>[];
+  final _history = EditHistory<List<EditorWaypoint>>();
 
   @override
   RouteEditorState build() => const RouteEditorState();
 
-  void _pushUndo() {
-    _undo.add(List.of(state.waypoints));
-    if (_undo.length > 20) _undo.removeAt(0);
+  /// Records the current waypoints as an undo step, then applies [next].
+  Future<void> _edit(List<EditorWaypoint> next) async {
+    _history.push(List.of(state.waypoints));
+    state = state.copyWith(waypoints: next, canUndo: true, canRedo: false);
+    await recompute();
   }
 
-  Future<void> addWaypoint(double lat, double lon) async {
-    _pushUndo();
-    state = state.copyWith(
-      waypoints: [
+  Future<void> addWaypoint(double lat, double lon) => _edit([
         ...state.waypoints,
         EditorWaypoint(lat: lat, lon: lon, onTrail: true),
-      ],
+      ]);
+
+  /// Inserts a waypoint at [index] (0 to length), for a tap on a route leg
+  /// (spec Phase 3); see `insertIndexForTap`.
+  Future<void> insertWaypoint(int index, double lat, double lon) {
+    final i = index.clamp(0, state.waypoints.length);
+    return _edit(
+      List.of(state.waypoints)
+        ..insert(i, EditorWaypoint(lat: lat, lon: lon, onTrail: true)),
+    );
+  }
+
+  /// Moves the waypoint at [index] to a new position (long-press drag).
+  Future<void> moveWaypoint(int index, double lat, double lon) {
+    if (index < 0 || index >= state.waypoints.length) return Future.value();
+    final next = List.of(state.waypoints);
+    next[index] = EditorWaypoint(lat: lat, lon: lon, onTrail: true);
+    return _edit(next);
+  }
+
+  Future<void> removeAt(int index) {
+    if (index < 0 || index >= state.waypoints.length) return Future.value();
+    return _edit(List.of(state.waypoints)..removeAt(index));
+  }
+
+  Future<void> undo() async {
+    final restored = _history.undo(List.of(state.waypoints));
+    if (restored == null) return;
+    state = state.copyWith(
+      waypoints: restored,
+      canUndo: _history.canUndo,
+      canRedo: _history.canRedo,
     );
     await recompute();
   }
 
-  Future<void> removeAt(int index) async {
-    if (index < 0 || index >= state.waypoints.length) return;
-    _pushUndo();
-    final next = List.of(state.waypoints)..removeAt(index);
-    state = state.copyWith(waypoints: next);
-    await recompute();
-  }
-
-  Future<void> undo() async {
-    if (_undo.isEmpty) return;
-    state = state.copyWith(waypoints: _undo.removeLast());
+  Future<void> redo() async {
+    final restored = _history.redo(List.of(state.waypoints));
+    if (restored == null) return;
+    state = state.copyWith(
+      waypoints: restored,
+      canUndo: _history.canUndo,
+      canRedo: _history.canRedo,
+    );
     await recompute();
   }
 
   void clear() {
-    _undo.clear();
+    _history.clear();
     state = const RouteEditorState();
   }
 
@@ -96,7 +132,7 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
   /// the geometry as the polyline, with stats (Addendum A4.1, "Navigate this
   /// trail"). Editing (tap to add) still works from here.
   Future<void> loadPolyline(List<List<double>> geometry) async {
-    _undo.clear();
+    _history.clear();
     if (geometry.length < 2) {
       state = const RouteEditorState();
       return;

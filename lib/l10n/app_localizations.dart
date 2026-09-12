@@ -298,6 +298,12 @@ abstract class AppLocalizations {
   /// **'Clear'**
   String get planClear;
 
+  /// No description provided for @planEditHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to add a waypoint. Tap the line to insert one. Hold a number to drag it.'**
+  String get planEditHint;
+
   /// No description provided for @planNameHint.
   ///
   /// In en, this message translates to:

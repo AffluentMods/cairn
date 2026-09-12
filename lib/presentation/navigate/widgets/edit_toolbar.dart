@@ -5,9 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/l10n_ext.dart';
 import '../route_editor_provider.dart';
 
-/// The edit-mode top bar (Addendum A4.3): Undo, Clear, and a gold Done. Slides
-/// in over the map while customizing a route; the sheet holds no gold element
-/// while editing so Done owns the accent.
+/// The edit-mode top bar (Addendum A4.3): Undo, Redo, Clear, and a gold Done.
+/// Slides in over the map while customizing a route; the sheet holds no gold
+/// element while editing so Done owns the accent.
 class EditToolbar extends ConsumerWidget {
   const EditToolbar({required this.onDone, super.key});
 
@@ -17,6 +17,9 @@ class EditToolbar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
+    final canUndo = ref.watch(routeEditorProvider.select((s) => s.canUndo));
+    final canRedo = ref.watch(routeEditorProvider.select((s) => s.canRedo));
+    final editor = ref.read(routeEditorProvider.notifier);
     return Material(
       color: scheme.surface,
       elevation: 3,
@@ -29,12 +32,17 @@ class EditToolbar extends ConsumerWidget {
               IconButton(
                 icon: const Icon(Icons.undo),
                 tooltip: l10n.planUndo,
-                onPressed: () => ref.read(routeEditorProvider.notifier).undo(),
+                onPressed: canUndo ? editor.undo : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.redo),
+                tooltip: l10n.planRedo,
+                onPressed: canRedo ? editor.redo : null,
               ),
               IconButton(
                 icon: const Icon(Icons.clear_all),
                 tooltip: l10n.navClear,
-                onPressed: () => ref.read(routeEditorProvider.notifier).clear(),
+                onPressed: editor.clear,
               ),
               const Spacer(),
               FilledButton.icon(

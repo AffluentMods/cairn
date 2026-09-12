@@ -9,6 +9,7 @@ import 'package:maplibre_gl/maplibre_gl.dart';
 import '../../core/geo/tile_math.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../data/data_providers.dart';
+import '../../data/db/app_database.dart';
 import '../../domain/models/fire_incident.dart';
 import '../../domain/repositories/trail_repository.dart';
 import '../map_common/cairn_map.dart';
@@ -17,6 +18,9 @@ import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
+import '../navigate/navigate_providers.dart';
+import '../navigate/user_waypoints_layer.dart';
+import '../navigate/widgets/waypoint_editor_sheet.dart';
 import '../shell/shell_providers.dart';
 import 'highlight_provider.dart';
 import 'nearby_trails_provider.dart';
@@ -64,9 +68,52 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   MapLibreMapController? get _controller => ref.read(mapControllerProvider);
 
   Future<void> _onStyleLoaded(MapLibreMapController c) async {
+    // A fresh style (tab switch, base-map change) starts with empty sources,
+    // so the "already sent" signatures must not skip the first fill.
+    _trailsSig = null;
+    _poisSig = null;
     await _installHighlight(c);
     await _applyHighlight();
+    await _installUserWaypoints(c);
     await _refreshOverlays();
+  }
+
+  /// The user's own pins (Addendum A4.5) show on Explore too, above the POIs,
+  /// so a saved water source or camp is visible while planning.
+  Future<void> _installUserWaypoints(MapLibreMapController c) async {
+    final wps =
+        ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
+    try {
+      await c.addSource(
+        'cairn-user-waypoints',
+        GeojsonSourceProperties(data: userWaypointsGeoJson(wps)),
+      );
+      await c.addCircleLayer(
+        'cairn-user-waypoints',
+        'user-waypoints-layer',
+        const CircleLayerProperties(
+          circleColor: ['get', 'color'],
+          circleRadius: 7.0,
+          circleStrokeColor: '#0E1412',
+          circleStrokeWidth: 2.0,
+        ),
+      );
+    } catch (_) {
+      await _refreshUserWaypoints();
+    }
+  }
+
+  Future<void> _refreshUserWaypoints() async {
+    final c = _controller;
+    if (c == null) return;
+    final wps =
+        ref.read(userWaypointsProvider).valueOrNull ?? const <UserWaypoint>[];
+    try {
+      await c.setGeoJsonSource(
+          'cairn-user-waypoints', userWaypointsGeoJson(wps));
+    } catch (_) {
+      // The source is installed on style load; a miss here is harmless.
+    }
   }
 
   /// Adds the "Show route" highlight source and its casing + line layers. They
@@ -236,6 +283,24 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final controller = _controller;
     if (controller == null) return;
     try {
+      // The user's own pin comes first: tapping it opens the editor.
+      final pinHits = await controller.queryRenderedFeatures(
+          point, ['user-waypoints-layer'], null);
+      if (pinHits.isNotEmpty) {
+        final props = (pinHits.first as Map)['properties'];
+        final id = props is Map ? props['id']?.toString() : null;
+        final wps = ref.read(userWaypointsProvider).valueOrNull ??
+            const <UserWaypoint>[];
+        for (final w in wps) {
+          if (w.id == id) {
+            if (mounted) {
+              await showWaypointEditor(context,
+                  lat: w.lat, lon: w.lon, existing: w);
+            }
+            return;
+          }
+        }
+      }
       // A flame or perimeter wins over the trail under it: the fire is the
       // reason the user is looking (spec Phase 7 tap card).
       if (_fires.isNotEmpty) {
@@ -292,6 +357,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       _generation++;
       _refreshOverlays();
     });
+    ref.listen(userWaypointsProvider, (_, __) => _refreshUserWaypoints());
     ref.listen(highlightRouteProvider, (_, __) => _applyHighlight());
     final hasHighlight = ref.watch(highlightRouteProvider) != null;
 

@@ -120,6 +120,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planClear => 'Clear';
 
   @override
+  String get planEditHint =>
+      'Tap to add a waypoint. Tap the line to insert one. Hold a number to drag it.';
+
+  @override
   String get planNameHint => 'Route name';
 
   @override

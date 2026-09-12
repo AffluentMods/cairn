@@ -443,6 +443,21 @@ first fresh town (Leavenworth) also showed that `highway=footway` sidewalks and 
 drawn as trails; the query and parser now drop street furniture and schema v6 clears the cached
 ones.
 
+Route editor parity (spec Phase 3, Addendum A4.3): Redo joins Undo on the edit toolbar (both
+disabled when empty, `edit_history_test`), a tap on the route line inserts a waypoint into that
+leg (`edit_geometry_test`), and a long press on a waypoint number drags it (MapLibre draggable
+symbols, the drop recomputes the route). The edit card's hint explains the three gestures.
+User pins now draw on Explore and open their editor on tap.
+
+Three map bugs surfaced while verifying the editor on the emulator: `MapLibreMap` captures
+its tap and long-press callbacks once, so entering customize mode never changed what a tap
+did (no waypoint could be added from a map created outside edit mode); waypoint numbers drawn
+as symbol annotations never rendered on Android (Native rejects the manager's data-driven
+`text-font`), so they are now images in a runtime layer; and Explore came back from Navigate
+with no trails because its "already sent" signature survived the new map. All three fixed
+(CairnMap delegates callbacks through its state; `waypointIconPng`; signatures reset on style
+load).
+
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
 sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,
