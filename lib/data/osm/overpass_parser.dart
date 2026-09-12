@@ -109,6 +109,18 @@ Map<String, String> _tags(Map<String, dynamic> el) {
   return const {};
 }
 
+/// Street furniture tagged as footway: sidewalks, crossings, parking-lot
+/// aisles and short links. They are not trails, and in a town they bury the
+/// real paths under a lattice of brown lines. Excluded in the Overpass query
+/// too; this guard covers responses from before that change.
+bool isUrbanFootway(Map<String, String> tags) {
+  final footway = tags['footway'];
+  return footway == 'sidewalk' ||
+      footway == 'crossing' ||
+      footway == 'access_aisle' ||
+      footway == 'link';
+}
+
 /// Parses a raw Overpass JSON map into trail ways, the graph nodes shared by two
 /// or more ways, and route relations. Pure: no network, fully unit-testable.
 OverpassWays parseOverpassWays(Map<String, dynamic> json) {
@@ -133,6 +145,7 @@ OverpassWays parseOverpassWays(Map<String, dynamic> json) {
     final tags = _tags(el);
     final highway = tags['highway'];
     if (highway == null) continue; // skeleton ways carry no tags; skip.
+    if (isUrbanFootway(tags)) continue;
     final nodeIds =
         (el['nodes'] as List?)?.map((e) => (e as num).toInt()).toList() ??
             const <int>[];

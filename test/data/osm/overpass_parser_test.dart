@@ -41,6 +41,45 @@ void main() {
     });
   });
 
+  group('parseOverpassWays drops street furniture', () {
+    test('sidewalks and crossings are not trails', () {
+      final json = {
+        'elements': [
+          {'type': 'node', 'id': 1, 'lat': 47.59, 'lon': -120.66},
+          {'type': 'node', 'id': 2, 'lat': 47.591, 'lon': -120.661},
+          {
+            'type': 'way',
+            'id': 10,
+            'nodes': [1, 2],
+            'tags': {'highway': 'footway', 'footway': 'sidewalk'},
+          },
+          {
+            'type': 'way',
+            'id': 11,
+            'nodes': [1, 2],
+            'tags': {'highway': 'footway', 'footway': 'crossing'},
+          },
+          {
+            'type': 'way',
+            'id': 12,
+            'nodes': [1, 2],
+            'tags': {'highway': 'footway', 'name': 'River Trail'},
+          },
+          {
+            'type': 'way',
+            'id': 13,
+            'nodes': [1, 2],
+            'tags': {'highway': 'path', 'sac_scale': 'hiking'},
+          },
+        ],
+      };
+      final parsed = parseOverpassWays(json);
+      expect(parsed.ways.map((w) => w.id).toList(), [12, 13]);
+      expect(isUrbanFootway({'footway': 'access_aisle'}), isTrue);
+      expect(isUrbanFootway({'highway': 'footway'}), isFalse);
+    });
+  });
+
   group('parseOverpassPois', () {
     test('maps tags to POI kinds', () {
       final json = {

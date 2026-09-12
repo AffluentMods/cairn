@@ -70,7 +70,7 @@ class OverpassSource {
   static String waysQuery(List<double> b) => '''
 [out:json][timeout:35];
 (
-  way["highway"~"^(path|footway|track|bridleway|steps)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
+  way["highway"~"^(path|footway|track|bridleway|steps)\$"]["footway"!~"^(sidewalk|crossing|access_aisle|link)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
   relation["route"~"^(hiking|foot)\$"](${b[0]},${b[1]},${b[2]},${b[3]});
 );
 out body;

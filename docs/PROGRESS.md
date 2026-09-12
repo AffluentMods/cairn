@@ -118,7 +118,21 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
    is my read of the spec's design system; tell me what to adjust and I will update it.
 11. **Is follow-route mode free?** (Phase R / Addendum A9). Navigate's Start uses follow mode,
    which Section 12.4 gates behind Summit. Built ungated for now; the gate is not implemented
-   until you answer. Needed before Phase 9.
+   until you answer. Needed before Phase 9. (Answered 2026-09-11: free for everyone.)
+12. **Supply-chain hardening (propose only, from the security audit).** Pin the GitHub Actions
+   in `.github/workflows/ci.yml` to commit SHAs, add Dependabot for pub and Actions, and an
+   OSV scan step. Config-only, but it changes how CI behaves, so say yes and I will do it.
+13. **`FLAG_SECURE` on the sync screen** (blocks screenshots of the sync passphrase). Small
+   platform change; also propose-only from the audit.
+14. **Place search goes straight to Nominatim** (on submit, 1 req/s, cached). Their policy
+   tolerates small apps; if Cairn grows, route it through cairn-proxy. Fine to leave for now?
+15. **Wide views load no new trails.** Explore fetches Overpass cells only when the view spans
+   at most four z10 cells (about zoom 10 and closer); further out it draws what is cached and
+   the list says "zoom in". Alternative: a "Load trails here" button at wide zooms. Keep the
+   quiet default?
+16. **Physical-phone pass still needed:** real GPS auto-pause and off-route, notification
+   taps, multi-hour battery per hour, OEM battery prompts, real offline bundle download, 3D
+   WebGL, and the X1.5 frame budgets. Everything above was verified on the Pixel 3a emulator.
 
 ---
 
@@ -424,7 +438,10 @@ covers both repositories end to end with a recorded response. Verified on the em
 panning to an area with no cached cells. With ingestion alive again, wide views turned out to
 queue every z10 cell on screen (36 Overpass queries at the forest-wide zoom, uncancellable), so
 Explore now fetches only when the view spans at most four cells, loads them center first, and
-stops between cells when the view has moved on (`tile_order_test`, cancellation test).
+stops between cells when the view has moved on (`tile_order_test`, cancellation test). The
+first fresh town (Leavenworth) also showed that `highway=footway` sidewalks and crossings were
+drawn as trails; the query and parser now drop street furniture and schema v6 clears the cached
+ones.
 
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design

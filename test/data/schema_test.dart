@@ -5,10 +5,40 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('schema is at v5', () {
+  test('schema is at v6', () {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 5);
+    expect(db.schemaVersion, 6);
+  });
+
+  test('v6 cleanup drops cached sidewalks and keeps trails', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    OsmWaysCompanion way(int id, String tagsJson) => OsmWaysCompanion.insert(
+          id: Value(id),
+          highway: 'footway',
+          tagsJson: tagsJson,
+          geomJson: '[[47.59,-120.66],[47.591,-120.661]]',
+          firstNodeId: 1,
+          lastNodeId: 2,
+          lengthM: 120,
+          minLat: 47.59,
+          minLon: -120.661,
+          maxLat: 47.591,
+          maxLon: -120.66,
+        );
+    await db
+        .into(db.osmWays)
+        .insert(way(1, '{"highway":"footway","footway":"sidewalk"}'));
+    await db
+        .into(db.osmWays)
+        .insert(way(2, '{"highway":"footway","footway":"crossing"}'));
+    await db
+        .into(db.osmWays)
+        .insert(way(3, '{"highway":"footway","name":"River Trail"}'));
+    await db.deleteCachedStreetFurniture();
+    final left = await db.select(db.osmWays).get();
+    expect(left.map((w) => w.id).toList(), [3]);
   });
 
   test('Tracks carry battery start and end (v5)', () async {

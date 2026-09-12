@@ -291,6 +291,12 @@ option that ships fastest and record it here.
   place the user had just flown to. The spec's "never query more than a z10 tile's bbox at
   once" and "be polite" both point the same way; wider views draw cached trails and the list
   already says "zoom in or pan to load them".
+- **Sidewalks, crossings, parking aisles and footway links (`footway=sidewalk|crossing|
+  access_aisle|link`) are excluded from the trail query and the parser, and schema v6 deletes
+  the ones already cached.** Reason: the spec's query takes every `highway=footway`; in a town
+  (Leavenworth at z13) that drew a lattice of brown sidewalk lines over the map and filled
+  "Trails in view" with street furniture. They are not trails in any hiking sense, and dropping
+  them shrinks the cells too.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

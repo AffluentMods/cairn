@@ -276,7 +276,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
+
+  /// Removes cached ways the trail parser no longer accepts (sidewalks,
+  /// crossings, parking aisles, footway links); see the v6 migration.
+  Future<void> deleteCachedStreetFurniture() async {
+    for (final kind in ['sidewalk', 'crossing', 'access_aisle', 'link']) {
+      await customStatement(
+        'DELETE FROM osm_ways WHERE tags_json LIKE ?',
+        ['%"footway":"$kind"%'],
+      );
+    }
+  }
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -303,6 +314,10 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(tracks, tracks.batteryStartPct);
             await m.addColumn(tracks, tracks.batteryEndPct);
           }
+          // v6: no schema change; drops cached sidewalks and crossings that
+          // the trail query and parser no longer accept, so old cells do not
+          // keep drawing street furniture as trails until their refresh.
+          if (from < 6) await deleteCachedStreetFurniture();
         },
       );
 
