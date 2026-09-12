@@ -338,11 +338,21 @@ option that ships fastest and record it here.
   and carries the "Section in view" chip on its card and sheet; its length, gain, rating and
   Navigate line describe that section.** Reason: Addendum A4.1 item 2 (the PCT card); the
   clip is the same `clipToViewport` navigation already used for long trails.
-- **"Needs a connection" on an overlay row comes from the tile proxy: a proxied overlay whose
-  last upstream fetch failed (no route, 5xx) is flagged until a tile succeeds. Direct XYZ
-  overlays get no chip.** Reason: Addendum A5's offline overlay state; MapLibre gives Dart no
-  tile-failure signal, the proxy is the only place that sees one, and removing and re-adding
-  the layer buys nothing since a failed raster tile draws nothing anyway.
+- **"Needs a connection" on an overlay row has two sources: the device's own connectivity
+  (`connectivity_plus`, no network at all) and the tile proxy (a proxied overlay whose last
+  upstream fetch failed with no route or a 5xx, until a tile succeeds).** Reason: Addendum
+  A5's offline overlay state. MapLibre stops requesting tiles the moment Android reports no
+  network, so nothing downstream ever sees a failure in airplane mode (verified on the
+  emulator: the proxy signal alone never fired); the device state covers that, and the proxy
+  covers a service that is down while the phone is online. Removing and re-adding the layer
+  buys nothing since a failed raster tile draws nothing anyway. `connectivity_plus` reads
+  state only (ACCESS_NETWORK_STATE, a normal permission) and carries no Google libraries.
+- **The layer sheet's map type tiles show a 280 px crop of each base map over Packwood
+  (`assets/map_previews/<key>.png`, made with `tool/crop_map_previews.py` from emulator
+  captures), falling back to the gradient and icon when a style has no preview (IGN Plan,
+  which is blank outside France).** Reason: Addendum A5.2 asks for a 72 dp preview image per
+  map type; a real crop tells the user what "Terrain" or "Road" looks like where the gradient
+  did not.
 - **Water sources draw as short blue ticks on the Navigate profile's baseline, from cached
   POIs within 80 m of the route.** Reason: spec Phase 8 ("small blue ticks on the elevation
   profile"), missing; the same `waterAlongRoute` as the conditions panel.

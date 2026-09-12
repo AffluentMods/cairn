@@ -57,6 +57,7 @@ dependencies:
   xml: ^6.6.1
   webview_flutter: ^4.14.1
   battery_plus: ^7.1.1
+  connectivity_plus: ^7.3.1
 
 dev_dependencies:
   flutter_test:
@@ -74,5 +75,6 @@ flutter:
   generate: true
   assets:
     - assets/map_styles/
+    - assets/map_previews/
     - assets/data/
     - assets/web/

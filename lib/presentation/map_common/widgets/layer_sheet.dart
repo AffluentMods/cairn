@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/l10n/l10n_ext.dart';
+import '../../../core/net/connectivity_provider.dart';
 import '../basemaps/basemap_registry.dart';
 import '../map_layers_provider.dart';
 import '../map_providers.dart';
@@ -218,6 +219,7 @@ class _BasemapTile extends StatelessWidget {
           AspectRatio(
             aspectRatio: 1.4,
             child: Container(
+              clipBehavior: Clip.antiAlias,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
                 gradient: _gradientFor(def.key),
@@ -227,10 +229,18 @@ class _BasemapTile extends StatelessWidget {
                 ),
               ),
               child: Stack(
+                fit: StackFit.expand,
                 children: [
-                  Center(
-                    child: Icon(_iconFor(def.key),
-                        color: Colors.white.withValues(alpha: 0.85), size: 22),
+                  // A real crop of the base map (Addendum A5.2 preview
+                  // image); the gradient and icon stay as the fallback.
+                  Image.asset(
+                    'assets/map_previews/${def.key}.png',
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Center(
+                      child: Icon(_iconFor(def.key),
+                          color: Colors.white.withValues(alpha: 0.85),
+                          size: 22),
+                    ),
                   ),
                   if (selected)
                     Positioned(
@@ -417,9 +427,11 @@ class _OverlayRow extends ConsumerWidget {
       Coverage.world => '',
     };
     // Tiles not reaching the device (offline, service down): the switch stays
-    // usable and the row says so (Addendum A5).
-    final needsConnection =
-        on && ref.watch(overlayOfflineProvider).contains(def.key);
+    // usable and the row says so (Addendum A5). Offline comes from the
+    // device (MapLibre stops fetching then); a dead service from the proxy.
+    final needsConnection = on &&
+        ((ref.watch(offlineProvider).valueOrNull ?? false) ||
+            ref.watch(overlayOfflineProvider).contains(def.key));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -438,14 +450,23 @@ class _OverlayRow extends ConsumerWidget {
                 const SizedBox(width: 8),
                 _CoverageChip(text: coverage),
               ],
-              if (needsConnection) ...[
-                const SizedBox(width: 8),
-                _CoverageChip(text: l10n.overlayNeedsConnection),
-              ],
             ],
           ),
-          subtitle: Text(def.subtitle(l10n),
-              style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
+          // The connection chip sits under the subtitle so a long title does
+          // not wrap around two chips.
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(def.subtitle(l10n),
+                  style: TextStyle(
+                      fontSize: 11.5, color: scheme.onSurfaceVariant)),
+              if (needsConnection)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: _CoverageChip(text: l10n.overlayNeedsConnection),
+                ),
+            ],
+          ),
         ),
         if (on && def.key == 'slope')
           _SlopeLegend(disclaimer: def.disclaimer?.call(l10n)),

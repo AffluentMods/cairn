@@ -474,6 +474,13 @@ Cairn symbol layer named a `text-font`, MapLibre's default stack 404s on OpenFre
 failed glyph range blocks the whole layer. The style patch tool now sets `text-font` and a
 `glyphs` server (the raster styles had none) in every style.
 
+F-Droid listing: six emulator screenshots (Explore, trail sheet, Navigate, Conditions,
+Customize, Saved) at 720 px in `metadata/en-US/images/phoneScreenshots/` via
+`tool/shrink_screenshots.py`, and the README shows four of them (spec 12.5, Phase 7). The
+layer sheet's map type tiles now show real base-map crops (A5.2, `tool/crop_map_previews.py`),
+and "Needs a connection" also follows the device's connectivity, since MapLibre stops
+fetching in airplane mode before the proxy could ever see a failure.
+
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
 sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,

@@ -9,7 +9,14 @@ OpenStreetMap trails. It works with airplane mode on. No account. No subscriptio
 core app.
 
 > Status: in active development. Phase 0 to 9 per [docs/cairn-build-spec.md](docs/cairn-build-spec.md).
-> Not yet published. Screenshots land at Phase 7.
+> Not yet published to a store.
+
+<p>
+  <img src="metadata/en-US/images/phoneScreenshots/1.png" width="24%" alt="Explore: trails, springs and peaks on the outdoors map" />
+  <img src="metadata/en-US/images/phoneScreenshots/2.png" width="24%" alt="Trail sheet: difficulty, route type, stats and profile" />
+  <img src="metadata/en-US/images/phoneScreenshots/3.png" width="24%" alt="Navigate: the route, its profile with water ticks, Download and Start" />
+  <img src="metadata/en-US/images/phoneScreenshots/4.png" width="24%" alt="Conditions: fires, air quality, weather, land and water" />
+</p>
 
 ## What it does
 
