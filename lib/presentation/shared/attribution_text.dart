@@ -14,6 +14,12 @@ String attributionText(AppLocalizations l10n, String key) => switch (key) {
       'attributionNifc' => l10n.attributionNifc,
       'attributionNws' => l10n.attributionNws,
       'attributionOpenMeteo' => l10n.attributionOpenMeteo,
+      'attributionUsgs3dep' => l10n.attributionUsgs3dep,
+      'attributionIgn' => l10n.attributionIgn,
+      'attributionUsfs' => l10n.attributionUsfs,
+      'attributionNoaa' => l10n.attributionNoaa,
+      'attributionOsmGps' => l10n.attributionOsmGps,
+      'attributionMapLibre' => l10n.attributionMapLibre,
       _ => key,
     };
 

@@ -117,7 +117,10 @@ final terrainTileSourceProvider = Provider<TerrainTileSource>(
 );
 
 final elevationRepositoryProvider = Provider<ElevationRepository>(
-  (ref) => ElevationRepositoryImpl(ref.watch(terrainTileSourceProvider)),
+  (ref) => ElevationRepositoryImpl(
+    ref.watch(terrainTileSourceProvider),
+    remote: ref.watch(openMeteoSourceProvider).fetchElevations,
+  ),
 );
 
 final routeRepositoryProvider = Provider<RouteRepository>(

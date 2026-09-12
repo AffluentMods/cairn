@@ -282,8 +282,11 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
     } else {
       final d = nearest.distanceToRouteM ?? 0;
       final color = d < 16093 ? AppColors.smoke : AppColors.aqiGood;
-      summary = _line(Icons.local_fire_department, color,
-          l10n.condFireDistance(nearest.name, fmt.distance(d)));
+      // A single point means "conditions here", not a route.
+      final text = widget.routePolyline.length < 2
+          ? l10n.condFireDistanceHere(nearest.name, fmt.distance(d))
+          : l10n.condFireDistance(nearest.name, fmt.distance(d));
+      summary = _line(Icons.local_fire_department, color, text);
     }
     return [
       summary,

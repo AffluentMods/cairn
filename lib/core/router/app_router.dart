@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'package:flutter/material.dart' show GlobalKey, ScaffoldMessengerState;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -15,6 +16,10 @@ import '../../presentation/shell/app_shell.dart';
 import '../../presentation/sync/sync_screen.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>();
+
+/// App-wide snackbars from code with no screen of its own (a file handed to
+/// Cairn by another app).
+final rootMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
 /// App routing (Addendum A3). A four-branch indexed-stack shell: Explore,
 /// Navigate, Saved, Activity. Full-screen pushes (3D, Settings, Sync) use the

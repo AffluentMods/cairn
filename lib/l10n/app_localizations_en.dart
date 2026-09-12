@@ -404,6 +404,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Trail detail along the route (z15 to z16) plus the area around it (z10 to z14).';
 
   @override
+  String get condHere => 'this area';
+
+  @override
   String condTitle(String name) {
     return 'Conditions for $name';
   }
@@ -424,6 +427,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String condFireDistance(String name, String distance) {
     return '$name is $distance from the route';
+  }
+
+  @override
+  String condFireDistanceHere(String name, String distance) {
+    return '$name is $distance from here';
   }
 
   @override

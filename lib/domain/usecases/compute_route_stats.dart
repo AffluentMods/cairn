@@ -59,6 +59,27 @@ Future<RouteStats> computeRouteStats(
   final elevs = await elevation.elevationsAlong(
     samples.map((s) => [s.lat, s.lon]).toList(),
   );
+  if (elevs.isEmpty) {
+    // No elevation known at all (offline, nothing cached): distance and a
+    // flat-ground time, no profile, rather than a profile at sea level.
+    final d = samples.isEmpty ? 0.0 : samples.last.distanceM;
+    return RouteStats(
+      distanceM: d,
+      gainM: 0,
+      lossM: 0,
+      maxElevM: 0,
+      minElevM: 0,
+      estimatedTime: Duration(
+        seconds: naismithLangmuirSeconds(
+          distanceM: d,
+          gainM: 0,
+          gentleDescentM: 0,
+          steepDescentM: 0,
+        ).round(),
+      ),
+      profile: const [],
+    );
+  }
   if (elevs.length != samples.length) return RouteStats.empty;
 
   // Gain/loss hysteresis, descent classification, the time estimate, and the

@@ -147,6 +147,7 @@
   "@offlineZoomRange": { "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } } },
   "offlineRouteCorridor": "Trail detail along the route (z15 to z16) plus the area around it (z10 to z14).",
 
+  "condHere": "this area",
   "condTitle": "Conditions for {name}",
   "@condTitle": { "placeholders": { "name": { "type": "String" } } },
   "condUpdatedAgo": "updated {ago}",
@@ -156,6 +157,8 @@
   "@condFireCrosses": { "placeholders": { "name": { "type": "String" } } },
   "condFireDistance": "{name} is {distance} from the route",
   "@condFireDistance": { "placeholders": { "name": { "type": "String" }, "distance": { "type": "String" } } },
+  "condFireDistanceHere": "{name} is {distance} from here",
+  "@condFireDistanceHere": { "placeholders": { "name": { "type": "String" }, "distance": { "type": "String" } } },
   "condFireNone": "No active fires within 50 mi",
   "condFireAcres": "{acres} ac",
   "@condFireAcres": { "placeholders": { "acres": { "type": "String" } } },

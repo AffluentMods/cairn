@@ -24,6 +24,7 @@ import '../../domain/models/route_plan.dart';
 import '../../domain/usecases/offline_estimate.dart';
 import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/cairn_map.dart';
+import '../map_common/camera_provider.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/widgets/elevation_profile.dart';
@@ -580,10 +581,35 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     }
   }
 
-  void _openConditions() {
+  Future<void> _openConditions() async {
     final state = ref.read(routeEditorProvider);
     final poly = state.polyline;
-    if (poly.length < 2) return;
+    if (poly.length < 2) {
+      // No route loaded: conditions for the map center (spec audit gap 30),
+      // so fires, weather, and alerts are one tap away while exploring.
+      final cam = ref.read(cameraProvider);
+      final lat = cam.target.latitude;
+      final lon = cam.target.longitude;
+      final elev =
+          await ref.read(elevationRepositoryProvider).elevationAt(lat, lon) ??
+              0.0;
+      if (!mounted) return;
+      showConditions(
+        context,
+        name: context.l10n.condHere,
+        routePolyline: [
+          [lat, lon]
+        ],
+        trailheadLat: lat,
+        trailheadLon: lon,
+        trailheadElevM: elev,
+        highLat: lat,
+        highLon: lon,
+        highElevM: elev,
+        bbox: [lat - 0.15, lon - 0.2, lat + 0.15, lon + 0.2],
+      );
+      return;
+    }
 
     final profile = state.stats.profile;
     var highDist = 0.0;
@@ -713,7 +739,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                   _RoundButton(
                     icon: Icons.wb_cloudy_outlined,
                     tooltip: context.l10n.layerConditions,
-                    onPressed: hasRoute ? _openConditions : null,
+                    onPressed: _openConditions,
                   ),
                   const SizedBox(height: 8),
                   _RoundButton(

@@ -232,6 +232,21 @@ option that ships fastest and record it here.
   from docs/PRIVACY.md, and the sources screen lists every feed and the map engine.** Reason:
   the plain-text version had no structure and had fallen behind the policy; the sources list
   lacked USFS, the NWS weather maps, USGS 3DEP, OSM GPS traces, IGN and MapLibre.
+- **"Open with Cairn" is a two-method channel in MainActivity (the launch intent's file, then
+  `onNewIntent`), not a plugin; bytes are read through the ContentResolver and capped at 20 MB
+  natively.** Reason: the manifest had advertised the GPX intent filter since Phase 0 with no
+  handler behind it (spec audit gap); the file picker path and the intent path now share one
+  importer.
+- **`flutter_deeplinking_enabled` is false in the manifest.** Reason: Flutter enables deep
+  linking by default since 3.27, so the embedding handed the VIEW intent's `content://` URI to
+  go_router as the initial route and the app opened on "Page not found". Cairn has no app
+  links; the file is consumed by the intent channel instead.
+- **Elevation falls back to Open-Meteo's elevation API (one batch of up to 100 anchors spread
+  along the line, interpolated between) when no terrain tile is cached or reachable, and reports
+  "unknown" (an empty profile, distance-only stats) rather than a sea-level profile when even
+  that fails.** Reason: spec audit gap 28; a flat profile at 0 m read as data.
+- **Conditions opens for the map center when no route is loaded.** Reason: spec audit gap 30;
+  fires, weather and alerts are useful while exploring, not only with a plan.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

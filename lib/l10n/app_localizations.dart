@@ -796,6 +796,12 @@ abstract class AppLocalizations {
   /// **'Trail detail along the route (z15 to z16) plus the area around it (z10 to z14).'**
   String get offlineRouteCorridor;
 
+  /// No description provided for @condHere.
+  ///
+  /// In en, this message translates to:
+  /// **'this area'**
+  String get condHere;
+
   /// No description provided for @condTitle.
   ///
   /// In en, this message translates to:
@@ -825,6 +831,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{name} is {distance} from the route'**
   String condFireDistance(String name, String distance);
+
+  /// No description provided for @condFireDistanceHere.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is {distance} from here'**
+  String condFireDistanceHere(String name, String distance);
 
   /// No description provided for @condFireNone.
   ///

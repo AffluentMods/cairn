@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
@@ -11,12 +10,10 @@ import 'package:intl/intl.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
-import '../../data/gpx/gpx_codec.dart';
 import '../../domain/models/route_plan.dart';
 import '../shared/empty_state.dart';
+import 'gpx_import.dart';
 import 'library_providers.dart';
-
-const _maxGpxBytes = 20 * 1024 * 1024;
 
 /// The Saved tab (Addendum A1): saved routes, saved trails, and offline regions.
 /// The app bar carries Import GPX and Settings.
@@ -74,25 +71,13 @@ class SavedScreen extends ConsumerWidget {
         bytes = await File(file.path!).readAsBytes();
       }
       if (bytes == null) return;
-      if (bytes.length > _maxGpxBytes) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
-        return;
-      }
-      final xml = utf8.decode(bytes, allowMalformed: true);
-      final data = parseGpx(xml);
-      if (data.isEmpty) {
-        messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
-        return;
-      }
-      await ref.read(gpxImporterProvider).import(data, fallbackName: file.name);
-      bumpLibrary(ref);
-      messenger.showSnackBar(
-        SnackBar(
-            content: Text(
-                l10n.gpxImported(data.tracks.length + data.routes.length))),
+      await importGpxBytes(
+        ref,
+        bytes: bytes,
+        name: file.name,
+        l10n: l10n,
+        messenger: messenger,
       );
-    } on FormatException {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
     } catch (_) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
     }

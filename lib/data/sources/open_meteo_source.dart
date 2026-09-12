@@ -34,6 +34,20 @@ class OpenMeteoSource {
         'elevation': '${elevationM.round()}',
       });
 
+  /// Elevations (meters, Copernicus 90 m) for up to 100 `[lat, lon]` points,
+  /// the fallback when no terrain tile is cached or reachable. Null on any
+  /// failure; the list is parallel to [latLon].
+  Future<List<double?>?> fetchElevations(List<List<double>> latLon) async {
+    if (latLon.isEmpty || latLon.length > 100) return null;
+    final json = await _get('https://api.open-meteo.com/v1/elevation', {
+      'latitude': latLon.map((p) => p[0].toStringAsFixed(5)).join(','),
+      'longitude': latLon.map((p) => p[1].toStringAsFixed(5)).join(','),
+    });
+    final elev = json?['elevation'];
+    if (elev is! List || elev.length != latLon.length) return null;
+    return [for (final e in elev) e is num ? e.toDouble() : null];
+  }
+
   Future<Map<String, dynamic>?> _get(
     String url,
     Map<String, String> params,

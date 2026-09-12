@@ -116,6 +116,7 @@ class _LengthAndGain extends ConsumerWidget {
       final dem = await ref
           .read(elevationRepositoryProvider)
           .elevationsAlong(trail.geometry);
+      if (dem.isEmpty) return null; // unknown offline: show nothing, not +0
       final gl = gainLoss(dem);
       _gainCache[trail.id] = gl.gain;
       return gl.gain;

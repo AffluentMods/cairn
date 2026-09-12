@@ -392,6 +392,14 @@ waypoint pin lands, the 3D view's base-map attribution (compact, bottom left), t
 named after the active route, the designer preview's Start label and the GPX import fallbacks
 localized.
 
+Spec audit gaps closed in this pass: "Open with Cairn" for .gpx files now works (native intent
+channel, shared importer, deep linking off so the file URI never reaches the router; verified
+on the emulator from the Files app chooser both cold and with the app running: the route lands
+in Saved with the "1 imported" snackbar); elevation falls back to Open-Meteo and reports
+unknown instead of a flat sea-level profile (tested); the Conditions button works with no
+route (map center, "Conditions for this area", verified); CI's release build uses
+`--obfuscate --split-debug-info`.
+
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
 sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,
