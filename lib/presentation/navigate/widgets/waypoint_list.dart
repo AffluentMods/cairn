@@ -3,17 +3,23 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/l10n_ext.dart';
+import '../../../core/settings/settings_providers.dart';
+import '../../../core/units/unit_formatter.dart';
+import '../../../domain/usecases/water_along_route.dart';
 import '../route_editor_provider.dart';
 
-/// The ordered waypoint list. Swipe a row to delete (spec Section 9.6). Off-trail
-/// waypoints are marked.
+/// The ordered waypoint list. Swipe a row to delete (spec Section 9.6). Rows
+/// read as "Start", "Waypoint 2 ... 2.3 mi", "End", with the distance along
+/// the route instead of raw coordinates; off-trail waypoints are marked.
 class WaypointList extends ConsumerWidget {
   const WaypointList({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final waypoints = ref.watch(routeEditorProvider).waypoints;
+    final fmt = ref.watch(unitFormatterProvider);
+    final state = ref.watch(routeEditorProvider);
+    final waypoints = state.waypoints;
     if (waypoints.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(24),
@@ -26,6 +32,7 @@ class WaypointList extends ConsumerWidget {
         ),
       );
     }
+    final polyline = state.polyline;
     return Column(
       children: [
         for (var i = 0; i < waypoints.length; i++)
@@ -47,9 +54,13 @@ class WaypointList extends ConsumerWidget {
                 child: Text('${i + 1}', style: const TextStyle(fontSize: 12)),
               ),
               title: Text(
-                '${waypoints[i].lat.toStringAsFixed(5)}, '
-                '${waypoints[i].lon.toStringAsFixed(5)}',
+                i == 0
+                    ? l10n.planWaypointStart
+                    : i == waypoints.length - 1
+                        ? l10n.planWaypointEnd
+                        : l10n.planWaypointN(i + 1),
               ),
+              subtitle: _alongText(polyline, waypoints[i], i, fmt),
               trailing: waypoints[i].onTrail
                   ? null
                   : Text(
@@ -60,5 +71,19 @@ class WaypointList extends ConsumerWidget {
           ),
       ],
     );
+  }
+
+  /// "2.3 mi" along the route, or nothing for the start and while the route
+  /// has not been built yet.
+  Widget? _alongText(
+    List<List<double>> polyline,
+    EditorWaypoint w,
+    int index,
+    UnitFormatter fmt,
+  ) {
+    if (index == 0 || polyline.length < 2) return null;
+    final d = distanceAlong(polyline, w.lat, w.lon);
+    if (d == null) return null;
+    return Text(fmt.distance(d.distanceAlongM));
   }
 }

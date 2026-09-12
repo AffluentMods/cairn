@@ -13,6 +13,7 @@ import '../../domain/repositories/conditions_repository.dart';
 import '../../domain/usecases/fire_proximity.dart';
 import '../db/app_database.dart';
 import '../sources/affluent_proxy_source.dart';
+import '../sources/land_parser.dart';
 import '../sources/nifc_source.dart';
 import '../sources/nws_source.dart';
 import '../sources/open_meteo_source.dart';
@@ -106,7 +107,7 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
       _fireTtl,
       () => nifc.fetchIncidents(b),
     );
-    return parseFires(perimeters: perim.json, incidents: inc.json);
+    return parseFiresAsync(perimeters: perim.json, incidents: inc.json);
   }
 
   @override
@@ -121,36 +122,18 @@ class ConditionsRepositoryImpl implements ConditionsRepository {
       _landTtl,
       () => usfs.fetchForests(bbox),
     );
-    return [
-      ..._parseLand(wild.json, LandKind.wilderness, [
-        'NAME',
-        'WILDERNESS_NAME',
-        'wildernessname',
-      ]),
-      ..._parseLand(forest.json, LandKind.forest, [
-        'FORESTNAME',
-        'NAME',
-        'forestname',
-      ]),
-    ];
-  }
-
-  List<LandUnit> _parseLand(
-    Map<String, dynamic>? geo,
-    LandKind kind,
-    List<String> nameFields,
-  ) {
-    final features =
-        (geo?['features'] as List?)?.cast<Map<String, dynamic>>() ?? const [];
-    final out = <LandUnit>[];
-    for (final f in features) {
-      final props = (f['properties'] as Map?)?.cast<String, dynamic>() ?? {};
-      final name = pickField(props, nameFields)?.toString() ?? 'Unnamed';
-      final rings = ringsFromGeoJson(f['geometry'] as Map<String, dynamic>?);
-      if (rings.isEmpty) continue;
-      out.add(LandUnit(kind: kind, name: name, polygons: rings));
-    }
-    return out;
+    // Wilderness and forest polygons are large; parse them off the UI isolate.
+    final wilderness = await parseLandUnitsAsync(
+      wild.json,
+      LandKind.wilderness,
+      const ['NAME', 'WILDERNESS_NAME', 'wildernessname'],
+    );
+    final forests = await parseLandUnitsAsync(
+      forest.json,
+      LandKind.forest,
+      const ['FORESTNAME', 'NAME', 'forestname'],
+    );
+    return [...wilderness, ...forests];
   }
 
   Future<({WeatherForecast? forecast, DateTime? fetchedAt, bool stale})>

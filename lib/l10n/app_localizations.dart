@@ -316,6 +316,24 @@ abstract class AppLocalizations {
   /// **'Off trail'**
   String get planOffTrail;
 
+  /// No description provided for @planWaypointStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get planWaypointStart;
+
+  /// No description provided for @planWaypointEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get planWaypointEnd;
+
+  /// No description provided for @planWaypointN.
+  ///
+  /// In en, this message translates to:
+  /// **'Waypoint {n}'**
+  String planWaypointN(int n);
+
   /// No description provided for @planEmpty.
   ///
   /// In en, this message translates to:

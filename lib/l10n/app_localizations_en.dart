@@ -130,6 +130,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planOffTrail => 'Off trail';
 
   @override
+  String get planWaypointStart => 'Start';
+
+  @override
+  String get planWaypointEnd => 'End';
+
+  @override
+  String planWaypointN(int n) {
+    return 'Waypoint $n';
+  }
+
+  @override
   String get planEmpty =>
       'Tap the map to drop a waypoint. Cairn snaps it to the nearest trail.';
 

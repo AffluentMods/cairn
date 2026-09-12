@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 
 import '../../core/net/arcgis_query.dart';
+import '../../core/worker/geo_worker.dart';
 import '../../domain/models/fire_incident.dart';
 import 'usfs_source.dart' show pickField;
 
@@ -220,6 +221,18 @@ String _title(String s) => s
         ? w
         : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
     .join(' ');
+
+/// [parseFires] on a worker isolate: a perimeter response can carry
+/// thousands of ring vertices, well past the 4 ms UI budget. Top-level so
+/// the closure captures only the two JSON maps.
+Future<List<FireIncident>> parseFiresAsync({
+  Map<String, dynamic>? perimeters,
+  Map<String, dynamic>? incidents,
+}) =>
+    GeoWorker.run(
+      'fires-parse',
+      () => parseFires(perimeters: perimeters, incidents: incidents),
+    );
 
 /// IRWIN ids come as "{7A43...}"; compare them without braces or case.
 String? _irwin(Object? v) {

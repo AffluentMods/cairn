@@ -347,6 +347,12 @@ option that ships fastest and record it here.
   covers a service that is down while the phone is online. Removing and re-adding the layer
   buys nothing since a failed raster tile draws nothing anyway. `connectivity_plus` reads
   state only (ACCESS_NETWORK_STATE, a normal permission) and carries no Google libraries.
+- **Fire and land polygon parsing runs on the worker isolate (`parseFiresAsync`,
+  `parseLandUnitsAsync`, top-level next to the parsers).** Reason: the 4 ms rule; a perimeter
+  or forest boundary response carries thousands of vertices and was parsed on the UI isolate.
+- **Waypoint rows read "Start", "Waypoint 2 ... 2.3 mi", "End" with the distance along the
+  route, instead of raw coordinates.** Reason: the design sweep; a hiker cannot place
+  "46.40000, -121.40000" but knows the third waypoint is the one 2.3 mi in.
 - **The layer sheet's map type tiles show a 280 px crop of each base map over Packwood
   (`assets/map_previews/<key>.png`, made with `tool/crop_map_previews.py` from emulator
   captures), falling back to the gradient and icon when a style has no preview (IGN Plan,

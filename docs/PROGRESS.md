@@ -133,6 +133,13 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 16. **Physical-phone pass still needed:** real GPS auto-pause and off-route, notification
    taps, multi-hour battery per hour, OEM battery prompts, real offline bundle download, 3D
    WebGL, and the X1.5 frame budgets. Everything above was verified on the Pixel 3a emulator.
+17. **Junction cues (Phase 10 candidate).** AllTrails calls out trail junctions while
+   navigating ("keep left onto Bypass Trail #97 in 300 ft"). Cairn has the graph (cached ways
+   with shared nodes) to derive them from the route; it is a day of work plus a voice or
+   haptic cue design. Not in the spec, so parked until you want it.
+18. **`connectivity_plus` was added** for the offline overlay chip (state only, no requests,
+   normal ACCESS_NETWORK_STATE permission, no Google code). Flagging it because the plugin
+   list is part of the F-Droid story.
 
 ---
 
@@ -479,7 +486,9 @@ Customize, Saved) at 720 px in `metadata/en-US/images/phoneScreenshots/` via
 `tool/shrink_screenshots.py`, and the README shows four of them (spec 12.5, Phase 7). The
 layer sheet's map type tiles now show real base-map crops (A5.2, `tool/crop_map_previews.py`),
 and "Needs a connection" also follows the device's connectivity, since MapLibre stops
-fetching in airplane mode before the proxy could ever see a failure.
+fetching in airplane mode before the proxy could ever see a failure. Fire and land polygon
+parsing moved to the worker isolate (4 ms rule), and waypoint rows read "Start / Waypoint 2
+at 2.3 mi / End" instead of coordinates.
 
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
