@@ -84,7 +84,9 @@ void main() {
     );
 
     test('snaps every waypoint and joins the legs on one trail', () {
-      final built = buildRoute([way], [
+      final built = buildRoute([
+        way
+      ], [
         [46.0003, -120.998],
         [46.0003, -120.982],
       ]);
@@ -99,7 +101,9 @@ void main() {
     });
 
     test('a far waypoint is off-trail and flags the leg', () {
-      final built = buildRoute([way], [
+      final built = buildRoute([
+        way
+      ], [
         [46.0003, -120.998],
         [46.02, -120.98], // well beyond the snap radius
       ]);
@@ -109,9 +113,13 @@ void main() {
     });
 
     test('fewer than two waypoints is empty', () {
-      expect(buildRoute([way], [
-        [46.0, -121.0],
-      ]), same(BuiltRoute.empty));
+      expect(
+          buildRoute([
+            way
+          ], [
+            [46.0, -121.0],
+          ]),
+          same(BuiltRoute.empty));
     });
   });
 }

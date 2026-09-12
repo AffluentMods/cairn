@@ -7,11 +7,26 @@ import '../../../core/theme/theme_codec.dart';
 /// Curated swatches offered above the sliders, warm neutrals and clear accents
 /// that read on a map.
 const _swatches = <Color>[
-  Color(0xFFD9A441), Color(0xFFB8862E), Color(0xFFE8825A), Color(0xFFE5484D),
-  Color(0xFFF5A524), Color(0xFF3EC46D), Color(0xFF3FB8AF), Color(0xFF6FC3E0),
-  Color(0xFF7AA7C7), Color(0xFF4A90E2), Color(0xFF9B7BD4), Color(0xFFE86A92),
-  Color(0xFFF6F3EC), Color(0xFFE5E0D5), Color(0xFFA9B0AB), Color(0xFF5B615E),
-  Color(0xFF2E3B34), Color(0xFF1E2C25), Color(0xFF15201B), Color(0xFF0E1412),
+  Color(0xFFD9A441),
+  Color(0xFFB8862E),
+  Color(0xFFE8825A),
+  Color(0xFFE5484D),
+  Color(0xFFF5A524),
+  Color(0xFF3EC46D),
+  Color(0xFF3FB8AF),
+  Color(0xFF6FC3E0),
+  Color(0xFF7AA7C7),
+  Color(0xFF4A90E2),
+  Color(0xFF9B7BD4),
+  Color(0xFFE86A92),
+  Color(0xFFF6F3EC),
+  Color(0xFFE5E0D5),
+  Color(0xFFA9B0AB),
+  Color(0xFF5B615E),
+  Color(0xFF2E3B34),
+  Color(0xFF1E2C25),
+  Color(0xFF15201B),
+  Color(0xFF0E1412),
 ];
 
 /// Opens the color picker for [initial] and resolves to the chosen color, or
@@ -208,8 +223,7 @@ class _GradientSlider extends StatelessWidget {
       children: [
         SizedBox(
           width: 16,
-          child: Text(label,
-              style: Theme.of(context).textTheme.labelMedium),
+          child: Text(label, style: Theme.of(context).textTheme.labelMedium),
         ),
         Expanded(
           child: Stack(

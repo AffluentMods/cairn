@@ -20,7 +20,8 @@ void main() {
     expect(fixes, hasLength(3));
     expect(fixes.first.latitude, closeTo(46.0, 1e-6));
     expect(fixes.first.heading, closeTo(90, 5)); // heading east on segment 1
-    expect(fixes[1].longitude, greaterThan(fixes.first.longitude)); // moved east
+    expect(
+        fixes[1].longitude, greaterThan(fixes.first.longitude)); // moved east
     expect(fixes.every((f) => f.isMocked), isTrue);
   });
 

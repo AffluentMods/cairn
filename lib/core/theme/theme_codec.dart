@@ -78,7 +78,8 @@ String themeToFile(CairnThemeSpec s) =>
 
 /// A compact, shareable `cairn-theme-1:` code for [s].
 String themeToCode(CairnThemeSpec s) =>
-    cairnThemeCodePrefix + base64Url.encode(utf8.encode(jsonEncode(themeToJson(s))));
+    cairnThemeCodePrefix +
+    base64Url.encode(utf8.encode(jsonEncode(themeToJson(s))));
 
 /// Parses a `.cairntheme` file body or a `cairn-theme-1:` code into a spec with
 /// [id]. Throws [FormatException] if it is neither or the schema is wrong.

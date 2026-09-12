@@ -87,7 +87,9 @@ class SavedScreen extends ConsumerWidget {
       await ref.read(gpxImporterProvider).import(data, fallbackName: file.name);
       bumpLibrary(ref);
       messenger.showSnackBar(
-        SnackBar(content: Text(l10n.gpxImported(data.tracks.length + data.routes.length))),
+        SnackBar(
+            content: Text(
+                l10n.gpxImported(data.tracks.length + data.routes.length))),
       );
     } on FormatException {
       messenger.showSnackBar(SnackBar(content: Text(l10n.gpxImportFailed)));
@@ -200,9 +202,8 @@ class _TrailsTab extends ConsumerWidget {
                 child: ListTile(
                   leading: const Icon(Icons.favorite),
                   title: Text(t.name),
-                  subtitle: t.lengthM == null
-                      ? null
-                      : Text(fmt.distance(t.lengthM!)),
+                  subtitle:
+                      t.lengthM == null ? null : Text(fmt.distance(t.lengthM!)),
                 ),
               ),
           ],

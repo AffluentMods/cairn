@@ -72,14 +72,13 @@ class TrailCard extends ConsumerWidget {
                     size: 20,
                     color: saved ? scheme.primary : scheme.onSurfaceVariant,
                   ),
-                  onPressed: () =>
-                      ref.read(favoritesRepositoryProvider).toggle(
-                            trailId: trail.id,
-                            name: displayName,
-                            centerLat: trail.centerLat,
-                            centerLon: trail.centerLon,
-                            lengthM: trail.lengthM,
-                          ),
+                  onPressed: () => ref.read(favoritesRepositoryProvider).toggle(
+                        trailId: trail.id,
+                        name: displayName,
+                        centerLat: trail.centerLat,
+                        centerLon: trail.centerLon,
+                        lengthM: trail.lengthM,
+                      ),
                 ),
               ],
             ),
@@ -92,7 +91,8 @@ class TrailCard extends ConsumerWidget {
                   const Spacer(),
                   Text(
                     l10n.exploreDistanceAway(fmt.distance(trail.distanceM)),
-                    style: TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
+                    style:
+                        TextStyle(fontSize: 12, color: scheme.onSurfaceVariant),
                   ),
                 ],
               ),

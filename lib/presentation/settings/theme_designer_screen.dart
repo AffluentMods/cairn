@@ -37,8 +37,8 @@ class ThemeDesignerScreen extends ConsumerStatefulWidget {
 
 class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
   late CairnThemeSpec _spec = widget.base;
-  late final TextEditingController _name =
-      TextEditingController(text: widget.isEditingCustom ? widget.base.name : '');
+  late final TextEditingController _name = TextEditingController(
+      text: widget.isEditingCustom ? widget.base.name : '');
 
   @override
   void dispose() {
@@ -63,8 +63,10 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
     if (mounted) Navigator.pop(context);
   }
 
-  Future<void> _pick(String label, Color current, void Function(Color) apply) async {
-    final chosen = await showColorPicker(context, initial: current, title: label);
+  Future<void> _pick(
+      String label, Color current, void Function(Color) apply) async {
+    final chosen =
+        await showColorPicker(context, initial: current, title: label);
     if (chosen != null) setState(() => apply(chosen));
   }
 
@@ -115,7 +117,9 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.isEditingCustom ? l10n.designerTitle : l10n.designerNewTitle),
+        title: Text(widget.isEditingCustom
+            ? l10n.designerTitle
+            : l10n.designerNewTitle),
         actions: [
           IconButton(
             icon: const Icon(Icons.check),
@@ -134,8 +138,10 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(value: 'file', child: Text(l10n.designerExportFile)),
-              PopupMenuItem(value: 'code', child: Text(l10n.designerExportCode)),
+              PopupMenuItem(
+                  value: 'file', child: Text(l10n.designerExportFile)),
+              PopupMenuItem(
+                  value: 'code', child: Text(l10n.designerExportCode)),
               if (widget.isEditingCustom)
                 PopupMenuItem(value: 'delete', child: Text(l10n.genericDelete)),
             ],
@@ -185,7 +191,8 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     child: ActionChip(
-                      avatar: CircleAvatar(backgroundColor: b.accent, radius: 8),
+                      avatar:
+                          CircleAvatar(backgroundColor: b.accent, radius: 8),
                       label: Text(b.name),
                       onPressed: () => setState(() => _spec = _spec.copyWith(
                             brightness: b.brightness,
@@ -229,7 +236,8 @@ class _ThemeDesignerScreenState extends ConsumerState<ThemeDesignerScreen> {
     );
   }
 
-  Widget _colorRow(String label, Color current, CairnThemeSpec Function(Color) apply) {
+  Widget _colorRow(
+      String label, Color current, CairnThemeSpec Function(Color) apply) {
     return ListTile(
       title: Text(label),
       subtitle: Text(hexOf(current)),
@@ -370,10 +378,11 @@ class _RouteHint extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..color = route,
     );
-    canvas.drawCircle(Offset(size.width * 0.8, h * 0.2), 3.5,
-        Paint()..color = track);
+    canvas.drawCircle(
+        Offset(size.width * 0.8, h * 0.2), 3.5, Paint()..color = track);
   }
 
   @override
-  bool shouldRepaint(_RouteHint old) => old.route != route || old.track != track;
+  bool shouldRepaint(_RouteHint old) =>
+      old.route != route || old.track != track;
 }

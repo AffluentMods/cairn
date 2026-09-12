@@ -19,8 +19,7 @@ void main() {
     test('swaps [lat,lon] geometry to [lon,lat] coordinates', () {
       final gj = trailsToGeoJson([_trail(1, name: 'A')], zoom: 15);
       final feature = (gj['features'] as List).single as Map;
-      final coords =
-          (feature['geometry'] as Map)['coordinates'] as List;
+      final coords = (feature['geometry'] as Map)['coordinates'] as List;
       expect(coords.first, [-121.0, 46.0]); // lon first
     });
 
@@ -32,7 +31,9 @@ void main() {
     });
 
     test('caps the feature collection at maxTrailFeatures', () {
-      final many = [for (var i = 0; i < maxTrailFeatures + 100; i++) _trail(i, name: 'T$i')];
+      final many = [
+        for (var i = 0; i < maxTrailFeatures + 100; i++) _trail(i, name: 'T$i')
+      ];
       final gj = trailsToGeoJson(many, zoom: 15);
       expect((gj['features'] as List), hasLength(maxTrailFeatures));
     });

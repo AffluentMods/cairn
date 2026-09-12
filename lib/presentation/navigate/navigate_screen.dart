@@ -530,12 +530,11 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
     final locationEnabled = ref.watch(locationEnabledProvider);
-    final recording =
-        ref.watch(recordingProvider.select((s) => s.status)) !=
-            RecordingStatus.idle;
+    final recording = ref.watch(recordingProvider.select((s) => s.status)) !=
+        RecordingStatus.idle;
     final editing = ref.watch(editModeProvider);
-    final hasRoute = ref.watch(
-        routeEditorProvider.select((s) => s.polyline.length >= 2));
+    final hasRoute =
+        ref.watch(routeEditorProvider.select((s) => s.polyline.length >= 2));
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
@@ -598,9 +597,8 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                     tooltip: context.l10n.waypointAdd,
                     active: ref.watch(dropWaypointModeProvider),
                     onPressed: () => ref
-                            .read(dropWaypointModeProvider.notifier)
-                            .state =
-                        !ref.read(dropWaypointModeProvider),
+                        .read(dropWaypointModeProvider.notifier)
+                        .state = !ref.read(dropWaypointModeProvider),
                   ),
                 ],
               ),
@@ -727,7 +725,8 @@ class _RoundButton extends StatelessWidget {
             ? BorderSide(color: scheme.primary, width: 2)
             : BorderSide.none,
       ),
-      child: IconButton(icon: Icon(icon), tooltip: tooltip, onPressed: onPressed),
+      child:
+          IconButton(icon: Icon(icon), tooltip: tooltip, onPressed: onPressed),
     );
   }
 }
@@ -923,7 +922,8 @@ class _LoadedSheet extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final fmt = ref.watch(unitFormatterProvider);
     final stats = ref.watch(routeEditorProvider.select((s) => s.stats));
-    final profile = ref.watch(routeEditorProvider.select((s) => s.stats.profile));
+    final profile =
+        ref.watch(routeEditorProvider.select((s) => s.stats.profile));
     final covered = ref.watch(routeCoveredProvider);
 
     return DraggableScrollableSheet(
@@ -996,8 +996,8 @@ class _LoadedSheet extends ConsumerWidget {
                               ? const SizedBox(
                                   width: 18,
                                   height: 18,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2),
+                                  child:
+                                      CircularProgressIndicator(strokeWidth: 2),
                                 )
                               : const Icon(Icons.download),
                           label: Text(l10n.navDownload),

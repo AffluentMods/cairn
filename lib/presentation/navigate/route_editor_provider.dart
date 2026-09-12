@@ -152,7 +152,9 @@ class RouteEditorNotifier extends Notifier<RouteEditorState> {
     // X1.3.1), so the ways list crosses the isolate boundary once.
     final built = await buildRouteAsync(
       ways,
-      [for (final w in wps) [w.lat, w.lon]],
+      [
+        for (final w in wps) [w.lat, w.lon]
+      ],
     );
 
     final stats = await computeRouteStats(

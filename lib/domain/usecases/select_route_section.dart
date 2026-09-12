@@ -21,7 +21,8 @@ List<List<double>> selectRouteSection(
   if (geometry.length < 2) return geometry;
 
   var section = geometry;
-  if (polylineLengthMeters(geometry) > _wholeTrailMaxM && viewportBbox != null) {
+  if (polylineLengthMeters(geometry) > _wholeTrailMaxM &&
+      viewportBbox != null) {
     final clipped = _clipToViewport(geometry, viewportBbox);
     if (clipped.length >= 2) section = clipped;
   }

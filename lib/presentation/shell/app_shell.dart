@@ -43,26 +43,26 @@ class AppShell extends ConsumerWidget {
           selectedIndex: current,
           onDestinationSelected: _onTap,
           destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.explore_outlined),
-            selectedIcon: const Icon(Icons.explore),
-            label: l10n.tabExplore,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.navigation_outlined),
-            selectedIcon: const Icon(Icons.navigation),
-            label: l10n.tabNavigate,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.bookmark_border),
-            selectedIcon: const Icon(Icons.bookmark),
-            label: l10n.tabSaved,
-          ),
-          NavigationDestination(
-            icon: const Icon(Icons.timeline),
-            selectedIcon: const Icon(Icons.timeline),
-            label: l10n.tabActivity,
-          ),
+            NavigationDestination(
+              icon: const Icon(Icons.explore_outlined),
+              selectedIcon: const Icon(Icons.explore),
+              label: l10n.tabExplore,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.navigation_outlined),
+              selectedIcon: const Icon(Icons.navigation),
+              label: l10n.tabNavigate,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.bookmark_border),
+              selectedIcon: const Icon(Icons.bookmark),
+              label: l10n.tabSaved,
+            ),
+            NavigationDestination(
+              icon: const Icon(Icons.timeline),
+              selectedIcon: const Icon(Icons.timeline),
+              label: l10n.tabActivity,
+            ),
           ],
         ),
       ),

@@ -131,7 +131,8 @@ class SettingsScreen extends ConsumerWidget {
             subtitle: Text(l10n.diagnosticsSubtitle),
             leading: const Icon(Icons.bug_report_outlined),
             onTap: () => Navigator.of(context).push(
-              MaterialPageRoute<void>(builder: (_) => const DiagnosticsScreen()),
+              MaterialPageRoute<void>(
+                  builder: (_) => const DiagnosticsScreen()),
             ),
           ),
           if (kDebugMode) ...[

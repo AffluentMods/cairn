@@ -121,8 +121,7 @@ class LayerSheet extends ConsumerWidget {
                     _BasemapTile(
                       def: b,
                       selected: b.key == selected.key,
-                      onTap: () =>
-                          ref.read(basemapProvider.notifier).select(b),
+                      onTap: () => ref.read(basemapProvider.notifier).select(b),
                     ),
                 ],
               ),
@@ -244,8 +243,8 @@ class _BasemapTile extends StatelessWidget {
                           color: scheme.surface,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.check,
-                            size: 12, color: scheme.primary),
+                        child:
+                            Icon(Icons.check, size: 12, color: scheme.primary),
                       ),
                     ),
                 ],
@@ -314,7 +313,9 @@ class _TiltTile extends ConsumerWidget {
         children: [
           Icon(Icons.landscape, size: 17, color: scheme.onSurface),
           const SizedBox(width: 8),
-          Expanded(child: Text(l10n.layersTilt, style: const TextStyle(fontSize: 12.5))),
+          Expanded(
+              child: Text(l10n.layersTilt,
+                  style: const TextStyle(fontSize: 12.5))),
           Switch(
             value: on,
             onChanged: (v) {
@@ -354,7 +355,8 @@ class _MiniActionTile extends StatelessWidget {
           children: [
             Icon(icon, size: 17, color: scheme.onSurface),
             const SizedBox(width: 8),
-            Expanded(child: Text(label, style: const TextStyle(fontSize: 12.5))),
+            Expanded(
+                child: Text(label, style: const TextStyle(fontSize: 12.5))),
             trailing,
           ],
         ),
@@ -425,7 +427,9 @@ class _OverlayRow extends ConsumerWidget {
           secondary: Icon(_iconFor(def.key), color: scheme.onSurface, size: 20),
           title: Row(
             children: [
-              Flexible(child: Text(def.label(l10n), style: const TextStyle(fontSize: 14))),
+              Flexible(
+                  child: Text(def.label(l10n),
+                      style: const TextStyle(fontSize: 14))),
               if (coverage.isNotEmpty) ...[
                 const SizedBox(width: 8),
                 _CoverageChip(text: coverage),
@@ -435,7 +439,8 @@ class _OverlayRow extends ConsumerWidget {
           subtitle: Text(def.subtitle(l10n),
               style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
         ),
-        if (on && def.key == 'slope') _SlopeLegend(disclaimer: def.disclaimer?.call(l10n)),
+        if (on && def.key == 'slope')
+          _SlopeLegend(disclaimer: def.disclaimer?.call(l10n)),
       ],
     );
   }

@@ -212,7 +212,8 @@ class FavoriteTrails extends Table {
 /// pin unless the user asks.
 class UserWaypoints extends Table {
   TextColumn get id => text()(); // uuid
-  TextColumn get kind => text()(); // water, camp, hazard, viewpoint, parking, note
+  TextColumn get kind =>
+      text()(); // water, camp, hazard, viewpoint, parking, note
   TextColumn get name => text().nullable()();
   TextColumn get note => text().nullable()();
   RealColumn get lat => real()();

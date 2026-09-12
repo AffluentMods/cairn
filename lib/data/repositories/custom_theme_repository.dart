@@ -41,7 +41,8 @@ class CustomThemeRepository {
         track: Color(r.track),
       );
 
-  CustomThemesCompanion _toRow(CairnThemeSpec s) => CustomThemesCompanion.insert(
+  CustomThemesCompanion _toRow(CairnThemeSpec s) =>
+      CustomThemesCompanion.insert(
         id: s.id,
         name: s.name,
         isDark: s.isDark,

@@ -24,8 +24,14 @@ class AppearanceScreen extends ConsumerWidget {
     final s = ref.watch(settingsProvider);
     final notifier = ref.read(settingsProvider.notifier);
     final all = ref.watch(availableThemesProvider);
-    final dark = [for (final t in all) if (t.isDark) t];
-    final light = [for (final t in all) if (!t.isDark) t];
+    final dark = [
+      for (final t in all)
+        if (t.isDark) t
+    ];
+    final light = [
+      for (final t in all)
+        if (!t.isDark) t
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -106,8 +112,7 @@ class AppearanceScreen extends ConsumerWidget {
   void _edit(BuildContext context, CairnThemeSpec spec) {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) =>
-            ThemeDesignerScreen(base: spec, isEditingCustom: true),
+        builder: (_) => ThemeDesignerScreen(base: spec, isEditingCustom: true),
       ),
     );
   }
@@ -139,12 +144,14 @@ class AppearanceScreen extends ConsumerWidget {
     );
     if (text == null || text.trim().isEmpty) return;
     try {
-      final id = 'custom-${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}';
+      final id =
+          'custom-${DateTime.now().microsecondsSinceEpoch.toRadixString(36)}';
       final spec = themeFromImport(text, id: id);
       await ref.read(customThemeRepositoryProvider).save(spec);
       messenger.showSnackBar(SnackBar(content: Text(l10n.designerImported)));
     } on FormatException {
-      messenger.showSnackBar(SnackBar(content: Text(l10n.designerImportFailed)));
+      messenger
+          .showSnackBar(SnackBar(content: Text(l10n.designerImportFailed)));
     }
   }
 

@@ -87,8 +87,7 @@ class CairnColors extends ThemeExtension<CairnColors> {
 /// set if a screen is somehow built without the extension, so a read never
 /// throws.
 extension CairnColorsX on BuildContext {
-  CairnColors get cairn =>
-      Theme.of(this).extension<CairnColors>() ?? _fallback;
+  CairnColors get cairn => Theme.of(this).extension<CairnColors>() ?? _fallback;
 
   static const _fallback = CairnColors(
     accent: Color(0xFFD9A441),

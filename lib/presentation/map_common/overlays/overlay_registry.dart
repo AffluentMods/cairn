@@ -59,8 +59,7 @@ class OverlayDef {
 // ArcGIS ImageServer rendering rules, URL-encoded so the whole value can sit in
 // a tile template. The exact rule names and NWS service paths are verified live
 // on device and logged in docs/API_NOTES.md; until then these are best-effort.
-const _slopeRule =
-    '%7B%22rasterFunction%22%3A%22Slope%20Map%22%7D';
+const _slopeRule = '%7B%22rasterFunction%22%3A%22Slope%20Map%22%7D';
 const _hillshadeRule =
     '%7B%22rasterFunction%22%3A%22Hillshade%20Multidirectional%22%7D';
 
@@ -92,8 +91,7 @@ final overlays = <OverlayDef>[
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlayTemperature,
     subtitle: (l) => l.overlayTemperatureSubtitle,
-    tileUrl:
-        'https://mapservices.weather.noaa.gov/raster/rest/services/NDFD/'
+    tileUrl: 'https://mapservices.weather.noaa.gov/raster/rest/services/NDFD/'
         'NDFD_temp/MapServer/export?layers=show:5&$_arcgisExport',
     opacity: 0.5,
     refresh: const Duration(hours: 1),
@@ -106,8 +104,7 @@ final overlays = <OverlayDef>[
     kind: OverlaySourceKind.rasterTiles,
     label: (l) => l.overlaySnowDepth,
     subtitle: (l) => l.overlaySnowDepthSubtitle,
-    tileUrl:
-        'https://mapservices.weather.noaa.gov/raster/rest/services/snow/'
+    tileUrl: 'https://mapservices.weather.noaa.gov/raster/rest/services/snow/'
         'NOHRSC_Snow_Analysis/MapServer/export?layers=show:0&$_arcgisExport',
     opacity: 0.6,
     refresh: const Duration(hours: 6),

@@ -6,9 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 /// handle it; the web fallback is a plain URL, so the community build links no
 /// Google library. Returns false if nothing could handle it.
 Future<bool> openDirections(double lat, double lon, {String? label}) async {
-  final query = label == null
-      ? '$lat,$lon'
-      : '$lat,$lon(${Uri.encodeComponent(label)})';
+  final query =
+      label == null ? '$lat,$lon' : '$lat,$lon(${Uri.encodeComponent(label)})';
   final geo = Uri.parse('geo:$lat,$lon?q=$query');
   if (await canLaunchUrl(geo)) {
     return launchUrl(geo, mode: LaunchMode.externalApplication);

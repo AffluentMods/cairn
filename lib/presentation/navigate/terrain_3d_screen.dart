@@ -66,8 +66,8 @@ class _Terrain3dScreenState extends ConsumerState<Terrain3dScreen> {
     // Drape the active base map on the terrain (its sources already use absolute
     // HTTPS URLs and carry a terrain-dem source and route layers), rather than a
     // bare hillshade (Fix Pass 1 X3).
-    final style =
-        jsonDecode(await rootBundle.loadString(base.assetPath)) as Map<String, dynamic>;
+    final style = jsonDecode(await rootBundle.loadString(base.assetPath))
+        as Map<String, dynamic>;
 
     List<List<double>>? bounds;
     List<double>? start;
@@ -92,7 +92,9 @@ class _Terrain3dScreenState extends ConsumerState<Terrain3dScreen> {
       start = [route.first[1], route.first[0]];
       end = [route.last[1], route.last[0]];
       // GeoJSON [lon, lat] for the fly-along path.
-      _routeLngLat = [for (final p in route) [p[1], p[0]]];
+      _routeLngLat = [
+        for (final p in route) [p[1], p[0]]
+      ];
     }
 
     final opts = {
@@ -150,7 +152,8 @@ class _Terrain3dScreenState extends ConsumerState<Terrain3dScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.cloud_off, color: Colors.white24, size: 48),
+                    const Icon(Icons.cloud_off,
+                        color: Colors.white24, size: 48),
                     const SizedBox(height: 16),
                     Text(
                       l10n.nav3dNeedsConnection,

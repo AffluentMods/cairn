@@ -33,9 +33,22 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'id': 'fires-fill',
         'type': 'fill',
         'source': 'cairn-fires',
-        'filter': ['==', ['geometry-type'], 'Polygon'],
+        'filter': [
+          '==',
+          ['geometry-type'],
+          'Polygon'
+        ],
         'paint': {
-          'fill-color': ['case', ['==', ['get', 'prescribed'], true], '#F5A524', '#E5484D'],
+          'fill-color': [
+            'case',
+            [
+              '==',
+              ['get', 'prescribed'],
+              true
+            ],
+            '#F5A524',
+            '#E5484D'
+          ],
           'fill-opacity': 0.28,
         },
       },
@@ -43,9 +56,22 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'id': 'fires-line',
         'type': 'line',
         'source': 'cairn-fires',
-        'filter': ['==', ['geometry-type'], 'Polygon'],
+        'filter': [
+          '==',
+          ['geometry-type'],
+          'Polygon'
+        ],
         'paint': {
-          'line-color': ['case', ['==', ['get', 'prescribed'], true], '#F5A524', '#E5484D'],
+          'line-color': [
+            'case',
+            [
+              '==',
+              ['get', 'prescribed'],
+              true
+            ],
+            '#F5A524',
+            '#E5484D'
+          ],
           'line-width': 2,
         },
       },
@@ -54,7 +80,11 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'type': 'line',
         'source': 'cairn-trails',
         'layout': {'line-cap': 'round', 'line-join': 'round'},
-        'paint': {'line-color': '#F6F3EC', 'line-width': 4, 'line-opacity': 0.7},
+        'paint': {
+          'line-color': '#F6F3EC',
+          'line-width': 4,
+          'line-opacity': 0.7
+        },
       },
       {
         'id': 'trails',
@@ -62,9 +92,43 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'source': 'cairn-trails',
         'layout': {'line-cap': 'round', 'line-join': 'round'},
         'paint': {
-          'line-color': ['case', ['==', ['get', 'informal'], true], '#9C8A6E', '#6B4F2A'],
-          'line-width': ['interpolate', ['linear'], ['zoom'], 10, 1, 14, 2.5, 17, 4],
-          'line-dasharray': ['case', ['==', ['get', 'informal'], true], ['literal', [2, 2]], ['literal', [1, 0]]],
+          'line-color': [
+            'case',
+            [
+              '==',
+              ['get', 'informal'],
+              true
+            ],
+            '#9C8A6E',
+            '#6B4F2A'
+          ],
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            10,
+            1,
+            14,
+            2.5,
+            17,
+            4
+          ],
+          'line-dasharray': [
+            'case',
+            [
+              '==',
+              ['get', 'informal'],
+              true
+            ],
+            [
+              'literal',
+              [2, 2]
+            ],
+            [
+              'literal',
+              [1, 0]
+            ]
+          ],
         },
       },
       {
@@ -72,7 +136,11 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'type': 'line',
         'source': 'cairn-route',
         'layout': {'line-cap': 'round', 'line-join': 'round'},
-        'paint': {'line-color': '#0E1412', 'line-width': 7, 'line-opacity': 0.6},
+        'paint': {
+          'line-color': '#0E1412',
+          'line-width': 7,
+          'line-opacity': 0.6
+        },
       },
       {
         'id': 'route',
@@ -82,7 +150,22 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'paint': {
           'line-color': '#D9A441',
           'line-width': 4,
-          'line-dasharray': ['case', ['==', ['get', 'offTrail'], true], ['literal', [2, 2]], ['literal', [1, 0]]],
+          'line-dasharray': [
+            'case',
+            [
+              '==',
+              ['get', 'offTrail'],
+              true
+            ],
+            [
+              'literal',
+              [2, 2]
+            ],
+            [
+              'literal',
+              [1, 0]
+            ]
+          ],
         },
       },
       {
@@ -96,8 +179,16 @@ List<Map<String, dynamic>> _overlayLayers() => [
         'id': 'fires-point',
         'type': 'symbol',
         'source': 'cairn-fires',
-        'filter': ['==', ['geometry-type'], 'Point'],
-        'layout': {'icon-image': 'fire', 'icon-size': 0.9, 'icon-allow-overlap': true},
+        'filter': [
+          '==',
+          ['geometry-type'],
+          'Point'
+        ],
+        'layout': {
+          'icon-image': 'fire',
+          'icon-size': 0.9,
+          'icon-allow-overlap': true
+        },
       },
       {
         'id': 'pois',
@@ -135,14 +226,23 @@ Future<void> main() async {
   final sources = (style['sources'] as Map<String, dynamic>);
   sources['terrain-dem'] = {
     'type': 'raster-dem',
-    'tiles': ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
+    'tiles': [
+      'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'
+    ],
     'tileSize': 256,
     'encoding': 'terrarium',
     'minzoom': 0,
     'maxzoom': 15,
     'attribution': 'Terrain: Mapzen / AWS Terrain Tiles',
   };
-  for (final s in ['cairn-land', 'cairn-fires', 'cairn-trails', 'cairn-route', 'cairn-track', 'cairn-pois']) {
+  for (final s in [
+    'cairn-land',
+    'cairn-fires',
+    'cairn-trails',
+    'cairn-route',
+    'cairn-track',
+    'cairn-pois'
+  ]) {
     sources[s] = _emptyGeojson();
   }
 
@@ -153,7 +253,9 @@ Future<void> main() async {
   var insertAt = 1;
   for (var i = 0; i < layers.length; i++) {
     final id = (layers[i]['id'] as String?)?.toLowerCase() ?? '';
-    if (id.contains('water') || id.contains('landcover') || id.contains('landuse')) {
+    if (id.contains('water') ||
+        id.contains('landcover') ||
+        id.contains('landuse')) {
       insertAt = i + 1;
     }
   }
@@ -161,7 +263,10 @@ Future<void> main() async {
     'id': 'hillshade',
     'type': 'hillshade',
     'source': 'terrain-dem',
-    'paint': {'hillshade-exaggeration': 0.35, 'hillshade-shadow-color': '#2b2b2b'},
+    'paint': {
+      'hillshade-exaggeration': 0.35,
+      'hillshade-shadow-color': '#2b2b2b'
+    },
   });
 
   layers.addAll(_overlayLayers());
@@ -170,5 +275,6 @@ Future<void> main() async {
 
   final out = File(_outPath);
   await out.writeAsString(const JsonEncoder.withIndent('  ').convert(style));
-  stdout.writeln('Wrote $_outPath (${layers.length} layers, ${sources.length} sources)');
+  stdout.writeln(
+      'Wrote $_outPath (${layers.length} layers, ${sources.length} sources)');
 }

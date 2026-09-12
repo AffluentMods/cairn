@@ -50,9 +50,9 @@ class _TrailDetailSheet extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final sac = sacLabel(l10n, trail.sacScale);
     final trailId = 'w${trail.id}';
-    final saved = (ref.watch(savedTrailIdsProvider).valueOrNull ??
-            const <String>{})
-        .contains(trailId);
+    final saved =
+        (ref.watch(savedTrailIdsProvider).valueOrNull ?? const <String>{})
+            .contains(trailId);
 
     return DraggableScrollableSheet(
       initialChildSize: 0.4,

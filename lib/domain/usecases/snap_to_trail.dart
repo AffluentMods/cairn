@@ -80,8 +80,7 @@ class BuiltRoute {
   final bool offTrail;
   final List<bool> onTrail;
 
-  static const empty =
-      BuiltRoute(polyline: [], offTrail: false, onTrail: []);
+  static const empty = BuiltRoute(polyline: [], offTrail: false, onTrail: []);
 }
 
 /// Snaps every `[lat, lon]` waypoint to [ways] and routes each leg, joining the

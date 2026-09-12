@@ -22,7 +22,8 @@ CairnThemeSpec _resolve(List<CairnThemeSpec> all, String id, bool dark) {
 
 /// The light and dark [ThemeData] currently selected, rebuilt only when the
 /// settings or the available themes change (Fix Pass 1 X4.3).
-final activeThemesProvider = Provider<({ThemeData light, ThemeData dark})>((ref) {
+final activeThemesProvider =
+    Provider<({ThemeData light, ThemeData dark})>((ref) {
   final s = ref.watch(settingsProvider);
   final all = ref.watch(availableThemesProvider);
   final dark = _resolve(all, s.darkThemeId, true);

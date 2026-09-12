@@ -141,7 +141,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         if (stale()) return;
         final sig = trailsSignature(trails, viewport.zoom);
         if (sig != _trailsSig) {
-          final geojson = await trailsToGeoJsonAsync(trails, zoom: viewport.zoom);
+          final geojson =
+              await trailsToGeoJsonAsync(trails, zoom: viewport.zoom);
           if (stale()) return;
           await controller.setGeoJsonSource('cairn-trails', geojson);
           _trailsSig = sig;
@@ -153,7 +154,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           setState(() => _showOfflineBanner = true);
         }
       } else if (_trailsSig != null) {
-        await controller.setGeoJsonSource('cairn-trails', emptyFeatureCollection());
+        await controller.setGeoJsonSource(
+            'cairn-trails', emptyFeatureCollection());
         _trailsSig = null;
       }
 
@@ -169,7 +171,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           _poisSig = sig;
         }
       } else if (_poisSig != null) {
-        await controller.setGeoJsonSource('cairn-pois', emptyFeatureCollection());
+        await controller.setGeoJsonSource(
+            'cairn-pois', emptyFeatureCollection());
         _poisSig = null;
       }
 
@@ -180,7 +183,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         if (stale()) return;
         await controller.setGeoJsonSource('cairn-fires', firesToGeoJson(fires));
       } else {
-        await controller.setGeoJsonSource('cairn-fires', emptyFeatureCollection());
+        await controller.setGeoJsonSource(
+            'cairn-fires', emptyFeatureCollection());
       }
 
       if (layers.contains(MapOverlay.land)) {
@@ -190,7 +194,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         if (stale()) return;
         await controller.setGeoJsonSource('cairn-land', landToGeoJson(land));
       } else {
-        await controller.setGeoJsonSource('cairn-land', emptyFeatureCollection());
+        await controller.setGeoJsonSource(
+            'cairn-land', emptyFeatureCollection());
       }
     } finally {
       _refreshing = false;
@@ -253,7 +258,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             top: topInset + 8,
             left: 12,
             child: Material(
-              color: Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
+              color:
+                  Theme.of(context).colorScheme.surface.withValues(alpha: 0.92),
               shape: const CircleBorder(),
               child: IconButton(
                 icon: const Icon(Icons.search),
@@ -262,7 +268,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               ),
             ),
           ),
-          Positioned(top: topInset + 8, right: 12, child: const LayerSwitcherButton()),
+          Positioned(
+              top: topInset + 8, right: 12, child: const LayerSwitcherButton()),
           const Positioned(right: 16, bottom: 200, child: LocationFab()),
           if (hasHighlight)
             Positioned(

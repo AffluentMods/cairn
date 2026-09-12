@@ -100,7 +100,8 @@ Future<ProfileView> buildProfileViewAsync(
   List<ProfilePoint> profile,
   int targetPixels,
 ) =>
-    GeoWorker.run('profile-view', () => buildProfileView(profile, targetPixels));
+    GeoWorker.run(
+        'profile-view', () => buildProfileView(profile, targetPixels));
 
 /// The elevation profile (spec Section 9.4, Fix Pass 1 X2.5): a single neutral
 /// area fill with an accent progress fill up to the scrubber, a grade-colored
@@ -230,7 +231,8 @@ class _ProfilePainter extends CustomPainter {
     final dist = view.dist;
     final elev = view.elev;
     final totalD = dist.last == 0 ? 1.0 : dist.last;
-    final range = (view.maxE - view.minE).abs() < 1 ? 1.0 : view.maxE - view.minE;
+    final range =
+        (view.maxE - view.minE).abs() < 1 ? 1.0 : view.maxE - view.minE;
 
     double xOf(double d) => d / totalD * size.width;
     double yOf(double e) =>
@@ -248,14 +250,16 @@ class _ProfilePainter extends CustomPainter {
     area
       ..lineTo(offsets.last.dx, size.height)
       ..close();
-    canvas.drawPath(area, Paint()..color = neutralColor.withValues(alpha: 0.10));
+    canvas.drawPath(
+        area, Paint()..color = neutralColor.withValues(alpha: 0.10));
 
     // One accent progress fill, clipped to the left of the scrubber.
     if (scrubX != null) {
       final x = scrubX!.clamp(0.0, size.width);
       canvas.save();
       canvas.clipRect(Rect.fromLTWH(0, 0, x, size.height));
-      canvas.drawPath(area, Paint()..color = accentColor.withValues(alpha: 0.20));
+      canvas.drawPath(
+          area, Paint()..color = accentColor.withValues(alpha: 0.20));
       canvas.restore();
     }
 
