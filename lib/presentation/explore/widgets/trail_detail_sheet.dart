@@ -5,6 +5,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+import '../../../core/geo/haversine.dart';
 import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/settings/settings_providers.dart';
 import '../../../data/data_providers.dart';
@@ -161,6 +162,15 @@ class _TrailDetailSheet extends ConsumerWidget {
                           userLat: last?.latitude,
                           userLon: last?.longitude,
                         );
+                        ref.read(routeStartDistanceProvider.notifier).state =
+                            (last != null && section.length >= 2)
+                                ? haversineMeters(
+                                    last.latitude,
+                                    last.longitude,
+                                    section.first[0],
+                                    section.first[1],
+                                  )
+                                : null;
                         ref
                             .read(routeEditorProvider.notifier)
                             .loadPolyline(section);

@@ -1624,6 +1624,12 @@ abstract class AppLocalizations {
   /// **'Recenter'**
   String get navRecenter;
 
+  /// No description provided for @navStartFar.
+  ///
+  /// In en, this message translates to:
+  /// **'Trailhead is {distance} away'**
+  String navStartFar(String distance);
+
   /// No description provided for @navClose.
   ///
   /// In en, this message translates to:

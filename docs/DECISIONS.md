@@ -83,9 +83,10 @@ option that ships fastest and record it here.
   fills the token in the upstream URL, and forwards the request. The release network security
   config now permits cleartext to `127.0.0.1`/`localhost` only; loopback never touches the
   network, so transport security for real endpoints is unchanged.
-- **Follow-route Summit gate pending the user's decision.** Reason: Section 12.4 gates follow
-  mode behind Summit, but Navigate's Start uses follow mode. Built ungated for now (gates land
-  in Phase 9 regardless); open item in PROGRESS: is follow-route free?
+- **Follow-route live navigation is free for everyone (user decided 2026-09-11).** Reason:
+  Section 12.4 listed follow mode under Summit, but the user chose to keep Start's live
+  heading-up follow, off-route haptic, and recenter free. Phase 9 must not gate it; Summit's
+  value comes from other features. Recording tracks were always free.
 - **FavoriteTrails and UserWaypoints land in Drift schema v3, not v2.** Reason: Addendum A7
   wrote them as v2, but the sync feature had already claimed schemaVersion 2 (Tombstones +
   Tracks.lastModified). Trust the real code: these two tables ship in a v2 to v3 migration so

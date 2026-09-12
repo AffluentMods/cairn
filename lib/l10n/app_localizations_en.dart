@@ -843,6 +843,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navRecenter => 'Recenter';
 
   @override
+  String navStartFar(String distance) {
+    return 'Trailhead is $distance away';
+  }
+
+  @override
   String get navClose => 'Close';
 
   @override

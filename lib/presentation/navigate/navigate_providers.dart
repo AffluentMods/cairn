@@ -29,6 +29,11 @@ final fitRouteProvider = StateProvider<int>((ref) => 0);
 /// X2.4); null for an untouched or freshly drawn route.
 final activeRouteNameProvider = StateProvider<String?>((ref) => null);
 
+/// Distance in meters from the user's last-known fix to the loaded route's
+/// start, or null when unknown. Navigate shows a "trailhead is far" banner with
+/// directions when this is over a mile (Fix Pass 1 X2.2).
+final routeStartDistanceProvider = StateProvider<double?>((ref) => null);
+
 /// Dev-only: when on, recording walks a simulated route instead of using GPS,
 /// so navigation and follow mode can be exercised without moving (Fix Pass 1
 /// X2.8). Only surfaced in Settings > Developer in debug builds; ignored in

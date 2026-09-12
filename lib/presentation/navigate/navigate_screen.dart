@@ -224,6 +224,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     ref.read(routeEditorProvider.notifier).clear();
     ref.read(editModeProvider.notifier).state = false;
     ref.read(activeRouteNameProvider.notifier).state = null;
+    ref.read(routeStartDistanceProvider.notifier).state = null;
     _syncRoute();
   }
 
@@ -535,6 +536,12 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final editing = ref.watch(editModeProvider);
     final hasRoute =
         ref.watch(routeEditorProvider.select((s) => s.polyline.length >= 2));
+    final startDist = ref.watch(routeStartDistanceProvider);
+    final startFar = hasRoute &&
+        !editing &&
+        !recording &&
+        startDist != null &&
+        startDist > 1609;
 
     ref.listen(routeEditorProvider, (_, __) => _syncRoute());
     ref.listen(scrubDistanceProvider, (_, next) => _updateScrub(next));
@@ -661,6 +668,50 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                         ],
                       ),
                     ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Trailhead-is-far banner with directions (Fix Pass 1 X2.2).
+          if (startFar)
+            Positioned(
+              top: topInset + 8,
+              left: 68,
+              right: 68,
+              child: Material(
+                color: context.cairn.raised,
+                borderRadius: BorderRadius.circular(12),
+                elevation: 2,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 4, 4),
+                  child: Row(
+                    children: [
+                      Icon(Icons.pin_drop_outlined,
+                          size: 18, color: context.cairn.textSecondary),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          context.l10n.navStartFar(
+                            ref
+                                .watch(unitFormatterProvider)
+                                .distance(startDist),
+                          ),
+                          style: TextStyle(
+                              fontSize: 13, color: context.cairn.textPrimary),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          final poly = ref.read(routeEditorProvider).polyline;
+                          if (poly.isNotEmpty) {
+                            openDirections(poly.first[0], poly.first[1],
+                                label: ref.read(activeRouteNameProvider));
+                          }
+                        },
+                        child: Text(context.l10n.navDirections),
+                      ),
+                    ],
                   ),
                 ),
               ),

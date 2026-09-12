@@ -303,6 +303,8 @@
   "nav3dFlyAlong": "Fly along route",
   "nav3dResetNorth": "Reset north",
   "navRecenter": "Recenter",
+  "navStartFar": "Trailhead is {distance} away",
+  "@navStartFar": { "placeholders": { "distance": { "type": "String" } } },
   "navClose": "Close",
   "routeUnnamed": "Unnamed route",
   "mapLoading": "Loading map",
