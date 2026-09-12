@@ -14,6 +14,7 @@ import '../../domain/models/route_plan.dart';
 import '../shared/empty_state.dart';
 import 'gpx_import.dart';
 import 'library_providers.dart';
+import 'profile_sparklines.dart';
 
 /// The Saved tab (Addendum A1): saved routes, saved trails, and offline regions.
 /// The app bar carries Import GPX and Settings.
@@ -122,6 +123,7 @@ class _RoutesTab extends ConsumerWidget {
                   title: Text(r.name),
                   subtitle:
                       Text(_subtitle(ref, r.updatedAt, r.distanceM, r.gainM)),
+                  trailing: RouteSparkline(route: r),
                   onTap: () => context.push('/saved/route/${r.id}'),
                 ),
               ),

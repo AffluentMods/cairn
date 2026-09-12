@@ -9,6 +9,7 @@ import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../domain/models/track.dart';
 import '../saved/library_providers.dart';
+import '../saved/profile_sparklines.dart';
 import '../shared/empty_state.dart';
 
 /// The Activity tab: recorded tracks with this-month totals and swipe to delete
@@ -47,6 +48,7 @@ class ActivityScreen extends ConsumerWidget {
                     leading: const Icon(Icons.timeline_outlined),
                     title: Text(t.name),
                     subtitle: Text(_subtitle(ref, t)),
+                    trailing: TrackSparkline(track: t),
                     onTap: () => context.push('/activity/track/${t.id}'),
                   ),
                 ),

@@ -29,8 +29,10 @@ import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/camera_provider.dart';
 import '../map_common/map_geojson.dart';
+import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/poi_icons.dart';
+import '../map_common/trails_layer_sync.dart';
 import '../map_common/widgets/elevation_profile.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
@@ -293,12 +295,68 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     }
   }
 
+  // Cached OSM trails under the route (spec Phase 3: "all Phase 3 behavior
+  // applies" in customize mode, and a tap snaps to trails you can see). Same
+  // helper as Explore; fetching is capped the same way.
+  int? _trailsSig;
+  int _trailsGen = 0;
+  bool _trailsRefreshing = false;
+  bool _trailsPending = false;
+  Timer? _trailsDebounce;
+
+  @override
+  void dispose() {
+    _trailsDebounce?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onCameraIdleNav(MapLibreMapController c) async {
+    _trailsGen++;
+    _trailsDebounce?.cancel();
+    _trailsDebounce = Timer(const Duration(milliseconds: 400), _refreshTrails);
+  }
+
+  Future<void> _refreshTrails() async {
+    if (_trailsRefreshing) {
+      _trailsPending = true;
+      return;
+    }
+    final c = _c;
+    final viewport = ref.read(viewportProvider);
+    if (c == null || viewport == null || !_isActiveTab) return;
+    _trailsRefreshing = true;
+    final gen = _trailsGen;
+    bool stale() => gen != _trailsGen;
+    try {
+      if (!ref.read(mapLayersProvider).contains(MapOverlay.trails)) return;
+      final synced = await syncTrailsLayer(
+        controller: c,
+        viewport: viewport,
+        repo: ref.read(trailRepositoryProvider),
+        previousSig: _trailsSig,
+        isStale: stale,
+        fetch: viewportFetchesCells(viewport),
+      );
+      if (synced != null) _trailsSig = synced.sig;
+    } catch (_) {
+      // disposed controller between tabs
+    } finally {
+      _trailsRefreshing = false;
+      if (_trailsPending || gen != _trailsGen) {
+        _trailsPending = false;
+        unawaited(_refreshTrails());
+      }
+    }
+  }
+
   Future<void> _onStyleLoaded(MapLibreMapController c) async {
     _hookDrag(c);
     _handles.clear();
     _handleIndex.clear();
+    _trailsSig = null;
     await _installWaypointLayer(c);
     await _syncRoute();
+    unawaited(_refreshTrails());
     await _syncTrack();
     await _installUserWaypoints(c);
     if (_pendingFit) await _tryFit();
@@ -854,6 +912,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
                   }
                 : null,
             onStyleLoaded: _onStyleLoaded,
+            onCameraIdle: _onCameraIdleNav,
             onMapClick:
                 editing ? _onEditTap : (recording ? null : _onMapClickNav),
             onMapLongClick: (editing || recording) ? null : _onLongPress,

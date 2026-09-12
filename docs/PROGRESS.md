@@ -458,6 +458,11 @@ with no trails because its "already sent" signature survived the new map. All th
 (CairnMap delegates callbacks through its state; `waypointIconPng`; signatures reset on style
 load).
 
+Navigate now draws the cached trails under the route (shared `syncTrailsLayer`), so customizing
+snaps to trails you can see. Spec items filled in: elevation sparklines on Saved route rows and
+Activity track rows (Phase 4), the 3-day AQI sparkline (Phase 7), and camps along the route
+with the wilderness reminder (Phase 8, `campsites_along_route_test`).
+
 Climb pill: sustained climbs are found on the route profile (`findClimbs`, tested) and the
 recording sheet shows "Climb: 0.4 mi and 320 ft to the top" while one is under way. Design
 sweep of every screen on the emulator (layer sheet, conditions, waypoint editor, edit toolbar,

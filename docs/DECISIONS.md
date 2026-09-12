@@ -321,6 +321,19 @@ option that ships fastest and record it here.
   signatures skip re-sending an unchanged set (Fix Pass 1 X1.3.4), but a tab switch creates a
   new map with empty sources; keeping the old signature meant Explore came back from Navigate
   with no trails drawn until the view changed.
+- **Navigate draws the cached OSM trails under the route (same `syncTrailsLayer` helper and
+  cell cap as Explore, refreshed on camera idle).** Reason: Addendum A4.3 says all Phase 3
+  behavior applies in customize mode, and tap-to-snap only makes sense when the trails are on
+  screen; the Navigate map had none, so every drawn waypoint looked off-trail.
+- **Library and Activity rows carry an elevation sparkline (DEM along 48 points of a route;
+  the stored elevations of a track), cached per item for the session, and the AQI card shows
+  the 3-day hourly forecast as a sparkline.** Reason: spec Phase 4 ("tiny sparkline of the
+  profile") and Phase 7 ("3-day sparkline"), both missing. Routes with no cached DEM show an
+  empty slot rather than a flat line.
+- **Camps along the route (OSM camp sites, huts, shelters within 300 m, with distance along)
+  list under Water in the conditions panel, with the "200 ft from water and trail" reminder
+  when the route enters a wilderness.** Reason: spec Phase 8 campsites, missing; shares the
+  water helper's Summit gate.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

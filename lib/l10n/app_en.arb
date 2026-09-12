@@ -55,6 +55,9 @@
   "planWaterHeader": "Water",
   "planWaterLastBeforeClimb": "last before the climb",
   "planWaterSeasonal": "Seasonal streams may be dry in late summer.",
+  "planCampsHeader": "Camps",
+  "planCampWildernessReminder": "In wilderness, camp at least 200 ft from water and the trail.",
+  "condAqiThreeDays": "Next 3 days",
   "planDeleteWaypoint": "Delete waypoint",
 
   "statDistance": "distance",

@@ -13,16 +13,23 @@ import '../../../domain/models/air_quality.dart';
 import '../../../domain/models/fire_incident.dart';
 import '../../../domain/models/land_unit.dart';
 import '../../../domain/repositories/conditions_repository.dart';
+import '../../../domain/usecases/campsites_along_route.dart';
 import '../../../domain/usecases/compute_route_stats.dart';
 import '../../../domain/usecases/water_along_route.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../explore/widgets/trail_detail_sheet.dart' show poiKindLabel;
 import '../../shared/fire_format.dart';
 import '../../shared/inciweb_button.dart';
+import '../../shared/sparkline.dart';
 import '../../shared/time_ago.dart';
 
 const _waterKinds = {'spring', 'drinking_water', 'stream', 'river', 'water'};
 
-typedef _PanelData = ({ConditionsBundle bundle, List<WaterPoint> water});
+typedef _PanelData = ({
+  ConditionsBundle bundle,
+  List<WaterPoint> water,
+  List<CampPoint> camps,
+});
 
 /// Opens the conditions panel for a route (spec Phase 7). trailhead is the route
 /// start; high is the highest point.
@@ -141,7 +148,12 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
       candidates,
       profile: widget.profile,
     );
-    return (bundle: bundle, water: water);
+    final camps = campsitesAlongRoute(widget.routePolyline, [
+      for (final p in pois)
+        if (campKinds.contains(p.kind))
+          CampCandidate(lat: p.lat, lon: p.lon, kind: p.kind, name: p.name),
+    ]);
+    return (bundle: bundle, water: water, camps: camps);
   }
 
   @override
@@ -158,10 +170,11 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
             if (!snap.hasData) {
               return const Center(child: CircularProgressIndicator());
             }
+            final data = snap.data!;
             return ListView(
               controller: controller,
               padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-              children: _sections(context, snap.data!.bundle, snap.data!.water),
+              children: _sections(context, data.bundle, data.water, data.camps),
             );
           },
         );
@@ -173,6 +186,7 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
     BuildContext context,
     ConditionsBundle b,
     List<WaterPoint> water,
+    List<CampPoint> camps,
   ) {
     final l10n = context.l10n;
     final fmt = ref.read(unitFormatterProvider);
@@ -204,6 +218,39 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
       ..._land(context, b, l10n),
       ..._restrictions(context, b, l10n),
       ..._water(context, water, l10n, fmt),
+      ..._camps(context, b, camps, l10n, fmt),
+    ];
+  }
+
+  /// Camps within 300 m of the route with distance along it (spec Phase 8),
+  /// plus the wilderness reminder when the route enters one. Shares the
+  /// water helper's Summit gate; the water section already shows the pitch.
+  List<Widget> _camps(
+    BuildContext c,
+    ConditionsBundle b,
+    List<CampPoint> camps,
+    AppLocalizations l10n,
+    dynamic fmt,
+  ) {
+    if (camps.isEmpty || !ref.read(summitUnlockedProvider)) return const [];
+    final inWilderness = b.land.any((u) => u.kind == LandKind.wilderness);
+    return [
+      const Divider(),
+      Text(l10n.planCampsHeader, style: Theme.of(c).textTheme.titleSmall),
+      for (final camp in camps)
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+            '${fmt.distance(camp.distanceAlongM)}  '
+            '${camp.name ?? poiKindLabel(l10n, camp.kind)}',
+            style: Theme.of(c).textTheme.bodySmall,
+          ),
+        ),
+      if (inWilderness)
+        Text(
+          l10n.planCampWildernessReminder,
+          style: Theme.of(c).textTheme.labelSmall,
+        ),
     ];
   }
 
@@ -340,6 +387,28 @@ class _ConditionsPanelState extends ConsumerState<_ConditionsPanel> {
               '${l10n.condAqi}: ${aqi.currentAqi} ${aqiLabel(l10n, aqi.category)}'),
         ],
       ),
+      // The 3-day hourly forecast as a sparkline (spec Phase 7).
+      if (aqi.hourly.length >= 2)
+        Padding(
+          padding: const EdgeInsets.only(top: 4, bottom: 2),
+          child: Row(
+            children: [
+              Sparkline(
+                values: [
+                  for (final p in aqi.hourly.take(72)) p.aqi.toDouble(),
+                ],
+                width: 120,
+                height: 26,
+                color: aqiColor(aqi.category),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                l10n.condAqiThreeDays,
+                style: Theme.of(c).textTheme.labelSmall,
+              ),
+            ],
+          ),
+        ),
       Text(
         aqi.source == AqiSource.model ? l10n.condAqiModel : l10n.condAqiMonitor,
         style: Theme.of(c).textTheme.labelSmall,

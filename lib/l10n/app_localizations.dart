@@ -352,6 +352,24 @@ abstract class AppLocalizations {
   /// **'Seasonal streams may be dry in late summer.'**
   String get planWaterSeasonal;
 
+  /// No description provided for @planCampsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Camps'**
+  String get planCampsHeader;
+
+  /// No description provided for @planCampWildernessReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'In wilderness, camp at least 200 ft from water and the trail.'**
+  String get planCampWildernessReminder;
+
+  /// No description provided for @condAqiThreeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Next 3 days'**
+  String get condAqiThreeDays;
+
   /// No description provided for @planDeleteWaypoint.
   ///
   /// In en, this message translates to:

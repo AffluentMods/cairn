@@ -6,16 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
-import '../../core/geo/tile_math.dart';
 import '../../core/l10n/l10n_ext.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
 import '../../domain/models/fire_incident.dart';
-import '../../domain/repositories/trail_repository.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
+import '../map_common/trails_layer_sync.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
 import '../navigate/navigate_providers.dart';
@@ -28,10 +27,6 @@ import 'widgets/fire_card_sheet.dart';
 import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
 import 'widgets/trail_search.dart';
-
-/// The most z10 cells one viewport may fetch from Overpass (a 2 by 2 block,
-/// roughly zoom 10 and closer on a phone). Wider views render cached trails.
-const maxCellsPerRefresh = 4;
 
 /// The Explore tab (Addendum A4.1): a full-screen map with switchable base maps,
 /// OSM trails and POIs loaded per viewport, search, and a "Trails in view" sheet
@@ -195,29 +190,23 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       // 20 miles square). Fetch only when the view is close enough to be
       // worth it; further out, draw what is cached and the list says "zoom
       // in". Cells load center first and stop when the view moves on.
-      final fetchCells =
-          tilesForBbox(viewport.bbox, 10).length <= maxCellsPerRefresh;
+      final fetchCells = viewportFetchesCells(viewport);
 
       if (layers.contains(MapOverlay.trails)) {
-        final repo = ref.read(trailRepositoryProvider);
-        final result = fetchCells
-            ? await repo.ensureArea(viewport.bbox, isCancelled: stale)
-            : const TrailLoadResult(networkError: false, cellsFetched: 0);
-        if (stale()) return;
-        final trails = await repo.trailsInBbox(viewport.bbox);
-        if (stale()) return;
-        final sig = trailsSignature(trails, viewport.zoom);
-        if (sig != _trailsSig) {
-          final geojson =
-              await trailsToGeoJsonAsync(trails, zoom: viewport.zoom);
-          if (stale()) return;
-          await controller.setGeoJsonSource('cairn-trails', geojson);
-          _trailsSig = sig;
-        }
+        final synced = await syncTrailsLayer(
+          controller: controller,
+          viewport: viewport,
+          repo: ref.read(trailRepositoryProvider),
+          previousSig: _trailsSig,
+          isStale: stale,
+          fetch: fetchCells,
+        );
+        if (synced == null) return;
+        _trailsSig = synced.sig;
         // Rebuild the "Trails in view" list now that this area is cached, so a
         // cold load does not stay empty until the next pan (Fix Pass 1 X1.3.3).
         ref.invalidate(nearbyTrailsProvider);
-        if (mounted && result.networkError && trails.isEmpty) {
+        if (mounted && synced.load.networkError && synced.trails.isEmpty) {
           setState(() => _showOfflineBanner = true);
         }
       } else if (_trailsSig != null) {

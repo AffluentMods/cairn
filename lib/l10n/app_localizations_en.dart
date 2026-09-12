@@ -153,6 +153,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get planWaterSeasonal => 'Seasonal streams may be dry in late summer.';
 
   @override
+  String get planCampsHeader => 'Camps';
+
+  @override
+  String get planCampWildernessReminder =>
+      'In wilderness, camp at least 200 ft from water and the trail.';
+
+  @override
+  String get condAqiThreeDays => 'Next 3 days';
+
+  @override
   String get planDeleteWaypoint => 'Delete waypoint';
 
   @override
