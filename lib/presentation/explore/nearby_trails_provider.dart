@@ -6,6 +6,7 @@ import '../../core/worker/geo_worker.dart';
 import '../../data/data_providers.dart';
 import '../../domain/models/trail.dart';
 import '../../domain/usecases/chain_ways.dart';
+import '../../domain/usecases/select_route_section.dart';
 import '../map_common/map_providers.dart';
 
 /// One named trail in the current viewport, assembled for the Explore list
@@ -21,6 +22,7 @@ class NearbyTrail {
     required this.centerLon,
     required this.geometry,
     required this.navGeometry,
+    this.sectionInView = false,
   });
 
   /// A single way (a map tap or a search hit) as its own entry.
@@ -51,6 +53,10 @@ class NearbyTrail {
   /// The longest continuous chain of the ways, in walking order, for the
   /// profile, the rating, and Navigate.
   final List<List<double>> navGeometry;
+
+  /// True when the trail runs past 30 mi and this entry describes only the
+  /// part inside the viewport (Addendum A4.1, `exploreSectionInView`).
+  final bool sectionInView;
 
   String get id => 'w${trail.id}';
   String get name => trail.name ?? '';
@@ -123,9 +129,10 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
   final centerLat = (vp.south + vp.north) / 2;
   final centerLon = (vp.west + vp.east) / 2;
 
+  final bbox = vp.bbox;
   return GeoWorker.run(
     'nearby-trails',
-    () => buildNearbyTrails(trails, centerLat, centerLon),
+    () => buildNearbyTrails(trails, centerLat, centerLon, viewportBbox: bbox),
   );
 });
 
@@ -135,8 +142,9 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
 List<NearbyTrail> buildNearbyTrails(
   List<Trail> trails,
   double centerLat,
-  double centerLon,
-) {
+  double centerLon, {
+  List<double>? viewportBbox,
+}) {
   final byName = <String, List<Trail>>{};
   for (final t in trails) {
     final name = t.name;
@@ -150,24 +158,43 @@ List<NearbyTrail> buildNearbyTrails(
 
   final out = <NearbyTrail>[];
   byName.forEach((name, ways) {
-    out.add(buildNearbyTrail(ways, centerLat, centerLon));
+    out.add(
+      buildNearbyTrail(ways, centerLat, centerLon, viewportBbox: viewportBbox),
+    );
   });
 
   out.sort((a, b) => a.distanceM.compareTo(b.distanceM));
   return out.take(30).toList();
 }
 
-/// One entry from a group of same-named ways.
+/// One entry from a group of same-named ways. With [viewportBbox], a trail
+/// longer than 30 mi is clipped to the viewport plus 25% and flagged as a
+/// section (Addendum A4.1), so the PCT card describes what is on screen.
 NearbyTrail buildNearbyTrail(
   List<Trail> ways,
   double centerLat,
-  double centerLon,
-) {
-  final geometry = <List<double>>[for (final w in ways) ...w.geometry];
+  double centerLon, {
+  List<double>? viewportBbox,
+}) {
+  var geometry = <List<double>>[for (final w in ways) ...w.geometry];
   var length = 0.0;
   for (final w in ways) {
     length += w.lengthM;
   }
+  final chains = chainWays([for (final w in ways) w.geometry]);
+  var navGeometry = chains.isEmpty ? geometry : chains.first;
+
+  var sectionInView = false;
+  if (viewportBbox != null && length > sectionInViewMinM) {
+    final clipped = clipToViewport(navGeometry, viewportBbox);
+    if (clipped.length >= 2) {
+      sectionInView = true;
+      navGeometry = clipped;
+      geometry = clipped;
+      length = polylineLengthMeters(clipped);
+    }
+  }
+
   var nearest = double.infinity;
   for (final p in geometry) {
     final d = haversineMeters(centerLat, centerLon, p[0], p[1]);
@@ -179,7 +206,6 @@ NearbyTrail buildNearbyTrail(
     (w) => w.usfsNumber != null,
     orElse: () => ways.first,
   );
-  final chains = chainWays([for (final w in ways) w.geometry]);
   return NearbyTrail(
     trail: rep,
     ways: ways,
@@ -188,6 +214,7 @@ NearbyTrail buildNearbyTrail(
     centerLat: mid[0],
     centerLon: mid[1],
     geometry: geometry,
-    navGeometry: chains.isEmpty ? geometry : chains.first,
+    navGeometry: navGeometry,
+    sectionInView: sectionInView,
   );
 }

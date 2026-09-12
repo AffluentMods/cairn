@@ -334,6 +334,10 @@ option that ships fastest and record it here.
   list under Water in the conditions panel, with the "200 ft from water and trail" reminder
   when the route enters a wilderness.** Reason: spec Phase 8 campsites, missing; shares the
   water helper's Summit gate.
+- **A named trail longer than 30 mi is clipped to the viewport plus 25% in the Explore list
+  and carries the "Section in view" chip on its card and sheet; its length, gain, rating and
+  Navigate line describe that section.** Reason: Addendum A4.1 item 2 (the PCT card); the
+  clip is the same `clipToViewport` navigation already used for long trails.
 
 ## Divergences recorded after the spec audit (2026-09-12)
 

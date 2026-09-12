@@ -354,6 +354,8 @@ class _TrailDetailSheetState extends ConsumerState<_TrailDetailSheet> {
                       for (final s in trail.surfaces.take(2))
                         _Chip(text: l10n.trailSurface(s)),
                       if (trail.informal) _Chip(text: l10n.trailInformal),
+                      if (trail.sectionInView)
+                        _Chip(text: l10n.exploreSectionInView),
                     ],
                   ),
                   const SizedBox(height: 12),

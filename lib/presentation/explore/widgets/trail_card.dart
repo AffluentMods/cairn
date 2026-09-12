@@ -61,6 +61,10 @@ class TrailCard extends ConsumerWidget {
                         const SizedBox(width: 8),
                         _Chip(text: '#${trail.usfsNumber}'),
                       ],
+                      if (trail.sectionInView) ...[
+                        const SizedBox(width: 8),
+                        _Chip(text: l10n.exploreSectionInView),
+                      ],
                     ],
                   ),
                 ),

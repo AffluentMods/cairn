@@ -23,7 +23,7 @@ List<List<double>> selectRouteSection(
   var section = geometry;
   if (polylineLengthMeters(geometry) > _wholeTrailMaxM &&
       viewportBbox != null) {
-    final clipped = _clipToViewport(geometry, viewportBbox);
+    final clipped = clipToViewport(geometry, viewportBbox);
     if (clipped.length >= 2) section = clipped;
   }
 
@@ -37,10 +37,15 @@ List<List<double>> selectRouteSection(
   return section;
 }
 
+/// A trail longer than this shows as a "Section in view" in the Explore list
+/// (Addendum A4.1): 30 mi.
+const double sectionInViewMinM = 48280;
+
 /// The contiguous run of vertices inside [bbox] expanded by 25% of its span,
 /// plus one vertex of margin on each side for continuity. Empty if none fall
-/// inside.
-List<List<double>> _clipToViewport(
+/// inside. Shared by navigation (the section to follow) and the Explore list
+/// (the section a long trail's card describes).
+List<List<double>> clipToViewport(
   List<List<double>> geom,
   List<double> bbox,
 ) {
