@@ -116,6 +116,23 @@ option that ships fastest and record it here.
   persistent user themes. `CustomThemes` (nine ARGB color ints plus name/mode) ships in a v3 to v4
   migration. Themes import and export as a `.cairntheme` JSON file and a `cairn-theme-1:` base64
   code; import validates the schema and rejects anything else.
+
+## Divergences recorded after the spec audit (2026-09-12)
+
+- **Overpass budgets are 35 s query / 40 s receive, not the spec's 60 / 90.** Reason: Fix Pass 1
+  H4. With three mirrors, failing over fast beats waiting on a slow one; a 90 s hang read as a
+  frozen app. A z10 cell that cannot finish in 35 s on any mirror is the exception, and the cached
+  data plus the offline banner cover it.
+- **Open-Meteo is requested in SI (celsius, m/s), not the spec's literal fahrenheit/mph URL.**
+  Reason: Section 2 stores everything internally in SI and formats at the edge with
+  UnitFormatter; asking the API for imperial would mean converting back.
+- **`WAKE_LOCK` is the eighth permission.** Reason: `flutter_foreground_task` with `allowWakeLock`
+  keeps the CPU awake for location fixes while the screen is off during a recording. Plugin
+  permission review: geolocator (location), flutter_foreground_task (foreground service, wake
+  lock, notifications), permission_handler (runtime prompts only), share_plus / url_launcher /
+  file_picker / webview_flutter (no permissions beyond intents).
+- **`gainLoss` uses a 5 m deadband, not the spec's snippet.** Reason: the snippet double-counted
+  across the threshold; the deadband implements the intent (5 m hysteresis) and is unit-tested.
 - **The 3D view drapes the active base map on the terrain, built in Dart.** Reason: Fix Pass 1 X3
   found the 3D view showed bare grey hillshade with no base map, route, or labels. The WebView now
   loads the active base map's own style JSON (its sources already use absolute HTTPS URLs and carry

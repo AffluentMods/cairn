@@ -24,9 +24,21 @@ or a rectangular map area, never an identifier, to these public sources:
 - The optional Affluent Labs proxy, for the few sources that need an API key (air quality
   monitors, park alerts, campgrounds). The proxy holds the keys, not the app, and logs
   nothing but a per-address rate-limit counter.
+- Directions: tapping Directions hands the trailhead coordinate to your own maps app (a `geo:`
+  link). Only if no maps app is installed does it open Google Maps in the browser, with that one
+  coordinate and nothing else.
 
 Requests carry a User-Agent of `Cairn/<version> (contact@affluentlabs.dev)` because some of
 these services require one. That string identifies the app, not you.
+
+## Stays on the device
+
+- Some map overlays are fetched through a tiny server that runs on `127.0.0.1` inside the app.
+  It only talks to the app itself and to the overlay sources listed above; nothing about it
+  leaves the phone.
+- The diagnostics log (Settings > Diagnostics) records crashes and slow frames to a small file
+  on the phone with coordinates removed. It is never uploaded. You can share it yourself or
+  clear it.
 
 ## Optional multi-device sync
 
