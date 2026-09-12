@@ -1,30 +1,30 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/l10n/l10n_ext.dart';
-import '../../core/settings/settings.dart';
 import '../../data/data_providers.dart';
 import '../../data/purchases/purchases.dart';
 import '../../domain/models/offline_region.dart';
 import '../../domain/usecases/offline_estimate.dart';
-import '../../l10n/app_localizations.dart';
-import '../map_common/basemaps/map_style.dart';
+import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/map_providers.dart';
 import '../settings/summit_sheet.dart';
 import '../shared/empty_state.dart';
 import 'library_providers.dart';
+import 'offline_download.dart';
 
-/// Progress of an in-flight region download: id and 0..1.
+/// Progress of an in-flight region job: id and 0..1.
 final _activeDownloadProvider =
     StateProvider<({String id, double progress})?>((ref) => null);
 
 /// Offline regions: list what is downloaded, and download a new region for the
-/// current map view (spec Phase 5). The basemap tile download runs through the
-/// MapLibre controller; trails, POIs, and terrain are prefetched so planning and
-/// elevation work with no signal.
+/// current map view (spec Phase 5). Basemap tiles run through MapLibre's
+/// offline store; trails, POIs, land, and terrain are prefetched so planning,
+/// conditions, and elevation work with no signal. Delete frees the tiles;
+/// Resume finishes an interrupted download; Refresh refetches the data layers.
 class OfflineRegionsScreen extends ConsumerWidget {
   const OfflineRegionsScreen({super.key});
 
@@ -58,6 +58,7 @@ class OfflineRegionsScreen extends ConsumerWidget {
             );
           }
           return ListView(
+            padding: const EdgeInsets.only(bottom: 24),
             children: [
               for (final r in items)
                 _RegionTile(
@@ -85,7 +86,6 @@ class OfflineRegionsScreen extends ConsumerWidget {
     final existing = ref.read(offlineRegionsProvider).valueOrNull ?? const [];
     if (!unlocked && existing.isNotEmpty) {
       await showSummit(context);
-      // If they unlocked, they can tap New again; keep this action simple.
       return;
     }
     await showModalBottomSheet<void>(
@@ -106,45 +106,81 @@ class _RegionTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final mb = region.bytes == null
         ? null
         : '${(region.bytes! / (1024 * 1024)).round()} MB';
+    final styles =
+        region.styleKeys.map((k) => basemapByKey(k).label(l10n)).join(', ');
+    final busy = progress != null;
+    final stale = !busy && region.status == OfflineStatus.downloading;
+    final failed = !busy && region.status == OfflineStatus.error;
+
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(16, 12, 8, 4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
                 Expanded(
-                  child: Text(
-                    region.name,
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
+                  child: Text(region.name, style: theme.textTheme.titleMedium),
                 ),
-                if (mb != null) Text(mb),
+                if (mb != null) Text(mb, style: theme.textTheme.bodyMedium),
+                const SizedBox(width: 8),
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 2),
             Text(
-              '${region.styleKeys.join(', ')}  z${region.minZoom} to z${region.maxZoom}',
-              style: Theme.of(context).textTheme.bodySmall,
+              '$styles  ${l10n.offlineZoomRange(region.minZoom, region.maxZoom)}',
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
-            if (progress != null) ...[
+            Text(
+              l10n.offlineDownloadedOn(
+                  DateFormat.yMMMd().format(region.createdAt)),
+              style: theme.textTheme.bodySmall
+                  ?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            if (busy) ...[
               const SizedBox(height: 8),
               LinearProgressIndicator(value: progress),
-              Text(l10n.offlineDownloading((progress! * 100).round())),
-            ] else if (region.status == OfflineStatus.downloading) ...[
-              const SizedBox(height: 8),
-              Text(l10n.offlineIncomplete),
+              const SizedBox(height: 4),
+              Text(l10n.offlineDownloading((progress! * 100).round()),
+                  style: theme.textTheme.bodySmall),
+            ] else if (stale || failed) ...[
+              const SizedBox(height: 6),
+              Row(
+                children: [
+                  Icon(Icons.error_outline,
+                      size: 16, color: theme.colorScheme.error),
+                  const SizedBox(width: 6),
+                  Text(
+                    failed ? l10n.offlineFailed : l10n.offlineIncomplete,
+                    style: theme.textTheme.bodySmall
+                        ?.copyWith(color: theme.colorScheme.error),
+                  ),
+                ],
+              ),
             ],
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                if (!busy && region.status == OfflineStatus.done)
+                  TextButton(
+                    onPressed: () => _refresh(context, ref),
+                    child: Text(l10n.offlineRefresh),
+                  ),
+                if (stale || failed)
+                  TextButton(
+                    onPressed: () => _resume(ref),
+                    child:
+                        Text(failed ? l10n.genericRetry : l10n.offlineResume),
+                  ),
                 TextButton(
-                  onPressed: () => _delete(context, ref),
+                  onPressed: busy ? null : () => _delete(ref),
                   child: Text(l10n.libraryDelete),
                 ),
               ],
@@ -155,13 +191,52 @@ class _RegionTile extends ConsumerWidget {
     );
   }
 
-  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+  Future<void> _delete(WidgetRef ref) async {
     final repo = ref.read(offlineRepositoryProvider);
-    if (region.status == OfflineStatus.done) {
-      // Best effort: also drop the MapLibre basemap region if we recorded one.
-    }
+    await freeRegionTiles(region.id);
     await repo.delete(region.id);
     bumpLibrary(ref);
+  }
+
+  /// Finishes an interrupted or failed download. A route bundle's corridor
+  /// boxes are not stored, so resuming one refetches its overview area.
+  Future<void> _resume(WidgetRef ref) async {
+    final repo = ref.read(offlineRepositoryProvider);
+    final active = ref.read(_activeDownloadProvider.notifier);
+    await repo.updateStatus(region.id, OfflineStatus.downloading);
+    bumpLibrary(ref);
+    active.state = (id: region.id, progress: 0);
+    try {
+      await downloadRegionBundle(
+        repo,
+        region,
+        onProgress: (p) => active.state = (id: region.id, progress: p),
+      );
+    } finally {
+      active.state = null;
+      bumpLibrary(ref);
+    }
+  }
+
+  /// Refetches trails, POIs, land, and terrain for the region so a bundle
+  /// downloaded weeks ago carries current closures and reroutes.
+  Future<void> _refresh(BuildContext context, WidgetRef ref) async {
+    final repo = ref.read(offlineRepositoryProvider);
+    final active = ref.read(_activeDownloadProvider.notifier);
+    final messenger = ScaffoldMessenger.of(context);
+    messenger
+        .showSnackBar(SnackBar(content: Text(context.l10n.offlineRefreshing)));
+    active.state = (id: region.id, progress: 0);
+    try {
+      await repo.prefetchDataLayers(
+        region.bbox,
+        force: true,
+        onProgress: (p) => active.state = (id: region.id, progress: p),
+      );
+    } finally {
+      active.state = null;
+      bumpLibrary(ref);
+    }
   }
 }
 
@@ -174,18 +249,42 @@ class _NewRegionSheet extends ConsumerStatefulWidget {
 }
 
 class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
-  final _styles = <CairnMapStyle>{CairnMapStyle.outdoors};
+  late final Set<String> _styles;
   int _maxZoom = 14;
   final _name = TextEditingController();
   bool _downloading = false;
 
-  RegionEstimate get _estimate => estimateRegionBytes(
-        widget.bbox,
+  @override
+  void initState() {
+    super.initState();
+    // Default to the base map on screen when it can be cached.
+    final current = ref.read(basemapProvider);
+    _styles = {current.offlineAllowed ? current.key : basemaps.first.key};
+  }
+
+  @override
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
+
+  OfflineRegionModel _model(String id) => OfflineRegionModel(
+        id: id,
+        name: _name.text.trim().isEmpty
+            ? context.l10n.offlineDefaultName
+            : _name.text.trim(),
+        minLat: widget.bbox[0],
+        minLon: widget.bbox[1],
+        maxLat: widget.bbox[2],
+        maxLon: widget.bbox[3],
+        styleKeys: _styles.toList(),
         minZoom: 10,
         maxZoom: _maxZoom,
-        vectorStyles: _styles.contains(CairnMapStyle.outdoors) ? 1 : 0,
-        rasterStyles: _styles.where((s) => s != CairnMapStyle.outdoors).length,
+        createdAt: DateTime.now(),
+        status: OfflineStatus.downloading,
       );
+
+  RegionEstimate get _estimate => estimateRegion(_model('estimate'));
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +303,11 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
         children: [
           TextField(
             controller: _name,
-            decoration: InputDecoration(labelText: l10n.offlineName),
+            decoration: InputDecoration(
+              labelText: l10n.offlineName,
+              hintText: l10n.offlineDefaultName,
+            ),
+            onChanged: (_) => setState(() {}),
           ),
           const SizedBox(height: 12),
           Text(l10n.offlineStyles,
@@ -212,15 +315,15 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
           Wrap(
             spacing: 8,
             children: [
-              for (final s in CairnMapStyle.values)
+              for (final b in basemaps.where((b) => b.offlineAllowed))
                 FilterChip(
-                  label: Text(_styleLabel(l10n, s)),
-                  selected: _styles.contains(s),
+                  label: Text(b.label(l10n)),
+                  selected: _styles.contains(b.key),
                   onSelected: (on) => setState(() {
                     if (on) {
-                      _styles.add(s);
+                      _styles.add(b.key);
                     } else if (_styles.length > 1) {
-                      _styles.remove(s);
+                      _styles.remove(b.key);
                     }
                   }),
                 ),
@@ -267,26 +370,20 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
     );
   }
 
-  String _styleLabel(AppLocalizations l10n, CairnMapStyle s) => switch (s) {
-        CairnMapStyle.outdoors => l10n.styleOutdoors,
-        CairnMapStyle.topo => l10n.styleTopo,
-        CairnMapStyle.satellite => l10n.styleSatellite,
-      };
-
   Future<void> _download() async {
     setState(() => _downloading = true);
     final repo = ref.read(offlineRepositoryProvider);
+    final active = ref.read(_activeDownloadProvider.notifier);
     final id = const Uuid().v4();
-    final bbox = widget.bbox;
     final est = _estimate;
     final region = OfflineRegionModel(
       id: id,
-      name: _name.text.trim().isEmpty ? 'Offline region' : _name.text.trim(),
-      minLat: bbox[0],
-      minLon: bbox[1],
-      maxLat: bbox[2],
-      maxLon: bbox[3],
-      styleKeys: _styles.map((s) => s.name).toList(),
+      name: _model(id).name,
+      minLat: widget.bbox[0],
+      minLon: widget.bbox[1],
+      maxLat: widget.bbox[2],
+      maxLon: widget.bbox[3],
+      styleKeys: _styles.toList(),
       minZoom: 10,
       maxZoom: _maxZoom,
       createdAt: DateTime.now(),
@@ -298,40 +395,15 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
     bumpLibrary(ref);
     if (mounted) Navigator.of(context).pop();
 
+    active.state = (id: id, progress: 0);
     try {
-      // Basemap tiles per selected style (needs the live controller; device only).
-      final bounds = LatLngBounds(
-        southwest: LatLng(bbox[0], bbox[1]),
-        northeast: LatLng(bbox[2], bbox[3]),
+      await downloadRegionBundle(
+        repo,
+        region,
+        onProgress: (p) => active.state = (id: id, progress: p),
       );
-      for (final style in _styles) {
-        await downloadOfflineRegion(
-          OfflineRegionDefinition(
-            bounds: bounds,
-            mapStyleUrl: style.assetPath,
-            minZoom: 10,
-            maxZoom: _maxZoom.toDouble(),
-          ),
-          metadata: {'regionId': id, 'style': style.name},
-          onEvent: (event) {
-            if (event is InProgress) {
-              ref.read(_activeDownloadProvider.notifier).state =
-                  (id: id, progress: event.progress / 100.0);
-            }
-          },
-        );
-      }
-      // Trails, POIs, terrain so planning and elevation work offline.
-      await repo.prefetchDataLayers(
-        bbox,
-        onProgress: (p) => ref.read(_activeDownloadProvider.notifier).state =
-            (id: id, progress: p),
-      );
-      await repo.updateStatus(id, OfflineStatus.done, bytes: est.bytes);
-    } catch (_) {
-      await repo.updateStatus(id, OfflineStatus.error);
     } finally {
-      ref.read(_activeDownloadProvider.notifier).state = null;
+      active.state = null;
       bumpLibrary(ref);
     }
   }

@@ -21,9 +21,9 @@ class PoiRepositoryImpl implements PoiRepository {
   final OverpassSource overpass;
 
   @override
-  Future<void> ensureArea(List<double> bbox) async {
+  Future<void> ensureArea(List<double> bbox, {bool force = false}) async {
     for (final cell in tilesForBbox(bbox, 10)) {
-      if (await _isFresh(cell)) continue;
+      if (!force && await _isFresh(cell)) continue;
       await _ingestCell(cell);
     }
   }

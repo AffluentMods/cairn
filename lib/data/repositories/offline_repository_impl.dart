@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/geo/tile_math.dart';
 import '../../domain/models/offline_region.dart';
+import '../../domain/repositories/conditions_repository.dart';
 import '../../domain/repositories/offline_repository.dart';
 import '../../domain/repositories/poi_repository.dart';
 import '../../domain/repositories/trail_repository.dart';
@@ -15,12 +16,17 @@ class OfflineRepositoryImpl implements OfflineRepository {
     required this.trails,
     required this.pois,
     required this.terrain,
+    this.conditions,
   });
 
   final AppDatabase db;
   final TrailRepository trails;
   final PoiRepository pois;
   final TerrainTileSource terrain;
+
+  /// Land boundaries (wilderness, forests) are cached through the conditions
+  /// repository; optional so the repository stays constructible in tests.
+  final ConditionsRepository? conditions;
 
   @override
   Future<List<OfflineRegionModel>> all() async {
@@ -87,12 +93,21 @@ class OfflineRepositoryImpl implements OfflineRepository {
   @override
   Future<void> prefetchDataLayers(
     List<double> bbox, {
+    bool force = false,
     void Function(double progress)? onProgress,
   }) async {
     onProgress?.call(0.0);
-    await trails.ensureArea(bbox);
-    onProgress?.call(0.3);
-    await pois.ensureArea(bbox);
+    await trails.ensureArea(bbox, force: force);
+    onProgress?.call(0.25);
+    await pois.ensureArea(bbox, force: force);
+    onProgress?.call(0.4);
+    // Wilderness and forest boundaries, so the land layer and its labels
+    // work with no signal (30-day cache in the conditions repository).
+    try {
+      await conditions?.landInBbox(bbox);
+    } on Exception {
+      // Best effort: the basemap and trails are the point of a download.
+    }
     onProgress?.call(0.5);
     // Terrain at z14 across the bbox, so elevation profiles work offline.
     final tiles = tilesForBbox(bbox, TerrainTileSource.zoom);

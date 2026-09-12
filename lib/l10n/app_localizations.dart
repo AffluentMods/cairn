@@ -712,6 +712,12 @@ abstract class AppLocalizations {
   /// **'Incomplete'**
   String get offlineIncomplete;
 
+  /// No description provided for @offlineFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get offlineFailed;
+
   /// No description provided for @offlineResume.
   ///
   /// In en, this message translates to:
@@ -721,8 +727,14 @@ abstract class AppLocalizations {
   /// No description provided for @offlineRefresh.
   ///
   /// In en, this message translates to:
-  /// **'Refresh conditions'**
+  /// **'Refresh data'**
   String get offlineRefresh;
+
+  /// No description provided for @offlineRefreshing.
+  ///
+  /// In en, this message translates to:
+  /// **'Refreshing trails, land, and terrain'**
+  String get offlineRefreshing;
 
   /// No description provided for @offlineMaxZoom.
   ///
@@ -733,7 +745,7 @@ abstract class AppLocalizations {
   /// No description provided for @offlineStyles.
   ///
   /// In en, this message translates to:
-  /// **'Styles'**
+  /// **'Map types'**
   String get offlineStyles;
 
   /// No description provided for @offlineName.
@@ -742,11 +754,35 @@ abstract class AppLocalizations {
   /// **'Region name'**
   String get offlineName;
 
+  /// No description provided for @offlineDefaultName.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline region'**
+  String get offlineDefaultName;
+
   /// No description provided for @offlineDownload.
   ///
   /// In en, this message translates to:
   /// **'Download'**
   String get offlineDownload;
+
+  /// No description provided for @offlineDownloadedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded {date}'**
+  String offlineDownloadedOn(String date);
+
+  /// No description provided for @offlineZoomRange.
+  ///
+  /// In en, this message translates to:
+  /// **'z{min} to z{max}'**
+  String offlineZoomRange(int min, int max);
+
+  /// No description provided for @offlineRouteCorridor.
+  ///
+  /// In en, this message translates to:
+  /// **'Trail detail along the route (z15 to z16) plus the area around it (z10 to z14).'**
+  String get offlineRouteCorridor;
 
   /// No description provided for @condTitle.
   ///
@@ -1663,7 +1699,7 @@ abstract class AppLocalizations {
   /// No description provided for @navDownloadNotOffline.
   ///
   /// In en, this message translates to:
-  /// **'This map type cannot be saved offline. Switch to Outdoors, Topo, Terrain, or Road.'**
+  /// **'This map type cannot be saved offline. Switch to Outdoors, Topo, Satellite, Terrain, or Road.'**
   String get navDownloadNotOffline;
 
   /// No description provided for @navRouteArea.

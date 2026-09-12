@@ -355,22 +355,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineIncomplete => 'Incomplete';
 
   @override
+  String get offlineFailed => 'Download failed';
+
+  @override
   String get offlineResume => 'Resume';
 
   @override
-  String get offlineRefresh => 'Refresh conditions';
+  String get offlineRefresh => 'Refresh data';
+
+  @override
+  String get offlineRefreshing => 'Refreshing trails, land, and terrain';
 
   @override
   String get offlineMaxZoom => 'Max zoom';
 
   @override
-  String get offlineStyles => 'Styles';
+  String get offlineStyles => 'Map types';
 
   @override
   String get offlineName => 'Region name';
 
   @override
+  String get offlineDefaultName => 'Offline region';
+
+  @override
   String get offlineDownload => 'Download';
+
+  @override
+  String offlineDownloadedOn(String date) {
+    return 'Downloaded $date';
+  }
+
+  @override
+  String offlineZoomRange(int min, int max) {
+    return 'z$min to z$max';
+  }
+
+  @override
+  String get offlineRouteCorridor =>
+      'Trail detail along the route (z15 to z16) plus the area around it (z10 to z14).';
 
   @override
   String condTitle(String name) {
@@ -868,7 +891,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navDownloadNotOffline =>
-      'This map type cannot be saved offline. Switch to Outdoors, Topo, Terrain, or Road.';
+      'This map type cannot be saved offline. Switch to Outdoors, Topo, Satellite, Terrain, or Road.';
 
   @override
   String get navRouteArea => 'Route area';

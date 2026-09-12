@@ -30,6 +30,7 @@ import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
 import '../map_common/widgets/stat_row.dart';
 import '../saved/library_providers.dart';
+import '../saved/offline_download.dart';
 import '../shell/shell_providers.dart';
 import 'directions_launcher.dart';
 import 'navigate_providers.dart';
@@ -349,56 +350,49 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
       );
       return;
     }
+    // A route bundle: the area around the route at z10 to z14 plus trail
+    // detail (z15 to z16) in a 1.5 km corridor along it, then trails, POIs,
+    // land, and terrain (docs/DECISIONS.md, route-corridor downloads).
     const pad = 0.04; // roughly a 3 mile buffer around the route
     final bbox = [base[0] - pad, base[1] - pad, base[2] + pad, base[3] + pad];
-    final isVector = basemap.key == 'outdoors' ||
-        basemap.key == 'terrain' ||
-        basemap.key == 'road';
-    final est = estimateRegionBytes(
-      bbox,
+    final corridor = corridorBoxes(poly);
+    final id = const Uuid().v4();
+    final name = ref.read(activeRouteNameProvider) ?? context.l10n.navRouteArea;
+    var region = OfflineRegionModel(
+      id: id,
+      name: name,
+      minLat: bbox[0],
+      minLon: bbox[1],
+      maxLat: bbox[2],
+      maxLon: bbox[3],
+      styleKeys: [basemap.key],
       minZoom: 10,
       maxZoom: 14,
-      vectorStyles: isVector ? 1 : 0,
-      rasterStyles: isVector ? 0 : 1,
+      createdAt: DateTime.now(),
+      status: OfflineStatus.downloading,
     );
-    final id = const Uuid().v4();
+    final est = estimateRegion(region, corridor: corridor);
+    region = OfflineRegionModel(
+      id: id,
+      name: name,
+      minLat: bbox[0],
+      minLon: bbox[1],
+      maxLat: bbox[2],
+      maxLon: bbox[3],
+      styleKeys: [basemap.key],
+      minZoom: 10,
+      maxZoom: 14,
+      createdAt: region.createdAt,
+      status: OfflineStatus.downloading,
+      tileCount: est.tileCount,
+      bytes: est.bytes,
+    );
     final repo = ref.read(offlineRepositoryProvider);
-    await repo.upsert(
-      OfflineRegionModel(
-        id: id,
-        name: context.l10n.navRouteArea,
-        minLat: bbox[0],
-        minLon: bbox[1],
-        maxLat: bbox[2],
-        maxLon: bbox[3],
-        styleKeys: [basemap.key],
-        minZoom: 10,
-        maxZoom: 14,
-        createdAt: DateTime.now(),
-        status: OfflineStatus.downloading,
-        tileCount: est.tileCount,
-        bytes: est.bytes,
-      ),
-    );
+    await repo.upsert(region);
     bumpLibrary(ref);
     setState(() => _downloading = true);
     try {
-      await downloadOfflineRegion(
-        OfflineRegionDefinition(
-          bounds: LatLngBounds(
-            southwest: LatLng(bbox[0], bbox[1]),
-            northeast: LatLng(bbox[2], bbox[3]),
-          ),
-          mapStyleUrl: basemap.assetPath,
-          minZoom: 10,
-          maxZoom: 14,
-        ),
-        metadata: {'regionId': id},
-      );
-      await repo.prefetchDataLayers(bbox);
-      await repo.updateStatus(id, OfflineStatus.done, bytes: est.bytes);
-    } catch (_) {
-      await repo.updateStatus(id, OfflineStatus.error);
+      await downloadRegionBundle(repo, region, corridor: corridor);
     } finally {
       if (mounted) setState(() => _downloading = false);
       bumpLibrary(ref);

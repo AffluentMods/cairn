@@ -38,6 +38,12 @@ const _serviceId = 261;
 const _buttonToggle = 'toggle';
 const _buttonStop = 'stop';
 
+/// The white cairn drawable declared as manifest meta-data (Android draws
+/// the launcher icon otherwise, which reads as a blob in the status bar).
+const _notificationIcon = NotificationIcon(
+  metaDataName: 'com.affluentlabs.cairn.NOTIFICATION_ICON',
+);
+
 /// The foreground service entry point. Must be top-level.
 @pragma('vm:entry-point')
 void startRecordingCallback() {
@@ -80,6 +86,7 @@ Future<bool> startRecordingService({
     serviceId: _serviceId,
     notificationTitle: title,
     notificationText: text,
+    notificationIcon: _notificationIcon,
     notificationButtons: [
       NotificationButton(id: _buttonToggle, text: pauseLabel),
       NotificationButton(id: _buttonStop, text: stopLabel),
@@ -267,6 +274,7 @@ class RecordingTaskHandler extends TaskHandler {
     await FlutterForegroundTask.updateService(
       notificationTitle: labels['title'] ?? 'Recording',
       notificationText: text,
+      notificationIcon: _notificationIcon,
       notificationButtons: [
         NotificationButton(id: _buttonToggle, text: toggle),
         NotificationButton(id: _buttonStop, text: labels['stop'] ?? 'Stop'),

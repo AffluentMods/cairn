@@ -29,12 +29,13 @@ class TrailRepositoryImpl implements TrailRepository {
   final UsfsSource usfs;
 
   @override
-  Future<TrailLoadResult> ensureArea(List<double> bbox) async {
+  Future<TrailLoadResult> ensureArea(List<double> bbox,
+      {bool force = false}) async {
     final cells = tilesForBbox(bbox, 10);
     var networkError = false;
     var fetched = 0;
     for (final cell in cells) {
-      if (await _isFresh(cell)) continue;
+      if (!force && await _isFresh(cell)) continue;
       final ok = await _ingestCell(cell);
       if (ok) {
         fetched++;

@@ -134,6 +134,7 @@ final offlineRepositoryProvider = Provider<OfflineRepository>(
     trails: ref.watch(trailRepositoryProvider),
     pois: ref.watch(poiRepositoryProvider),
     terrain: ref.watch(terrainTileSourceProvider),
+    conditions: ref.watch(conditionsRepositoryProvider),
   ),
 );
 

@@ -24,6 +24,10 @@
             android:name="com.pravera.flutter_foreground_task.service.ForegroundService"
             android:foregroundServiceType="location"
             android:exported="false"/>
+        <!-- Status-bar icon for the recording notification (white cairn). -->
+        <meta-data
+            android:name="com.affluentlabs.cairn.NOTIFICATION_ICON"
+            android:resource="@drawable/ic_stat_cairn"/>
 
         <activity
             android:name=".MainActivity"
