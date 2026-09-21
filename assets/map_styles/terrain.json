@@ -105,10 +105,37 @@
       "source": "openmaptiles",
       "source-layer": "park",
       "paint": {
-        "fill-color": "#d8e8c8",
-        "fill-opacity": 0.7,
-        "fill-outline-color": "rgba(95, 208, 100, 1)"
-      }
+        "fill-color": "#CDE3B4",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          5,
+          0.45,
+          10,
+          0.3,
+          14,
+          0.2
+        ]
+      },
+      "filter": [
+        "match",
+        [
+          "get",
+          "class"
+        ],
+        [
+          "national_park",
+          "nature_reserve",
+          "wilderness_preserve"
+        ],
+        true,
+        false
+      ]
     },
     {
       "id": "park_outline",
@@ -116,10 +143,24 @@
       "source": "openmaptiles",
       "source-layer": "park",
       "paint": {
-        "line-color": "rgba(228, 241, 215, 1)",
+        "line-color": "#6E9E5B",
         "line-dasharray": [
-          1,
-          1.5
+          3,
+          2
+        ],
+        "line-opacity": 0.7,
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          0.8,
+          14,
+          1.6
         ]
       }
     },
@@ -208,6 +249,70 @@
         "fill-antialias": false,
         "fill-color": "rgba(224, 236, 236, 1)",
         "fill-opacity": 0.8
+      }
+    },
+    {
+      "id": "landcover_rock",
+      "type": "fill",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "minzoom": 8,
+      "filter": [
+        "==",
+        [
+          "get",
+          "class"
+        ],
+        "rock"
+      ],
+      "paint": {
+        "fill-antialias": false,
+        "fill-color": "#D8D2C6",
+        "fill-opacity": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          0.35,
+          13,
+          0.6
+        ]
+      }
+    },
+    {
+      "id": "landcover_ice_outline",
+      "type": "line",
+      "source": "openmaptiles",
+      "source-layer": "landcover",
+      "minzoom": 10,
+      "filter": [
+        "==",
+        [
+          "get",
+          "class"
+        ],
+        "ice"
+      ],
+      "paint": {
+        "line-color": "#9FC3D8",
+        "line-opacity": 0.8,
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          0.5,
+          15,
+          1.2
+        ]
       }
     },
     {
@@ -4867,7 +4972,8 @@
           12,
           14,
           13
-        ]
+        ],
+        "visibility": "none"
       },
       "paint": {
         "text-color": "hsl(30,23%,62%)",
@@ -5361,6 +5467,77 @@
         "text-halo-color": "#ffffff",
         "text-halo-width": 1,
         "text-opacity": 0.6
+      }
+    },
+    {
+      "id": "park-label",
+      "type": "symbol",
+      "source": "openmaptiles",
+      "source-layer": "park",
+      "minzoom": 8,
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "geometry-type"
+          ],
+          "Point"
+        ],
+        [
+          "has",
+          "name"
+        ]
+      ],
+      "layout": {
+        "text-field": [
+          "coalesce",
+          [
+            "get",
+            "name_en"
+          ],
+          [
+            "get",
+            "name"
+          ]
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          8,
+          10,
+          12,
+          13
+        ],
+        "text-max-width": 7,
+        "text-letter-spacing": 0.04,
+        "text-padding": 6,
+        "symbol-sort-key": [
+          "get",
+          "rank"
+        ]
+      },
+      "paint": {
+        "text-color": [
+          "match",
+          [
+            "get",
+            "class"
+          ],
+          "forest_reserve",
+          "#5F7F52",
+          "#3E6B35"
+        ],
+        "text-halo-color": "rgba(255,255,255,0.8)",
+        "text-halo-width": 1.3
       }
     },
     {
@@ -6320,12 +6497,16 @@
           [
             "zoom"
           ],
-          10,
-          1,
-          14,
-          2.5,
+          9,
+          0.9,
+          11,
+          1.4,
+          13,
+          2.2,
+          15,
+          3.2,
           17,
-          4
+          4.5
         ]
       }
     },
@@ -6366,17 +6547,80 @@
           [
             "zoom"
           ],
-          10,
-          1,
-          14,
-          2.5,
+          9,
+          0.9,
+          11,
+          1.4,
+          13,
+          2.2,
+          15,
+          3.2,
           17,
-          4
+          4.5
         ],
         "line-dasharray": [
           2,
           2
         ]
+      }
+    },
+    {
+      "id": "trails-label",
+      "type": "symbol",
+      "source": "cairn-trails",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "highway"
+          ],
+          "track"
+        ]
+      ],
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 250,
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          11,
+          16,
+          13
+        ],
+        "text-max-angle": 45,
+        "text-padding": 4,
+        "text-letter-spacing": 0.02,
+        "text-rotation-alignment": "map"
+      },
+      "paint": {
+        "text-color": "#5A4022",
+        "text-halo-color": "#F6F3EC",
+        "text-halo-width": 1.6,
+        "text-halo-blur": 0.5
       }
     },
     {
@@ -6535,7 +6779,15 @@
       "paint": {
         "text-halo-color": "#F6F3EC",
         "text-halo-width": 1.2
-      }
+      },
+      "filter": [
+        "!=",
+        [
+          "get",
+          "kind"
+        ],
+        "peak"
+      ]
     }
   ],
   "name": "Cairn Terrain"

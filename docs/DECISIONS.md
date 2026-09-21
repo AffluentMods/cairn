@@ -430,3 +430,48 @@ option that ships fastest and record it here.
   Reason: the audit asked for the controls but not the numbers; these are far above any client's
   real rate, the KDF setting is the one OWASP lists first, and weekly keeps the PR noise low on a
   one-person repo.
+
+## More trails and a better map (2026-09-21, after "so many trails missing")
+
+- **AllTrails is not a data source.** It has no public API, its terms forbid scraping and
+  reusing its content, and its routes are its own and its users' work. The same trails come from
+  OpenStreetMap, which Cairn already uses, and from the public-domain federal inventories (see the
+  Official trails overlay below).
+- **The Cairn layer switches and the raster overlays no longer share the `map.overlays` key.**
+  Reason: any overlay toggle overwrote the layer set, so turning radar or slope on or off
+  silently switched trails and POIs off and the map neither drew nor fetched trails. They now
+  save under `map.layers` and `map.rasterOverlays`; a legacy list with no layer names in it (what
+  the collision left behind) restores the defaults, trails and POIs on.
+- **Explore fetches up to 16 z10 cells per view (a 4 by 4 block, about zoom 9), not 4, and
+  paints each cell as it lands, with a "Loading trails 2/6" pill.** Reason: a fresh install at
+  the zoom people scan an area at showed "0 trails in view". Center first plus cancellation keeps
+  Overpass use bounded; POIs stay at 4 cells because their icons only collide further out.
+  Answers PROGRESS question 15.
+- **"Trails in view" counts every named trail in the view and lists the closest 50 (was 30,
+  and the count was the list length).** The database read filters named, non-track ways in SQL
+  and orders named ways first, then by length, so the 4,000-row cap drops short unnamed
+  connectors instead of arbitrary rows. The same order applies to the map read.
+- **Trail features carry `highway`.** Reason: the style keeps forest roads (`highway=track`) out
+  of the trail layer and draws them dashed (Addendum A6 F2), but the property never reached the
+  GeoJSON, so every road rendered as a trail.
+- **Trail lines are a little heavier (1.4 px at z11, was about 1.2) and trail names run along the
+  line from z13 in italic brown.** Still thin brown lines at z11 per A6 F2. The label keeps
+  MapLibre's 45 degree bend limit; 30 placed no label on switchbacking trails at z13.
+- **Summits come from the base map's `mountain_peak` layer with elevation in the user's units, on
+  the three vector styles, added at runtime (`base_map_labels.dart`).** Reason: every named
+  summit shows at every zoom, not only in cells Cairn has fetched, and a units switch updates the
+  labels without a style reload. Cairn's own Overpass peaks are filtered out of the POI layer on
+  those styles to avoid doubles; the raster styles keep them.
+- **National parks, wilderness, and nature reserves get a light green wash and a green dashed
+  edge; national forests get the edge only; each gets a label.** Reason: the stock style's pale
+  dotted edge read as a trail at z11, and the forest fill tinted the whole Cascades. Scree and
+  bare rock are grey, glacier edges light blue, and the base map's own path names are hidden
+  because Cairn labels its trails.
+- **Official trails overlay (USGS National Digital Trails), off by default, US only, z11 and
+  closer, drawn under Cairn's OSM trails.** Reason: it fills gaps where OSM is thin (BLM land,
+  some state land) with public-domain agency data, answers in under half a second, and draws
+  beneath OSM so it only shows through where OSM has nothing. It is a picture only: its trails
+  cannot be tapped or navigated yet.
+- **No contour overlay.** Both public contour services are too slow to use (API_NOTES) and the
+  spec defers generated contours; the Topo base map keeps contours. Generating them on the phone
+  from the elevation tiles Cairn already downloads is the real fix, asked as PROGRESS question 20.

@@ -17,6 +17,7 @@ String attributionText(AppLocalizations l10n, String key) => switch (key) {
       'attributionUsgs3dep' => l10n.attributionUsgs3dep,
       'attributionIgn' => l10n.attributionIgn,
       'attributionUsfs' => l10n.attributionUsfs,
+      'attributionUsgsTrails' => l10n.attributionUsgsTrails,
       'attributionNoaa' => l10n.attributionNoaa,
       'attributionOsmGps' => l10n.attributionOsmGps,
       'attributionMapLibre' => l10n.attributionMapLibre,

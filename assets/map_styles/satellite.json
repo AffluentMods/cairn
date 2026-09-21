@@ -260,12 +260,16 @@
           [
             "zoom"
           ],
-          10,
-          1,
-          14,
-          2.5,
+          9,
+          0.9,
+          11,
+          1.4,
+          13,
+          2.2,
+          15,
+          3.2,
           17,
-          4
+          4.5
         ]
       }
     },
@@ -306,17 +310,80 @@
           [
             "zoom"
           ],
-          10,
-          1,
-          14,
-          2.5,
+          9,
+          0.9,
+          11,
+          1.4,
+          13,
+          2.2,
+          15,
+          3.2,
           17,
-          4
+          4.5
         ],
         "line-dasharray": [
           2,
           2
         ]
+      }
+    },
+    {
+      "id": "trails-label",
+      "type": "symbol",
+      "source": "cairn-trails",
+      "minzoom": 13,
+      "filter": [
+        "all",
+        [
+          "!=",
+          [
+            "get",
+            "name"
+          ],
+          ""
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "highway"
+          ],
+          "track"
+        ]
+      ],
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 250,
+        "text-field": [
+          "get",
+          "name"
+        ],
+        "text-font": [
+          "Noto Sans Italic"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          13,
+          11,
+          16,
+          13
+        ],
+        "text-max-angle": 45,
+        "text-padding": 4,
+        "text-letter-spacing": 0.02,
+        "text-rotation-alignment": "map"
+      },
+      "paint": {
+        "text-color": "#5A4022",
+        "text-halo-color": "#F6F3EC",
+        "text-halo-width": 1.6,
+        "text-halo-blur": 0.5
       }
     },
     {

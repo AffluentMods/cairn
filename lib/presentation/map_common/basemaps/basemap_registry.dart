@@ -17,6 +17,7 @@ class BasemapDef {
     required this.label,
     required this.offlineAllowed,
     required this.coverage,
+    this.vectorBase = false,
   });
 
   final String key;
@@ -24,6 +25,11 @@ class BasemapDef {
   final String Function(AppLocalizations) label;
   final bool offlineAllowed;
   final Coverage coverage;
+
+  /// True for styles built on the OpenMapTiles `openmaptiles` vector source,
+  /// which get Cairn's runtime base-map layers (summit labels). Raster styles
+  /// (USGS Topo, imagery, IGN) carry their own labels.
+  final bool vectorBase;
 }
 
 /// The base maps offered in the layer sheet (Addendum A5.1). Not const because
@@ -35,6 +41,7 @@ final basemaps = <BasemapDef>[
     label: (l) => l.styleOutdoors,
     offlineAllowed: true,
     coverage: Coverage.world,
+    vectorBase: true,
   ),
   BasemapDef(
     key: 'topo',
@@ -56,6 +63,7 @@ final basemaps = <BasemapDef>[
     label: (l) => l.styleTerrain,
     offlineAllowed: true,
     coverage: Coverage.world,
+    vectorBase: true,
   ),
   BasemapDef(
     key: 'road',
@@ -63,6 +71,7 @@ final basemaps = <BasemapDef>[
     label: (l) => l.styleRoad,
     offlineAllowed: true,
     coverage: Coverage.world,
+    vectorBase: true,
   ),
   BasemapDef(
     key: 'ign_plan',

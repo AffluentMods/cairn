@@ -18,6 +18,7 @@ class AboutSourcesScreen extends StatelessWidget {
     'attributionUsgs3dep',
     'attributionIgn',
     'attributionUsfs',
+    'attributionUsgsTrails',
     'attributionNifc',
     'attributionNws',
     'attributionNoaa',

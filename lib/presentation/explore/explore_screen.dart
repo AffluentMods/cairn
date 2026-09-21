@@ -23,6 +23,7 @@ import '../navigate/widgets/waypoint_editor_sheet.dart';
 import '../shell/shell_providers.dart';
 import 'highlight_provider.dart';
 import 'nearby_trails_provider.dart';
+import 'trail_load_status.dart';
 import 'widgets/fire_card_sheet.dart';
 import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
@@ -184,15 +185,19 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     // True once the viewport has moved on, so we neither paint a stale frame
     // nor loop forever: the pending re-run picks up the new viewport.
     bool stale() => gen != _generation;
+    final status = ref.read(trailLoadStatusProvider.notifier);
     try {
       final layers = ref.read(mapLayersProvider);
       // A wide view spans dozens of z10 cells (one Overpass query each, about
-      // 20 miles square). Fetch only when the view is close enough to be
-      // worth it; further out, draw what is cached and the list says "zoom
-      // in". Cells load center first and stop when the view moves on.
+      // 20 miles square). Fetch up to a 4 by 4 block, center first, painting
+      // each cell as it lands; further out, draw what is cached and the list
+      // says "zoom in". The pass stops when the view moves on.
       final fetchCells = viewportFetchesCells(viewport);
+      final settled =
+          fetchCells ? TrailLoadStatus.idle : TrailLoadStatus.tooWide;
 
       if (layers.contains(MapOverlay.trails)) {
+        status.state = settled;
         final synced = await syncTrailsLayer(
           controller: controller,
           viewport: viewport,
@@ -200,24 +205,37 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           previousSig: _trailsSig,
           isStale: stale,
           fetch: fetchCells,
+          onProgress: (done, total, fetched) async {
+            if (!mounted || stale()) return;
+            status.state = done < total
+                ? TrailLoadStatus.loading(done, total)
+                : TrailLoadStatus.idle;
+            // Grow the "Trails in view" list with each cell, so the nearest
+            // trails are listed while the outer cells still load.
+            if (fetched) ref.invalidate(nearbyTrailsProvider);
+          },
         );
         if (synced == null) return;
         _trailsSig = synced.sig;
+        status.state = settled;
         // Rebuild the "Trails in view" list now that this area is cached, so a
         // cold load does not stay empty until the next pan (Fix Pass 1 X1.3.3).
         ref.invalidate(nearbyTrailsProvider);
         if (mounted && synced.load.networkError && synced.trails.isEmpty) {
           setState(() => _showOfflineBanner = true);
         }
-      } else if (_trailsSig != null) {
-        await controller.setGeoJsonSource(
-            'cairn-trails', emptyFeatureCollection());
-        _trailsSig = null;
+      } else {
+        status.state = TrailLoadStatus.idle;
+        if (_trailsSig != null) {
+          await controller.setGeoJsonSource(
+              'cairn-trails', emptyFeatureCollection());
+          _trailsSig = null;
+        }
       }
 
       if (layers.contains(MapOverlay.pois)) {
         final repo = ref.read(poiRepositoryProvider);
-        if (fetchCells) {
+        if (viewportFetchesCells(viewport, maxCells: maxPoiCellsPerRefresh)) {
           await repo.ensureArea(viewport.bbox, isCancelled: stale);
         }
         if (stale()) return;
@@ -317,7 +335,8 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       if (trail == null || !mounted) return;
       // Open the whole named trail when the list already assembled it, so a
       // tap on one way shows the same entry as the card.
-      final nearby = ref.read(nearbyTrailsProvider).valueOrNull ?? const [];
+      final nearby = ref.read(nearbyTrailsProvider).valueOrNull?.entries ??
+          const <NearbyTrail>[];
       NearbyTrail? entry;
       for (final n in nearby) {
         if (trail.name != null && n.name == trail.name) {
@@ -349,6 +368,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     ref.listen(userWaypointsProvider, (_, __) => _refreshUserWaypoints());
     ref.listen(highlightRouteProvider, (_, __) => _applyHighlight());
     final hasHighlight = ref.watch(highlightRouteProvider) != null;
+    final load = ref.watch(trailLoadStatusProvider);
 
     return Scaffold(
       body: Stack(
@@ -376,6 +396,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           ),
           Positioned(
               top: topInset + 8, right: 12, child: const LayerSwitcherButton()),
+          if (load.isLoading)
+            Positioned(
+              top: topInset + 16,
+              left: 72,
+              right: 72,
+              child: Center(
+                child: _LoadingPill(done: load.done, total: load.total),
+              ),
+            ),
           const Positioned(right: 16, bottom: 200, child: LocationFab()),
           if (hasHighlight)
             Positioned(
@@ -414,8 +443,27 @@ class _NearbyTrailsSheet extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final scheme = Theme.of(context).colorScheme;
-    final trails =
-        ref.watch(nearbyTrailsProvider).valueOrNull ?? const <NearbyTrail>[];
+    final nearby = ref.watch(nearbyTrailsProvider).valueOrNull;
+    final trails = nearby?.entries ?? const <NearbyTrail>[];
+    final load = ref.watch(trailLoadStatusProvider);
+    final note = Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: scheme.onSurfaceVariant,
+        );
+    // Why the list is empty, or what it leaves out, in the user's terms.
+    final String? emptyText = trails.isNotEmpty
+        ? null
+        : switch (load.phase) {
+            TrailLoadPhase.loading => l10n.exploreLoadingTrailsList,
+            TrailLoadPhase.tooWide => l10n.exploreZoomInForTrails,
+            TrailLoadPhase.idle => l10n.exploreNoTrailsHere,
+          };
+    final String? footer = trails.isEmpty
+        ? null
+        : (nearby?.capped ?? false)
+            ? l10n.exploreShowingClosest(trails.length)
+            : load.phase == TrailLoadPhase.tooWide
+                ? l10n.exploreZoomInForMore
+                : null;
     return DraggableScrollableSheet(
       initialChildSize: 0.18,
       minChildSize: 0.18,
@@ -450,20 +498,24 @@ class _NearbyTrailsSheet extends ConsumerWidget {
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                   const Spacer(),
-                  Text('${trails.length}',
+                  if (load.isLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(right: 10),
+                      child: SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ),
+                  Text('${nearby?.total ?? 0}',
                       style: Theme.of(context).textTheme.titleMedium),
                 ],
               ),
             ),
-            if (trails.isEmpty)
+            if (emptyText != null)
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                child: Text(
-                  l10n.exploreEmpty,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: scheme.onSurfaceVariant,
-                      ),
-                ),
+                child: Text(emptyText, style: note),
               ),
             for (final t in trails)
               Padding(
@@ -473,6 +525,48 @@ class _NearbyTrailsSheet extends ConsumerWidget {
                   onTap: () => showTrailDetail(context, t),
                 ),
               ),
+            if (footer != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+                child: Text(footer, style: note),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// "Loading trails 2/5" while Overpass cells for the view come in, so a slow
+/// first load reads as progress rather than an empty map.
+class _LoadingPill extends StatelessWidget {
+  const _LoadingPill({required this.done, required this.total});
+
+  final int done;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Material(
+      color: scheme.surface.withValues(alpha: 0.92),
+      elevation: 2,
+      borderRadius: BorderRadius.circular(20),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 7, 14, 7),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(
+              width: 14,
+              height: 14,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              context.l10n.exploreLoadingTrails(done, total),
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
           ],
         ),
       ),

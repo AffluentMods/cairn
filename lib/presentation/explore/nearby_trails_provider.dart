@@ -115,16 +115,37 @@ class NearbyTrail {
   bool get informal => ways.every((w) => w.informal);
 }
 
+/// How many trails the "Trails in view" list shows, closest first. The header
+/// counts every named trail in view; past this the list says to zoom in.
+const nearbyListCap = 50;
+
+/// The "Trails in view" list: the closest [entries] and the [total] number of
+/// named trails in the viewport.
+class NearbyTrails {
+  const NearbyTrails({required this.entries, required this.total});
+
+  static const empty = NearbyTrails(entries: [], total: 0);
+
+  final List<NearbyTrail> entries;
+  final int total;
+
+  /// True when more trails are in view than the list shows.
+  bool get capped => total > entries.length;
+}
+
 /// Named trails in the current viewport, sorted by distance from the map center
-/// and capped at 30 (Addendum A4.1, Fix Pass 1 X1.3.3). Reads only from the
-/// local DB (the map's own overlay refresh already ensured the area), so this
-/// is cheap and offline. The grouping, chaining, and per-point distance loop
-/// run off the UI isolate (Fix Pass 1 X1.3.1, H2).
-final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
+/// (Addendum A4.1, Fix Pass 1 X1.3.3). Reads only from the local DB (the map's
+/// own overlay refresh already ensured the area), so this is cheap and offline.
+/// The read asks SQL for named, non-track ways only, so a wide view is never
+/// cut short by unnamed connectors. The grouping, chaining, and per-point
+/// distance loop run off the UI isolate (Fix Pass 1 X1.3.1, H2).
+final nearbyTrailsProvider = FutureProvider<NearbyTrails>((ref) async {
   final vp = ref.watch(viewportProvider);
-  if (vp == null) return const [];
-  final trails = await ref.read(trailRepositoryProvider).trailsInBbox(vp.bbox);
-  if (trails.isEmpty) return const [];
+  if (vp == null) return NearbyTrails.empty;
+  final trails = await ref
+      .read(trailRepositoryProvider)
+      .trailsInBbox(vp.bbox, namedOnly: true, excludeTracks: true);
+  if (trails.isEmpty) return NearbyTrails.empty;
 
   final centerLat = (vp.south + vp.north) / 2;
   final centerLon = (vp.west + vp.east) / 2;
@@ -132,18 +153,38 @@ final nearbyTrailsProvider = FutureProvider<List<NearbyTrail>>((ref) async {
   final bbox = vp.bbox;
   return GeoWorker.run(
     'nearby-trails',
-    () => buildNearbyTrails(trails, centerLat, centerLon, viewportBbox: bbox),
+    () => nearbyTrailsFor(trails, centerLat, centerLon, viewportBbox: bbox),
   );
 });
 
+/// [buildNearbyTrails] for the list: the closest [cap] entries plus the count
+/// of every named trail in view. Pure and top-level, for the worker isolate.
+NearbyTrails nearbyTrailsFor(
+  List<Trail> trails,
+  double centerLat,
+  double centerLon, {
+  List<double>? viewportBbox,
+  int cap = nearbyListCap,
+}) {
+  final all = buildNearbyTrails(
+    trails,
+    centerLat,
+    centerLon,
+    viewportBbox: viewportBbox,
+    limit: null,
+  );
+  return NearbyTrails(entries: all.take(cap).toList(), total: all.length);
+}
+
 /// Groups named ways by name, chains and sums them, and finds each group's
-/// nearest point to the map center. Pure and top-level so it can run in a
-/// worker isolate.
+/// nearest point to the map center, closest first, at most [limit] (null for
+/// all). Pure and top-level so it can run in a worker isolate.
 List<NearbyTrail> buildNearbyTrails(
   List<Trail> trails,
   double centerLat,
   double centerLon, {
   List<double>? viewportBbox,
+  int? limit = 30,
 }) {
   final byName = <String, List<Trail>>{};
   for (final t in trails) {
@@ -164,7 +205,7 @@ List<NearbyTrail> buildNearbyTrails(
   });
 
   out.sort((a, b) => a.distanceM.compareTo(b.distanceM));
-  return out.take(30).toList();
+  return limit == null ? out : out.take(limit).toList();
 }
 
 /// One entry from a group of same-named ways. With [viewportBbox], a trail

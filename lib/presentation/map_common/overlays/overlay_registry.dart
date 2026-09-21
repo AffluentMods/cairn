@@ -142,6 +142,26 @@ final overlays = <OverlayDef>[
     attribution: (l) => l.attributionUsgs3dep,
     coverage: Coverage.us,
   ),
+  // USGS National Digital Trails: the Park Service, Forest Service, BLM, and
+  // state trail inventories in one public-domain layer. Drawn under Cairn's
+  // OSM trails, so it shows through only where OpenStreetMap has a gap.
+  // 512 px at 192 dpi into a 256 px tile keeps the lines sharp on a phone.
+  OverlayDef(
+    key: 'officialTrails',
+    minZoom: 11,
+    maxZoom: 18,
+    kind: OverlaySourceKind.rasterTiles,
+    label: (l) => l.overlayOfficialTrails,
+    subtitle: (l) => l.overlayOfficialTrailsSubtitle,
+    tileUrl:
+        'https://carto.nationalmap.gov/arcgis/rest/services/transportation/'
+        'MapServer/export?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857'
+        '&size=512,512&dpi=192&format=png32&transparent=true'
+        '&layers=show:37,24&f=image',
+    opacity: 0.9,
+    attribution: (l) => l.attributionUsgsTrails,
+    coverage: Coverage.us,
+  ),
   OverlayDef(
     key: 'gpsTraces',
     maxZoom: 16,

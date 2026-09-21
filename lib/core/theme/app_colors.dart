@@ -34,6 +34,8 @@ abstract final class AppColors {
   static const trackLight = Color(0xFF2B8F88);
   static const trailOsm = Color(0xFF6B4F2A); // brown, like a paper map
   static const trailInformal = Color(0xFF9C8A6E);
+  // The summit triangle and peak labels on the vector base maps.
+  static const summit = Color(0xFF4A3B2A);
 
   // AQI category colors (EPA breakpoints, spec Phase 7).
   static const aqiGood = Color(0xFF3EC46D);

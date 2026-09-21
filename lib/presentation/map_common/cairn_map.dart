@@ -7,8 +7,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/settings/settings_providers.dart';
 import '../../core/theme/cairn_colors.dart';
 import '../shell/shell_providers.dart';
+import 'base_map_labels.dart';
 import 'basemaps/basemap_registry.dart';
 import 'camera_provider.dart';
 import 'map_providers.dart';
@@ -110,6 +112,8 @@ class _CairnMapState extends ConsumerState<CairnMap> {
             cairn.route.computeLuminance() > 0.45 ? Colors.black : Colors.white,
       );
       if (!mounted) return;
+      await _installBaseLabels(c);
+      if (!mounted) return;
       await ref.read(overlayControllerProvider.notifier).reinstall();
       if (!mounted) return;
       if (ref.read(tiltProvider)) {
@@ -121,6 +125,17 @@ class _CairnMapState extends ConsumerState<CairnMap> {
       await widget.onStyleLoaded?.call(c);
     } catch (_) {
       if (mounted) rethrow;
+    }
+  }
+
+  /// Summit names and elevations on the vector base maps, in the user's
+  /// units. Best effort: a style without the source simply has no labels.
+  Future<void> _installBaseLabels(MapLibreMapController c) async {
+    if (!ref.read(basemapProvider).vectorBase) return;
+    try {
+      await installPeakLabels(c, ref.read(unitFormatterProvider));
+    } catch (_) {
+      // The map works without summit labels.
     }
   }
 
@@ -150,6 +165,11 @@ class _CairnMapState extends ConsumerState<CairnMap> {
   Widget build(BuildContext context) {
     final active = ref.watch(shellIndexProvider) == widget.tabIndex;
     if (!active) return ColoredBox(color: context.cairn.background);
+    // Summit elevations follow a units switch without a style reload.
+    ref.listen(unitFormatterProvider, (_, __) {
+      final c = _controller;
+      if (c != null && _styleLoaded) unawaited(_installBaseLabels(c));
+    });
     // A base-map switch reloads the style: show the loading state again.
     ref.listen(basemapProvider, (_, __) {
       setState(() {

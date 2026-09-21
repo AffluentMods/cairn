@@ -484,6 +484,7 @@ class _OverlayRow extends ConsumerWidget {
         'snowDepth' => Icons.ac_unit_outlined,
         'slope' => Icons.terrain_outlined,
         'lidarHillshade' => Icons.landscape_outlined,
+        'officialTrails' => Icons.hiking,
         'gpsTraces' => Icons.timeline_outlined,
         _ => Icons.layers_outlined,
       };

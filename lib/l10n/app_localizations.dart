@@ -1750,11 +1750,41 @@ abstract class AppLocalizations {
   /// **'{distance} away'**
   String exploreDistanceAway(String distance);
 
-  /// No description provided for @exploreEmpty.
+  /// No description provided for @exploreLoadingTrails.
   ///
   /// In en, this message translates to:
-  /// **'No trails in this area yet. Zoom in or pan to load them.'**
-  String get exploreEmpty;
+  /// **'Loading trails {done}/{total}'**
+  String exploreLoadingTrails(int done, int total);
+
+  /// No description provided for @exploreLoadingTrailsList.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading trails for this area.'**
+  String get exploreLoadingTrailsList;
+
+  /// No description provided for @exploreZoomInForTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in to load trails here.'**
+  String get exploreZoomInForTrails;
+
+  /// No description provided for @exploreZoomInForMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in to load more trails.'**
+  String get exploreZoomInForMore;
+
+  /// No description provided for @exploreNoTrailsHere.
+  ///
+  /// In en, this message translates to:
+  /// **'No named trails are mapped here.'**
+  String get exploreNoTrailsHere;
+
+  /// No description provided for @exploreShowingClosest.
+  ///
+  /// In en, this message translates to:
+  /// **'Showing the {count} closest. Zoom in for the rest.'**
+  String exploreShowingClosest(int count);
 
   /// No description provided for @trailNavigate.
   ///
@@ -2506,6 +2536,18 @@ abstract class AppLocalizations {
   /// **'USGS 3DEP, best available resolution'**
   String get overlayLidarHillshadeSubtitle;
 
+  /// No description provided for @overlayOfficialTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'Official trails'**
+  String get overlayOfficialTrails;
+
+  /// No description provided for @overlayOfficialTrailsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Park Service, Forest Service, BLM, and state trails'**
+  String get overlayOfficialTrailsSubtitle;
+
   /// No description provided for @overlayGpsTraces.
   ///
   /// In en, this message translates to:
@@ -2727,6 +2769,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Official trails and boundaries: USDA Forest Service EDW'**
   String get attributionUsfs;
+
+  /// No description provided for @attributionUsgsTrails.
+  ///
+  /// In en, this message translates to:
+  /// **'Official trails overlay: USGS National Digital Trails'**
+  String get attributionUsgsTrails;
 
   /// No description provided for @attributionMapLibre.
   ///

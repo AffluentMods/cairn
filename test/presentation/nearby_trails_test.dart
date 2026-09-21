@@ -65,4 +65,29 @@ void main() {
     expect(list.first.name, 'Short Loop');
     expect(list.last.sectionInView, isTrue);
   });
+
+  test('the list counts every named trail but shows the closest few', () {
+    final trails = [
+      for (var i = 0; i < 8; i++)
+        Trail(
+          id: 100 + i,
+          highway: 'path',
+          lengthM: 800,
+          name: 'Trail $i',
+          geometry: [
+            [46.42 + i * 0.01, -121.4],
+            [46.425 + i * 0.01, -121.4],
+          ],
+        ),
+    ];
+    final result = nearbyTrailsFor(trails, 46.42, -121.4, cap: 3);
+    expect(result.total, 8);
+    expect(
+        result.entries.map((e) => e.name), ['Trail 0', 'Trail 1', 'Trail 2']);
+    expect(result.capped, isTrue);
+
+    final all = nearbyTrailsFor(trails, 46.42, -121.4);
+    expect(all.entries.length, 8);
+    expect(all.capped, isFalse);
+  });
 }

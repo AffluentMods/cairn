@@ -36,6 +36,10 @@ class UnitFormatter {
     return '${_grouped(meters)} m';
   }
 
+  /// The elevation unit symbol on its own, "ft" or "m", for labels the map
+  /// renders itself (peak elevations), matching [elevation].
+  String get elevationUnit => _imperial ? 'ft' : 'm';
+
   /// Signed elevation delta, e.g. "+2,706 ft" or "-1,900 ft".
   String elevationSigned(double meters) {
     final sign = meters >= 0 ? '+' : '-';

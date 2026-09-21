@@ -52,6 +52,40 @@ Future<void> addCairnIcons(
   } catch (_) {
     // Non-fatal.
   }
+  // The summit mark for the base map's peak labels (base_map_labels.dart).
+  try {
+    await controller.addImage('summit', await _summitPng(30));
+  } catch (_) {
+    // Non-fatal: the peak labels still draw their text.
+  }
+}
+
+/// A small dark-brown summit triangle with a light rim, the paper-map mark
+/// for a peak. Plainer than the POI disc so a range of summits reads as
+/// terrain, not as a field of buttons.
+Future<Uint8List> _summitPng(int size) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder);
+  final s = size.toDouble();
+  final triangle = Path()
+    ..moveTo(s * 0.5, s * 0.16)
+    ..lineTo(s * 0.86, s * 0.80)
+    ..lineTo(s * 0.14, s * 0.80)
+    ..close();
+  canvas.drawPath(
+    triangle,
+    Paint()
+      ..color = Colors.white.withValues(alpha: 0.9)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = s * 0.12
+      ..strokeJoin = StrokeJoin.round,
+  );
+  canvas.drawPath(triangle, Paint()..color = AppColors.summit);
+  final picture = recorder.endRecording();
+  final image = await picture.toImage(size, size);
+  final data = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  return data!.buffer.asUint8List();
 }
 
 /// A numbered route waypoint marker: a [fill] disc with a dark rim and the

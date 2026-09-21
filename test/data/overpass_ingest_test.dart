@@ -35,6 +35,15 @@ class _FakeOverpass extends OverpassSource {
       });
 }
 
+/// Every mirror is down.
+class _DownOverpass extends OverpassSource {
+  _DownOverpass() : super(Dio());
+
+  @override
+  Future<String> fetchWays(List<double> bbox) async =>
+      throw OverpassUnavailable('down');
+}
+
 class _NoUsfs extends UsfsSource {
   _NoUsfs() : super(Dio());
 
@@ -97,6 +106,46 @@ void main() {
     );
     expect(result.cellsFetched, 1);
     expect(result.networkError, isFalse);
+  });
+
+  test('progress reports a real total before the first query, then each cell',
+      () async {
+    final repo = TrailRepositoryImpl(
+      db: db,
+      overpass: _FakeOverpass(),
+      usfs: _NoUsfs(),
+    );
+    // Two z10 cells wide.
+    const wide = [46.46, -121.47, 46.49, -121.0];
+    final calls = <(int, int, bool)>[];
+    await repo.ensureArea(
+      wide,
+      onCell: (done, total, fetched) async => calls.add((done, total, fetched)),
+    );
+    expect(calls, [(0, 2, false), (1, 2, true), (2, 2, true)]);
+
+    // Everything is fresh now: no progress at all, so no loading pill.
+    calls.clear();
+    await repo.ensureArea(
+      wide,
+      onCell: (done, total, fetched) async => calls.add((done, total, fetched)),
+    );
+    expect(calls, isEmpty);
+  });
+
+  test('a failing mirror reports the cell as done but not fetched', () async {
+    final repo = TrailRepositoryImpl(
+      db: db,
+      overpass: _DownOverpass(),
+      usfs: _NoUsfs(),
+    );
+    final calls = <(int, int, bool)>[];
+    final result = await repo.ensureArea(
+      bbox,
+      onCell: (done, total, fetched) async => calls.add((done, total, fetched)),
+    );
+    expect(result.networkError, isTrue);
+    expect(calls, [(0, 1, false), (1, 1, false)]);
   });
 
   test('POI cells ingest through the worker isolate', () async {

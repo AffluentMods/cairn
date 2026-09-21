@@ -23,6 +23,28 @@ both API backends, a security audit, a design mockup canvas, and now (morning se
 homelab deploy bundle, RevenueCat store wiring, on-device verification, and a public GitHub
 push. `flutter analyze` clean, 249 tests, both flavors build.
 
+### More trails and a better map 2026-09-21 (done)
+
+You said trails were missing and the map could be far better. What was wrong, and what changed
+(details in docs/DECISIONS.md, sources in docs/API_NOTES.md):
+
+- **A settings bug hid trails.** The layer switches and the raster overlays saved under one key,
+  so toggling any overlay turned trails and POIs off. Separate keys now, and a damaged setting
+  restores trails and POIs.
+- **Wide views loaded nothing.** Explore now loads up to a 4 by 4 block of areas, center first,
+  drawing each as it arrives, with a "Loading trails 2/6" pill. Mount Hood at zoom 9.6 went from
+  0 to 134 listed trails two areas in.
+- **Forest roads drew as trails** (a missing property); they are dashed again and unlabeled.
+- **Map:** trail names along the lines from z13, slightly heavier trail lines, every named summit
+  with its elevation in your units, parks and wilderness shaded and labeled with a green dashed
+  edge, scree and glacier edges, and an Official trails overlay (Park Service, Forest Service,
+  BLM, state) drawn under the OSM trails.
+- **AllTrails:** no API and its terms bar reuse, so it is not a source. OpenStreetMap already
+  has more trails than the agencies list in the areas checked.
+
+Verified on the Pixel 3a emulator (Mount Adams, Mount Hood, Goat Rocks, the overlay toggle).
+Question 15 is answered by this change; 20 and 21 are new.
+
 ### Security batch 2026-09-12 (done)
 
 You said "do everything your audit found", so every propose-only item in
@@ -172,7 +194,8 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
 15. **Wide views load no new trails.** Explore fetches Overpass cells only when the view spans
    at most four z10 cells (about zoom 10 and closer); further out it draws what is cached and
    the list says "zoom in". Alternative: a "Load trails here" button at wide zooms. Keep the
-   quiet default?
+   quiet default? (Answered 2026-09-21 by "so many trails missing": views up to a 4 by 4 block
+   now load, cell by cell, with a progress pill.)
 16. **Physical-phone pass still needed:** real GPS auto-pause and off-route, notification
    taps, multi-hour battery per hour, OEM battery prompts, real offline bundle download, 3D
    WebGL, and the X1.5 frame budgets. Everything above was verified on the Pixel 3a emulator.
@@ -192,6 +215,14 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
    bumps (I pinned the current majors deliberately so nothing changed under the audit). The
    release-job APK gate (`tool/check_apk_clean.py`) only runs on a `v*` tag, so its first CI
    run will be your first tagged release; it passed locally on both community APKs.
+20. **Contour lines on the Outdoors map?** The spec says "do not generate contours in v1" and
+   leaves them to the Topo base map. The public contour services are too slow to use as an
+   overlay (57 s tiles, timeouts). The real fix is to draw contours on the phone from the
+   elevation tiles Cairn already downloads: labeled in feet or meters, crisp at every zoom, and
+   working offline in downloaded areas. It is about a day of work. Say yes to override the spec.
+21. **Which bugs did you hit on the phone?** You mentioned "some bugs". I found and fixed the
+   ones above (trails switched off by the overlay toggle, forest roads drawn as trails, empty
+   wide views). Anything else you saw, describe it or send a screenshot.
 
 ---
 

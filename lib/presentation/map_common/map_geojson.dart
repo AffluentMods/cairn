@@ -52,6 +52,10 @@ Map<String, dynamic> trailsToGeoJson(
       'type': 'Feature',
       'properties': {
         'id': t.id,
+        // The style draws forest roads (highway=track) dashed and thin and
+        // keeps them out of the trail layer and its labels (Addendum A6 F2);
+        // without this property every road rendered as a trail.
+        'highway': t.highway,
         'informal': t.informal,
         'name': t.name ?? '',
       },

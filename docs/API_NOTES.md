@@ -94,3 +94,34 @@ update the parser plus this note if they differ:
   Lidar hillshade uses the 3DEP ImageServer like slope, which is verified rendering. OSM GPS
   traces (`gps.tile.openstreetmap.org`, standard XYZ) installs directly (no proxy) and is just
   sparse in this area.
+
+## Trail and base-map sources checked 2026-09-21
+
+- **OpenFreeMap planet tiles (OpenMapTiles schema, maxzoom 14).** Paths and tracks appear only
+  close in: z12 carries a few major named trails (the Wonderland Trail), z13 most, z14 all
+  (`class` path or track, `subclass` path, footway, steps, pedestrian). There are no sidewalk
+  flags, so the base map's paths cannot stand in for Cairn's OSM trail layer at wide zooms.
+  `mountain_peak` carries `name`, `name_en`, `ele`, `ele_ft`, `customary_ft`, `rank`, and `class`
+  (peak, volcano, saddle) from z7. `park` carries both polygons and one Point label feature per
+  area, with `class` (national_park, wilderness_preserve, forest_reserve, sustainable, game_land)
+  and `rank`. `landcover` class `rock` covers scree and bare rock, `ice` covers glaciers.
+- **USGS National Digital Trails** (`carto.nationalmap.gov/arcgis/rest/services/transportation/
+  MapServer`, layer 37 "Trails", labels are layer 24). One public-domain inventory merged from
+  the Park Service, Forest Service, BLM, and state agencies (the `sourceoriginator` field;
+  Utah AGRC showed up around Moab). Fields: `name`, `trailnumber`, `trailtype`, `lengthmiles`,
+  `hikerpedestrian`, `bicycle`, `packsaddle`, `motorcycle`, `sourceoriginator`, and more. A bbox
+  query answers in 0.1 to 0.3 s and `export` tiles render in 0.1 to 0.3 s. The layer is hidden at
+  z10 and wider (its parent group has a 1:500,000 scale limit), so the overlay starts at z11.
+- **USFS EDW trails** now return lowercase field names (`trail_name`, `trail_no`,
+  `trail_class`); `pickField`'s case-insensitive fallback already covers them.
+- **Contours, not usable as overlays.** The USGS `contours` MapServer timed out (60 s) or
+  returned 504 for z12 and z13 tiles and took 57 s for one z14 tile. The 3DEP ImageServer's
+  `Contour Smoothed 25` raster function answers in 3 to 13 s per tile, draws black unlabeled lines
+  at a fixed 25 m interval, and is US only. Neither is added; the Topo base map stays the contour
+  source (spec FAQ: no generated contours in v1).
+- **Coverage check, Goat Rocks box** (-121.60, 46.40 to -121.30, 46.60): OpenStreetMap has 226
+  path, track, and bridleway ways with 76 distinct names plus 14 hiking route relations; the
+  Forest Service lists about 40 trail names there, nearly all already in OSM (the misses are
+  snowmobile routes and spelling variants such as "PCNST" and "Lilly Basin"). Only 3 of the 102
+  route-member ways lack a name of their own, all of them roads, so copying relation names onto
+  ways would add nothing here.

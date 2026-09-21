@@ -934,8 +934,26 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get exploreEmpty =>
-      'No trails in this area yet. Zoom in or pan to load them.';
+  String exploreLoadingTrails(int done, int total) {
+    return 'Loading trails $done/$total';
+  }
+
+  @override
+  String get exploreLoadingTrailsList => 'Loading trails for this area.';
+
+  @override
+  String get exploreZoomInForTrails => 'Zoom in to load trails here.';
+
+  @override
+  String get exploreZoomInForMore => 'Zoom in to load more trails.';
+
+  @override
+  String get exploreNoTrailsHere => 'No named trails are mapped here.';
+
+  @override
+  String exploreShowingClosest(int count) {
+    return 'Showing the $count closest. Zoom in for the rest.';
+  }
 
   @override
   String get trailNavigate => 'Navigate this trail';
@@ -1350,6 +1368,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'USGS 3DEP, best available resolution';
 
   @override
+  String get overlayOfficialTrails => 'Official trails';
+
+  @override
+  String get overlayOfficialTrailsSubtitle =>
+      'Park Service, Forest Service, BLM, and state trails';
+
+  @override
   String get overlayGpsTraces => 'OSM GPS traces';
 
   @override
@@ -1474,6 +1499,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get attributionUsfs =>
       'Official trails and boundaries: USDA Forest Service EDW';
+
+  @override
+  String get attributionUsgsTrails =>
+      'Official trails overlay: USGS National Digital Trails';
 
   @override
   String get attributionMapLibre =>

@@ -32,30 +32,49 @@ class TrailRepositoryImpl implements TrailRepository {
     List<double> bbox, {
     bool force = false,
     bool Function()? isCancelled,
+    TrailCellProgress? onCell,
   }) async {
     final cells = tilesForBboxCenterFirst(bbox, 10);
+    // Work out up front which cells need a query, so [onCell] can report a
+    // real total from the first moment (the UI shows "Loading trails 0/5"
+    // while the first Overpass request is still in flight).
+    final fresh = force ? const <String>{} : await _freshKeys(cells);
+    final todo = [
+      for (final c in cells)
+        if (!fresh.contains(c.key)) c
+    ];
+    if (todo.isEmpty) {
+      return const TrailLoadResult(networkError: false, cellsFetched: 0);
+    }
+    if (onCell != null) await onCell(0, todo.length, false);
     var networkError = false;
     var fetched = 0;
-    for (final cell in cells) {
+    var done = 0;
+    for (final cell in todo) {
       if (isCancelled?.call() ?? false) break;
-      if (!force && await _isFresh(cell)) continue;
       final ok = await _ingestCell(cell);
       if (ok) {
         fetched++;
       } else {
         networkError = true;
       }
+      done++;
+      if (onCell != null) await onCell(done, todo.length, ok);
     }
     return TrailLoadResult(networkError: networkError, cellsFetched: fetched);
   }
 
-  Future<bool> _isFresh(TileXY cell) async {
-    final row = await (db.select(db.cacheCells)
-          ..where(
-              (t) => t.cellKey.equals(cell.key) & t.dataset.equals(_dataset)))
-        .getSingleOrNull();
-    if (row == null) return false;
-    return DateTime.now().difference(row.fetchedAt) < _trailCellTtl;
+  /// The keys of [cells] cached within the TTL, in one query.
+  Future<Set<String>> _freshKeys(List<TileXY> cells) async {
+    if (cells.isEmpty) return const {};
+    final cutoff = DateTime.now().subtract(_trailCellTtl);
+    final rows = await (db.select(db.cacheCells)
+          ..where((t) =>
+              t.dataset.equals(_dataset) &
+              t.cellKey.isIn([for (final c in cells) c.key]) &
+              t.fetchedAt.isBiggerThanValue(cutoff)))
+        .get();
+    return {for (final r in rows) r.cellKey};
   }
 
   /// Returns true on success, false if the network was unavailable or the
@@ -190,16 +209,32 @@ class TrailRepositoryImpl implements TrailRepository {
       .trim();
 
   @override
-  Future<List<Trail>> trailsInBbox(List<double> bbox,
-      {int limit = 4000}) async {
-    final rows = await (db.select(db.osmWays)
-          ..where((t) =>
-              t.minLat.isSmallerOrEqualValue(bbox[2]) &
-              t.maxLat.isBiggerOrEqualValue(bbox[0]) &
-              t.minLon.isSmallerOrEqualValue(bbox[3]) &
-              t.maxLon.isBiggerOrEqualValue(bbox[1]))
-          ..limit(limit))
-        .get();
+  Future<List<Trail>> trailsInBbox(
+    List<double> bbox, {
+    int limit = 4000,
+    bool namedOnly = false,
+    bool excludeTracks = false,
+  }) async {
+    final query = db.select(db.osmWays)
+      ..where((t) {
+        var clause = t.minLat.isSmallerOrEqualValue(bbox[2]) &
+            t.maxLat.isBiggerOrEqualValue(bbox[0]) &
+            t.minLon.isSmallerOrEqualValue(bbox[3]) &
+            t.maxLon.isBiggerOrEqualValue(bbox[1]);
+        if (namedOnly) {
+          clause = clause & t.name.isNotNull() & t.name.equals('').not();
+        }
+        if (excludeTracks) clause = clause & t.highway.equals('track').not();
+        return clause;
+      })
+      // Named first, then longest: past [limit], what drops is the short
+      // unnamed connectors, never a named trail.
+      ..orderBy([
+        (t) => OrderingTerm(expression: t.name.isNull()),
+        (t) => OrderingTerm(expression: t.lengthM, mode: OrderingMode.desc),
+      ])
+      ..limit(limit);
+    final rows = await query.get();
     return rows.map(_toTrail).toList();
   }
 
