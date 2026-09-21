@@ -5,11 +5,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/settings/settings_providers.dart';
+import '../map_layers_provider.dart' show legacyLayersKey;
 import '../map_providers.dart';
 import 'overlay_registry.dart';
 import 'tile_proxy.dart';
 
-const _kOverlayPref = 'map.overlays';
+/// Its own key: the raster overlays used to share `map.overlays` with the
+/// Cairn layer toggles (map_layers_provider.dart), and each write here wiped
+/// the trails and POI switches.
+const _kOverlayPref = 'map.rasterOverlays';
+
+/// The raster overlays to start from, given the value under the current key
+/// and the legacy shared `map.overlays` list (which may also hold layer names
+/// such as "trails"; only registered overlay keys survive).
+Set<String> restoreRasterOverlays(List<String>? current, List<String>? legacy) {
+  final saved = current ?? legacy ?? const <String>[];
+  return saved.where((k) => overlayByKey(k) != null).toSet();
+}
 
 /// Overlay keys whose tiles are not reaching the device right now (Addendum
 /// A5: "network overlays stay toggleable but show the subtitle chip"). Fed by
@@ -33,14 +45,16 @@ class OverlayController extends Notifier<Set<String>> {
   @override
   Set<String> build() {
     final prefs = ref.read(sharedPreferencesProvider);
-    final saved = prefs.getStringList(_kOverlayPref) ?? const [];
     _refreshTimer ??=
         Timer.periodic(const Duration(minutes: 1), (_) => _refreshDue());
     ref.onDispose(() {
       _refreshTimer?.cancel();
       _refreshTimer = null;
     });
-    return saved.where((k) => overlayByKey(k) != null).toSet();
+    return restoreRasterOverlays(
+      prefs.getStringList(_kOverlayPref),
+      prefs.getStringList(legacyLayersKey),
+    );
   }
 
   Future<void> toggle(String key, bool on) async {
