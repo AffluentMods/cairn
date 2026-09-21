@@ -1,4 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
@@ -359,44 +361,38 @@ class _TrailDetailSheetState extends ConsumerState<_TrailDetailSheet> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: StatTile(
-                          value: fmt.distance(lengthM),
-                          label: l10n.trailLengthOneWay(''),
-                          compact: true,
-                        ),
+                  Builder(builder: (context) {
+                    String orEmpty(String Function(RouteStats s) f) =>
+                        stats == null
+                            ? (loading ? '...' : l10n.statEmpty)
+                            : f(stats);
+                    final tiles = [
+                      (fmt.distance(lengthM), l10n.trailLengthOneWay('')),
+                      // Unsigned, like loss: the label says gain, and a plus
+                      // crowded four mono values (A6 F3).
+                      (orEmpty((s) => fmt.elevation(s.gainM)), l10n.statGain),
+                      (orEmpty((s) => fmt.elevation(s.lossM)), l10n.statLoss),
+                      (
+                        orEmpty((s) => fmt.elevation(s.maxElevM)),
+                        l10n.statHighPoint
                       ),
-                      Expanded(
-                        child: StatTile(
-                          value: stats == null
-                              ? (loading ? '...' : l10n.statEmpty)
-                              : fmt.elevationSigned(stats.gainM),
-                          label: l10n.statGain,
-                          compact: true,
-                        ),
-                      ),
-                      Expanded(
-                        child: StatTile(
-                          value: stats == null
-                              ? (loading ? '...' : l10n.statEmpty)
-                              : fmt.elevation(stats.lossM),
-                          label: l10n.statLoss,
-                          compact: true,
-                        ),
-                      ),
-                      Expanded(
-                        child: StatTile(
-                          value: stats == null
-                              ? (loading ? '...' : l10n.statEmpty)
-                              : fmt.elevation(stats.maxElevM),
-                          label: l10n.statHighPoint,
-                          compact: true,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ];
+                    // Each column as wide as its value needs, so "3,881 ft"
+                    // does not run into "0 ft" beside it.
+                    return Row(
+                      children: [
+                        for (final (value, label) in tiles)
+                          Expanded(
+                            flex: math.max(5, value.length),
+                            child: StatTile(
+                              value: value,
+                              label: label,
+                              compact: true,
+                            ),
+                          ),
+                      ],
+                    );
+                  }),
                   if (stats != null) ...[
                     const SizedBox(height: 4),
                     Builder(builder: (context) {
