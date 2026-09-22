@@ -21,7 +21,7 @@ const _terrainZoom = 14;
 
 /// Estimates the bytes to download for a bbox: basemap tiles across the zoom
 /// range for each selected style (vector for Outdoors, raster for Topo and
-/// Satellite), plus one set of terrain tiles at z14.
+/// Satellite), plus terrain tiles at z11 to z14 (elevation and contours).
 RegionEstimate estimateRegionBytes(
   List<double> bbox, {
   required int minZoom,
@@ -36,7 +36,10 @@ RegionEstimate estimateRegionBytes(
     vectorTiles += n * vectorStyles;
     rasterTiles += n * rasterStyles;
   }
-  final terrainTiles = tilesForBbox(bbox, _terrainZoom).length;
+  var terrainTiles = 0;
+  for (var z = _terrainZoom - 3; z <= _terrainZoom; z++) {
+    terrainTiles += tilesForBbox(bbox, z).length;
+  }
   final bytes = vectorTiles * _vectorTileBytes +
       rasterTiles * _rasterTileBytes +
       terrainTiles * _terrainTileBytes;

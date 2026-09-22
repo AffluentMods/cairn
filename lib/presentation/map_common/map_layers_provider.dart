@@ -62,3 +62,22 @@ class MapLayersNotifier extends Notifier<Set<MapOverlay>> {
 
 final mapLayersProvider =
     NotifierProvider<MapLayersNotifier, Set<MapOverlay>>(MapLayersNotifier.new);
+
+const _kContours = 'map.contours';
+
+/// Contour lines traced on the device from the terrain tiles (docs/DECISIONS.md).
+/// On by default; persisted. The Topo base map carries its own contours, so
+/// the map screens skip tracing there whatever this says.
+class ContoursNotifier extends Notifier<bool> {
+  @override
+  bool build() =>
+      ref.watch(sharedPreferencesProvider).getBool(_kContours) ?? true;
+
+  Future<void> set(bool on) async {
+    state = on;
+    await ref.read(sharedPreferencesProvider).setBool(_kContours, on);
+  }
+}
+
+final contoursEnabledProvider =
+    NotifierProvider<ContoursNotifier, bool>(ContoursNotifier.new);

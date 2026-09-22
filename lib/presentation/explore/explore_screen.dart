@@ -7,10 +7,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/settings/settings_providers.dart';
 import '../../data/data_providers.dart';
 import '../../data/db/app_database.dart';
 import '../../domain/models/fire_incident.dart';
+import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/cairn_map.dart';
+import '../map_common/contours_layer_sync.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
@@ -57,6 +60,9 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   int? _trailsSig;
   int? _poisSig;
 
+  /// What the contour source holds ('' when cleared); null on a fresh style.
+  String? _contoursSig;
+
   /// The fires currently drawn, so a tap on a flame or perimeter can open
   /// the incident's card.
   List<FireIncident> _fires = const [];
@@ -68,6 +74,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     // so the "already sent" signatures must not skip the first fill.
     _trailsSig = null;
     _poisSig = null;
+    _contoursSig = null;
     await _installHighlight(c);
     await _applyHighlight();
     await _installUserWaypoints(c);
@@ -233,6 +240,22 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
         }
       }
 
+      // Contour lines, traced from the terrain tiles for this view.
+      final contoursSig = await ref.read(contourLayerSyncProvider).sync(
+            controller: controller,
+            viewport: viewport,
+            spec: contourSpecForView(
+              viewport: viewport,
+              enabled: ref.read(contoursEnabledProvider),
+              basemapKey: ref.read(basemapProvider).key,
+              units: ref.read(unitFormatterProvider).units,
+            ),
+            previousSig: _contoursSig,
+            isStale: stale,
+          );
+      if (contoursSig == null) return;
+      _contoursSig = contoursSig;
+
       if (layers.contains(MapOverlay.pois)) {
         final repo = ref.read(poiRepositoryProvider);
         if (viewportFetchesCells(viewport, maxCells: maxPoiCellsPerRefresh)) {
@@ -362,6 +385,15 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     final topInset = MediaQuery.of(context).padding.top;
 
     ref.listen(mapLayersProvider, (_, __) {
+      _generation++;
+      _refreshOverlays();
+    });
+    // The contour switch and a units change retrace the view.
+    ref.listen(contoursEnabledProvider, (_, __) {
+      _generation++;
+      _refreshOverlays();
+    });
+    ref.listen(unitFormatterProvider, (_, __) {
       _generation++;
       _refreshOverlays();
     });

@@ -25,16 +25,29 @@ class TerrainTileSource {
 
   final Dio _dio;
   final Directory _cacheDir;
+
+  /// Decoded grids, most recently used last. Each is 256 KB; the cap keeps the
+  /// elevation lookups and the contour tiles of a wide view (a few zooms at
+  /// once) resident without growing for as long as the app runs.
   final _memory = <String, Float32List>{};
+  static const _memoryCap = 96;
 
   File _fileFor(TileXY t) =>
       File(p.join(_cacheDir.path, 'terrain', '${t.z}', '${t.x}', '${t.y}.png'));
 
+  /// True when the tile is on disk, so a caller can tell offline coverage
+  /// without triggering a download.
+  bool isCached(TileXY t) =>
+      _memory.containsKey(t.key) || _fileFor(t).existsSync();
+
   /// Decoded elevation grid for a tile (256x256, row-major, meters), or null if
   /// it is neither cached nor reachable.
   Future<Float32List?> tile(TileXY t) async {
-    final cached = _memory[t.key];
-    if (cached != null) return cached;
+    final cached = _memory.remove(t.key);
+    if (cached != null) {
+      _memory[t.key] = cached; // back to the most recent end
+      return cached;
+    }
 
     final file = _fileFor(t);
     Uint8List? bytes;
@@ -48,6 +61,7 @@ class TerrainTileSource {
     final grid = await _decode(bytes);
     if (grid != null) {
       _memory[t.key] = grid;
+      if (_memory.length > _memoryCap) _memory.remove(_memory.keys.first);
       // A decoded `.f32` sidecar next to the PNG lets the recording service
       // (a separate isolate with no image codec) read DEM elevations for live
       // gain without decoding anything (spec Phase 6).

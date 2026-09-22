@@ -109,14 +109,29 @@ class OfflineRepositoryImpl implements OfflineRepository {
       // Best effort: the basemap and trails are the point of a download.
     }
     onProgress?.call(0.5);
-    // Terrain at z14 across the bbox, so elevation profiles work offline.
-    final tiles = tilesForBbox(bbox, TerrainTileSource.zoom);
-    for (var i = 0; i < tiles.length; i++) {
-      await terrain.tile(tiles[i]);
-      onProgress?.call(0.5 + 0.5 * (i + 1) / tiles.length);
+    // Terrain at z14 across the bbox, so elevation profiles work offline, and
+    // at z11 to z13 so contour lines can be traced at every map zoom with
+    // no signal (they come from the zoom one below the map's). One extra
+    // tile east and south at each zoom: a tile's lines are traced with its
+    // neighbors' edge samples.
+    final tiles = <TileXY>[
+      for (var z = contourMinTerrainZoom; z <= TerrainTileSource.zoom; z++)
+        ...tilesForBbox(bbox, z).map((t) => TileXY(t.x + 1, t.y + 1, z)),
+      for (var z = contourMinTerrainZoom; z <= TerrainTileSource.zoom; z++)
+        ...tilesForBbox(bbox, z),
+    ];
+    final wanted = {for (final t in tiles) t.key: t};
+    var i = 0;
+    for (final t in wanted.values) {
+      await terrain.tile(t);
+      i++;
+      onProgress?.call(0.5 + 0.5 * i / wanted.length);
     }
     onProgress?.call(1.0);
   }
+
+  /// The widest terrain zoom contour lines use (lib/core/geo/contours.dart).
+  static const contourMinTerrainZoom = 11;
 
   OfflineRegionModel _toModel(OfflineRegion row) => OfflineRegionModel(
         id: row.id,

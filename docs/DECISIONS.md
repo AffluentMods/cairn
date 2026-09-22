@@ -475,3 +475,23 @@ option that ships fastest and record it here.
 - **No contour overlay.** Both public contour services are too slow to use (API_NOTES) and the
   spec defers generated contours; the Topo base map keeps contours. Generating them on the phone
   from the elevation tiles Cairn already downloads is the real fix, asked as PROGRESS question 20.
+
+## Contours and forest road maps (2026-09-22, user: "yes do the contours", "download maps of forest roads")
+
+- **Contour lines are traced on the phone from the terrain tiles, overriding the spec's "do not
+  generate contours in v1".** Reason: the user asked for them after the public contour services
+  proved unusable (docs/API_NOTES.md), and the elevation tiles Cairn already downloads for
+  hillshade and profiles carry everything needed. Marching squares per terrain tile on the
+  worker isolate (`lib/core/geo/contours.dart`), each tile stitched with its east and south
+  neighbors' edge samples so lines meet at seams, one or two corner-cutting passes, then
+  simplification to about half a grid cell so the GeoJSON stays small. Intervals follow paper
+  maps: 200 ft (50 m) at z12, 100 ft (20 m) from z13, the USGS quad's 40 ft (10 m) from z15.5;
+  every fifth line is an index line, heavier and labeled. The terrain zoom is one below the map
+  zoom, capped at 14 where the source data's resolution ends. Traced tiles are cached per tile and
+  interval (48 most recent), and decoded terrain grids are capped at 96 in memory.
+- **Contours are on by default, off on the Topo base map, and switch off below z12.** Reason:
+  Topo's raster already carries USGS contours; below z12 the hillshade reads better than a mesh
+  of lines. The layer sheet switch shows the interval the current zoom would draw.
+- **Offline bundles now fetch terrain at z11 to z14 (plus one tile east and south), not z14
+  alone.** Reason: contours at every map zoom need the zoom below it, and a tile's lines need its
+  neighbors' edges. The estimate counts the four zooms (about 1.33 times the old z14 count).

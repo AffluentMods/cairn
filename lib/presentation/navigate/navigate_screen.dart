@@ -27,6 +27,7 @@ import '../../domain/usecases/offline_estimate.dart';
 import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/cairn_map.dart';
 import '../map_common/camera_provider.dart';
+import '../map_common/contours_layer_sync.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
@@ -298,6 +299,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   // applies" in customize mode, and a tap snaps to trails you can see). Same
   // helper as Explore; fetching is capped the same way.
   int? _trailsSig;
+  String? _contoursSig;
   int _trailsGen = 0;
   bool _trailsRefreshing = false;
   bool _trailsPending = false;
@@ -327,16 +329,34 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     final gen = _trailsGen;
     bool stale() => gen != _trailsGen;
     try {
-      if (!ref.read(mapLayersProvider).contains(MapOverlay.trails)) return;
-      final synced = await syncTrailsLayer(
-        controller: c,
-        viewport: viewport,
-        repo: ref.read(trailRepositoryProvider),
-        previousSig: _trailsSig,
-        isStale: stale,
-        fetch: viewportFetchesCells(viewport),
-      );
-      if (synced != null) _trailsSig = synced.sig;
+      if (ref.read(mapLayersProvider).contains(MapOverlay.trails)) {
+        final synced = await syncTrailsLayer(
+          controller: c,
+          viewport: viewport,
+          repo: ref.read(trailRepositoryProvider),
+          previousSig: _trailsSig,
+          isStale: stale,
+          fetch: viewportFetchesCells(viewport),
+        );
+        if (synced == null) return;
+        _trailsSig = synced.sig;
+      } else if (_trailsSig != null) {
+        await c.setGeoJsonSource('cairn-trails', emptyFeatureCollection());
+        _trailsSig = null;
+      }
+      final contoursSig = await ref.read(contourLayerSyncProvider).sync(
+            controller: c,
+            viewport: viewport,
+            spec: contourSpecForView(
+              viewport: viewport,
+              enabled: ref.read(contoursEnabledProvider),
+              basemapKey: ref.read(basemapProvider).key,
+              units: ref.read(unitFormatterProvider).units,
+            ),
+            previousSig: _contoursSig,
+            isStale: stale,
+          );
+      if (contoursSig != null) _contoursSig = contoursSig;
     } catch (_) {
       // disposed controller between tabs
     } finally {
@@ -353,6 +373,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     _handles.clear();
     _handleIndex.clear();
     _trailsSig = null;
+    _contoursSig = null;
     await _installWaypointLayer(c);
     await _syncRoute();
     unawaited(_refreshTrails());
@@ -894,6 +915,19 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     ref.listen(fitRouteProvider, (_, __) {
       _pendingFit = true;
       _tryFit();
+    });
+    // Layer switches (trails, contours) and a units change redraw the view.
+    ref.listen(mapLayersProvider, (_, __) {
+      _trailsGen++;
+      unawaited(_refreshTrails());
+    });
+    ref.listen(contoursEnabledProvider, (_, __) {
+      _trailsGen++;
+      unawaited(_refreshTrails());
+    });
+    ref.listen(unitFormatterProvider, (_, __) {
+      _trailsGen++;
+      unawaited(_refreshTrails());
     });
 
     return Scaffold(

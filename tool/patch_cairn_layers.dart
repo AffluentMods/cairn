@@ -28,6 +28,7 @@ void main() {
     final d = sizeFirePoints(layers);
     final f = boldTrails(layers);
     final g = upsertLayerAfter(layers, 'trails-informal', trailsLabelLayer());
+    final k = ensureContours(style, layers);
     // After every Cairn symbol layer exists, so the new label gets a font too.
     final e = fixLabelFonts(style, layers);
     final vector =
@@ -40,9 +41,137 @@ void main() {
         'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}, '
         'fire size ${d ? "set" : "ok"}, fonts ${e ? "fixed" : "ok"}, '
         'trail width ${f ? "set" : "ok"}, labels ${g ? "added" : "ok"}, '
+        'contours ${k ? "added" : "ok"}, '
         'base map ${!vector ? "raster" : h ? "patched" : "ok"}');
   }
 }
+
+/// The contour source and its three layers (thin lines, index lines, index
+/// labels), fed at runtime from the terrain tiles (lib/core/geo/contours.dart).
+/// They sit right above the hillshade, under water, roads, trails, and every
+/// label. Returns true when anything changed.
+bool ensureContours(
+  Map<String, dynamic> style,
+  List<Map<String, dynamic>> layers,
+) {
+  var changed = false;
+  final sources = style['sources'] as Map<String, dynamic>;
+  if (!sources.containsKey('cairn-contours')) {
+    sources['cairn-contours'] = {
+      'type': 'geojson',
+      'data': {'type': 'FeatureCollection', 'features': <dynamic>[]},
+    };
+    changed = true;
+  }
+  final wanted = contourLayers();
+  // Place after the hillshade; a style without one (road) gets them after its
+  // last land cover layer, where fetch_styles would have put a hillshade.
+  var at = layers.indexWhere((l) => l['id'] == 'hillshade');
+  if (at < 0) {
+    for (var i = 0; i < layers.length; i++) {
+      final id = (layers[i]['id'] as String).toLowerCase();
+      if (id.contains('landcover') || id.contains('landuse') || id == 'water') {
+        at = i;
+      }
+    }
+  }
+  for (final layer in wanted) {
+    final existing = layers.indexWhere((l) => l['id'] == layer['id']);
+    if (existing >= 0) {
+      if (jsonEncode(layers[existing]) != jsonEncode(layer)) {
+        layers[existing] = layer;
+        changed = true;
+      }
+      at = existing;
+      continue;
+    }
+    layers.insert(at + 1, layer);
+    at++;
+    changed = true;
+  }
+  return changed;
+}
+
+List<Map<String, dynamic>> contourLayers() => [
+      {
+        'id': 'contours',
+        'type': 'line',
+        'source': 'cairn-contours',
+        'filter': [
+          '!=',
+          ['get', 'i'],
+          1
+        ],
+        'layout': {'line-join': 'round'},
+        'paint': {
+          'line-color': '#9C7A4C',
+          'line-opacity': 0.5,
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            12,
+            0.6,
+            15,
+            0.9,
+            17,
+            1.3
+          ],
+        },
+      },
+      {
+        'id': 'contours-index',
+        'type': 'line',
+        'source': 'cairn-contours',
+        'filter': [
+          '==',
+          ['get', 'i'],
+          1
+        ],
+        'layout': {'line-join': 'round'},
+        'paint': {
+          'line-color': '#8A5F2E',
+          'line-opacity': 0.75,
+          'line-width': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            12,
+            1.0,
+            15,
+            1.5,
+            17,
+            2.1
+          ],
+        },
+      },
+      {
+        'id': 'contours-label',
+        'type': 'symbol',
+        'source': 'cairn-contours',
+        'filter': [
+          '==',
+          ['get', 'i'],
+          1
+        ],
+        'layout': {
+          'symbol-placement': 'line',
+          'symbol-spacing': 280,
+          'text-field': ['get', 'l'],
+          'text-font': ['Noto Sans Regular'],
+          'text-size': 10,
+          'text-max-angle': 40,
+          'text-padding': 2,
+          'text-rotation-alignment': 'map',
+          'text-pitch-alignment': 'viewport',
+        },
+        'paint': {
+          'text-color': '#6B4A22',
+          'text-halo-color': 'rgba(246,243,236,0.9)',
+          'text-halo-width': 1.2,
+        },
+      },
+    ];
 
 /// Trail line widths: still thin brown lines at z11 (Addendum A6 F2, "not a
 /// white web"), but a little heavier from z9 up so a trail reads at the zoom a

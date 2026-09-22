@@ -220,6 +220,8 @@ Answer whenever. Nothing below blocked the build; each has a shipped default I c
    overlay (57 s tiles, timeouts). The real fix is to draw contours on the phone from the
    elevation tiles Cairn already downloads: labeled in feet or meters, crisp at every zoom, and
    working offline in downloaded areas. It is about a day of work. Say yes to override the spec.
+   (Answered 2026-09-22: yes. Done: traced on the phone, labeled in your units, part of offline
+   bundles; docs/DECISIONS.md.)
 21. **Which bugs did you hit on the phone?** You mentioned "some bugs". I found and fixed the
    ones above (trails switched off by the overlay toggle, forest roads drawn as trails, empty
    wide views). Anything else you saw, describe it or send a screenshot.

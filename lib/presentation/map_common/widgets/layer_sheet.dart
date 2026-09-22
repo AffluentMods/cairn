@@ -4,8 +4,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+import '../../../core/geo/contours.dart';
 import '../../../core/l10n/l10n_ext.dart';
 import '../../../core/net/connectivity_provider.dart';
+import '../../../core/settings/settings_providers.dart';
 import '../basemaps/basemap_registry.dart';
 import '../map_layers_provider.dart';
 import '../map_providers.dart';
@@ -149,6 +151,8 @@ class LayerSheet extends ConsumerWidget {
                   ),
                 ],
               ),
+              const SizedBox(height: 8),
+              const _ContoursTile(),
               const SizedBox(height: 20),
               _sectionLabel(context, l10n.layersOverlays),
               const SizedBox(height: 4),
@@ -337,6 +341,71 @@ class _TiltTile extends ConsumerWidget {
               final c = ref.read(mapControllerProvider);
               c?.animateCamera(CameraUpdate.tiltTo(v ? 60 : 0));
             },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The contour-line switch, with what the current zoom would draw: the
+/// interval in the user's units, "zoom in", or that the Topo map has its own.
+class _ContoursTile extends ConsumerWidget {
+  const _ContoursTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final scheme = Theme.of(context).colorScheme;
+    final on = ref.watch(contoursEnabledProvider);
+    final base = ref.watch(basemapProvider);
+    final fmt = ref.watch(unitFormatterProvider);
+    final zoom = ref.watch(viewportProvider)?.zoom ?? 0;
+    final builtIn = base.key == 'topo';
+    final spec = contourSpecFor(zoom, fmt.units);
+    final String detail;
+    if (builtIn) {
+      detail = l10n.contoursBuiltIn;
+    } else if (!on) {
+      detail = l10n.contoursSource;
+    } else if (spec == null) {
+      detail = l10n.contoursZoomIn;
+    } else {
+      detail = l10n.contoursInterval(
+        '${spec.intervalUnits} ${spec.unitLabel}',
+        '${spec.indexUnits} ${spec.unitLabel}',
+      );
+    }
+    return Container(
+      padding: const EdgeInsets.fromLTRB(10, 4, 4, 4),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.gradient, size: 17, color: scheme.onSurface),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(l10n.layersContours,
+                    style: const TextStyle(fontSize: 12.5)),
+                Text(
+                  detail,
+                  style:
+                      TextStyle(fontSize: 11, color: scheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: on && !builtIn,
+            onChanged: builtIn
+                ? null
+                : (v) => ref.read(contoursEnabledProvider.notifier).set(v),
           ),
         ],
       ),

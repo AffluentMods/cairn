@@ -2446,6 +2446,36 @@ abstract class AppLocalizations {
   /// **'Tilt'**
   String get layersTilt;
 
+  /// No description provided for @layersContours.
+  ///
+  /// In en, this message translates to:
+  /// **'Contour lines'**
+  String get layersContours;
+
+  /// No description provided for @contoursInterval.
+  ///
+  /// In en, this message translates to:
+  /// **'Every {interval}, heavier every {index}'**
+  String contoursInterval(String interval, String index);
+
+  /// No description provided for @contoursZoomIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Zoom in to see them'**
+  String get contoursZoomIn;
+
+  /// No description provided for @contoursBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Part of the Topo map already'**
+  String get contoursBuiltIn;
+
+  /// No description provided for @contoursSource.
+  ///
+  /// In en, this message translates to:
+  /// **'Traced on your phone from elevation data'**
+  String get contoursSource;
+
   /// No description provided for @styleTerrain.
   ///
   /// In en, this message translates to:

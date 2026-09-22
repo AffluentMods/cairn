@@ -1322,6 +1322,23 @@ class AppLocalizationsEn extends AppLocalizations {
   String get layersTilt => 'Tilt';
 
   @override
+  String get layersContours => 'Contour lines';
+
+  @override
+  String contoursInterval(String interval, String index) {
+    return 'Every $interval, heavier every $index';
+  }
+
+  @override
+  String get contoursZoomIn => 'Zoom in to see them';
+
+  @override
+  String get contoursBuiltIn => 'Part of the Topo map already';
+
+  @override
+  String get contoursSource => 'Traced on your phone from elevation data';
+
+  @override
   String get styleTerrain => 'Terrain';
 
   @override
