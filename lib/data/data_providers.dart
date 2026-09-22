@@ -12,6 +12,7 @@ import '../domain/repositories/conditions_repository.dart';
 import '../domain/repositories/elevation_repository.dart';
 import '../domain/repositories/offline_repository.dart';
 import '../domain/repositories/poi_repository.dart';
+import '../domain/repositories/road_repository.dart';
 import '../domain/repositories/route_repository.dart';
 import '../domain/repositories/track_repository.dart';
 import '../domain/repositories/trail_repository.dart';
@@ -23,6 +24,7 @@ import 'repositories/elevation_repository_impl.dart';
 import 'repositories/favorites_repository.dart';
 import 'repositories/offline_repository_impl.dart';
 import 'repositories/poi_repository_impl.dart';
+import 'repositories/road_repository_impl.dart';
 import 'repositories/route_repository_impl.dart';
 import 'repositories/track_repository_impl.dart';
 import 'repositories/trail_repository_impl.dart';
@@ -121,6 +123,14 @@ final poiRepositoryProvider = Provider<PoiRepository>(
   ),
 );
 
+/// Forest Service roads and motorized trails (the MVUM), cached per cell.
+final roadRepositoryProvider = Provider<RoadRepository>(
+  (ref) => RoadRepositoryImpl(
+    db: ref.watch(appDatabaseProvider),
+    usfs: ref.watch(usfsSourceProvider),
+  ),
+);
+
 final terrainTileSourceProvider = Provider<TerrainTileSource>(
   (ref) => TerrainTileSource(
     ref.watch(dioProvider),
@@ -150,6 +160,7 @@ final offlineRepositoryProvider = Provider<OfflineRepository>(
     pois: ref.watch(poiRepositoryProvider),
     terrain: ref.watch(terrainTileSourceProvider),
     conditions: ref.watch(conditionsRepositoryProvider),
+    roads: ref.watch(roadRepositoryProvider),
   ),
 );
 

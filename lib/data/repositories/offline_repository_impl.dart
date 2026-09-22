@@ -6,6 +6,7 @@ import '../../domain/models/offline_region.dart';
 import '../../domain/repositories/conditions_repository.dart';
 import '../../domain/repositories/offline_repository.dart';
 import '../../domain/repositories/poi_repository.dart';
+import '../../domain/repositories/road_repository.dart';
 import '../../domain/repositories/trail_repository.dart';
 import '../db/app_database.dart';
 import '../sources/terrain_tile_source.dart';
@@ -17,12 +18,17 @@ class OfflineRepositoryImpl implements OfflineRepository {
     required this.pois,
     required this.terrain,
     this.conditions,
+    this.roads,
   });
 
   final AppDatabase db;
   final TrailRepository trails;
   final PoiRepository pois;
   final TerrainTileSource terrain;
+
+  /// Forest roads (MVUM); optional so the repository stays constructible in
+  /// tests.
+  final RoadRepository? roads;
 
   /// Land boundaries (wilderness, forests) are cached through the conditions
   /// repository; optional so the repository stays constructible in tests.
@@ -100,6 +106,10 @@ class OfflineRepositoryImpl implements OfflineRepository {
     await trails.ensureArea(bbox, force: force);
     onProgress?.call(0.25);
     await pois.ensureArea(bbox, force: force);
+    onProgress?.call(0.35);
+    // Forest roads and motorized trails, so the roads layer and its cards
+    // work with no signal.
+    await roads?.ensureArea(bbox, force: force);
     onProgress?.call(0.4);
     // Wilderness and forest boundaries, so the land layer and its labels
     // work with no signal (30-day cache in the conditions repository).

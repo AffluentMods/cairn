@@ -495,3 +495,14 @@ option that ships fastest and record it here.
 - **Offline bundles now fetch terrain at z11 to z14 (plus one tile east and south), not z14
   alone.** Reason: contours at every map zoom need the zoom below it, and a tile's lines need its
   neighbors' edges. The estimate counts the four zooms (about 1.33 times the old z14 count).
+- **Forest roads come from the Forest Service Motor Vehicle Use Map as a Cairn layer (cached
+  per cell, tappable, offline), plus the printed MVUM as a raster overlay.** Reason: the user
+  asked for maps of forest roads to preview, see, and download. The MVUM is the legal document
+  for what may drive a road and when; its service carries surface, maintenance level, and open
+  dates per vehicle class (docs/API_NOTES.md), so a tap can answer "can I drive to this trailhead
+  in April" without leaving the app. The layer is off by default (a whole forest of grey lines is
+  noise for a hiker who did not ask) and draws under the OSM trails; the raster overlay is for
+  people who know the paper map's symbols. Route ids print as the map does ("2100" for a main
+  road, "2100-011" for a spur). Offline bundles prefetch the roads with the trails.
+- **Taps on the map query a 28 px box, not a point.** Reason: a thin road or trail a few pixels
+  off the finger opened nothing, and a fingertip is wider than a line.

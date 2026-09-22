@@ -1,0 +1,277 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -121.695993,
+      46.572933
+     ],
+     [
+      -121.696091,
+      46.572641
+     ],
+     [
+      -121.69615,
+      46.572288
+     ],
+     [
+      -121.69616,
+      46.572235
+     ],
+     [
+      -121.696158,
+      46.572194
+     ],
+     [
+      -121.695866,
+      46.571943
+     ],
+     [
+      -121.695459,
+      46.571806
+     ],
+     [
+      -121.694593,
+      46.571464
+     ],
+     [
+      -121.69455,
+      46.571449
+     ],
+     [
+      -121.694483,
+      46.571422
+     ],
+     [
+      -121.694415,
+      46.571394
+     ],
+     [
+      -121.694381,
+      46.571381
+     ]
+    ]
+   },
+   "properties": {
+    "id": "2100011",
+    "name": "METZLER",
+    "symbol": "3",
+    "mvum_symbol_name": "Roads open to highway legal vehicles only, Yearlong",
+    "seasonal": "yearlong",
+    "surfacetype": "NAT - NATIVE MATERIAL",
+    "operationalmaintlevel": "2 - HIGH CLEARANCE VEHICLES",
+    "gis_miles": 0.159,
+    "passengervehicle": "open",
+    "passengervehicle_datesopen": "01/01-12/31",
+    "highclearancevehicle": "open",
+    "highclearancevehicle_datesopen": "01/01-12/31",
+    "atv": null,
+    "atv_datesopen": null,
+    "motorcycle": null,
+    "motorcycle_datesopen": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -121.597666,
+      46.518603
+     ],
+     [
+      -121.597248,
+      46.518439
+     ],
+     [
+      -121.596854,
+      46.51825
+     ],
+     [
+      -121.596569,
+      46.517978
+     ],
+     [
+      -121.596468,
+      46.517716
+     ],
+     [
+      -121.596391,
+      46.517502
+     ],
+     [
+      -121.59649,
+      46.517261
+     ],
+     [
+      -121.59674,
+      46.517157
+     ],
+     [
+      -121.597111,
+      46.517164
+     ],
+     [
+      -121.597333,
+      46.517327
+     ],
+     [
+      -121.597468,
+      46.517508
+     ],
+     [
+      -121.597555,
+      46.51766
+     ]
+    ]
+   },
+   "properties": {
+    "id": "2100084",
+    "name": "JOHNSON CREEK SNO-PARK",
+    "symbol": "3",
+    "mvum_symbol_name": "Roads open to highway legal vehicles only, Yearlong",
+    "seasonal": "yearlong",
+    "surfacetype": "AGG - CRUSHED AGGREGATE OR GRAVEL",
+    "operationalmaintlevel": "3 - SUITABLE FOR PASSENGER CARS",
+    "gis_miles": 0.20700000000000002,
+    "passengervehicle": "open",
+    "passengervehicle_datesopen": "01/01-12/31",
+    "highclearancevehicle": "open",
+    "highclearancevehicle_datesopen": "01/01-12/31",
+    "atv": null,
+    "atv_datesopen": null,
+    "motorcycle": null,
+    "motorcycle_datesopen": null
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "LineString",
+    "coordinates": [
+     [
+      -121.61829,
+      46.5671
+     ],
+     [
+      -121.613517,
+      46.569555
+     ],
+     [
+      -121.610316,
+      46.571509
+     ],
+     [
+      -121.607078,
+      46.571897
+     ],
+     [
+      -121.600427,
+      46.572581
+     ],
+     [
+      -121.597854,
+      46.573348
+     ],
+     [
+      -121.593068,
+      46.575263
+     ],
+     [
+      -121.596535,
+      46.57912
+     ],
+     [
+      -121.600264,
+      46.580562
+     ],
+     [
+      -121.604813,
+      46.582506
+     ],
+     [
+      -121.60523,
+      46.585971
+     ],
+     [
+      -121.607963,
+      46.593935
+     ]
+    ]
+   },
+   "properties": {
+    "id": "4840000",
+    "name": "PEANUT",
+    "symbol": "3",
+    "mvum_symbol_name": "Roads open to highway legal vehicles only, Yearlong",
+    "seasonal": "yearlong",
+    "surfacetype": "AGG - CRUSHED AGGREGATE OR GRAVEL",
+    "operationalmaintlevel": "2 - HIGH CLEARANCE VEHICLES",
+    "gis_miles": 3.68,
+    "passengervehicle": "open",
+    "passengervehicle_datesopen": "01/01-12/31",
+    "highclearancevehicle": "open",
+    "highclearancevehicle_datesopen": "01/01-12/31",
+    "atv": null,
+    "atv_datesopen": null,
+    "motorcycle": null,
+    "motorcycle_datesopen": null
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "2100000",
+    "name": "CISPUS",
+    "symbol": "4",
+    "mvum_symbol_name": "Roads open to highway legal vehicles only, Seasonal",
+    "seasonal": "seasonal",
+    "surfacetype": "AC - ASPHALT",
+    "operationalmaintlevel": "3 - SUITABLE FOR PASSENGER CARS",
+    "gis_miles": 1.5,
+    "passengervehicle": "open",
+    "passengervehicle_datesopen": "04/01-11/30",
+    "highclearancevehicle": "open",
+    "highclearancevehicle_datesopen": "04/01-11/30",
+    "atv": null,
+    "atv_datesopen": null,
+    "motorcycle": null,
+    "motorcycle_datesopen": null
+   },
+   "geometry": {
+    "type": "MultiLineString",
+    "coordinates": [
+     [
+      [
+       -121.6,
+       46.55
+      ],
+      [
+       -121.59,
+       46.555
+      ],
+      [
+       -121.58,
+       46.56
+      ]
+     ],
+     [
+      [
+       -121.57,
+       46.565
+      ],
+      [
+       -121.56,
+       46.57
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

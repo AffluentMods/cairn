@@ -29,6 +29,7 @@ void main() {
     final f = boldTrails(layers);
     final g = upsertLayerAfter(layers, 'trails-informal', trailsLabelLayer());
     final k = ensureContours(style, layers);
+    final r = ensureRoads(style, layers);
     // After every Cairn symbol layer exists, so the new label gets a font too.
     final e = fixLabelFonts(style, layers);
     final vector =
@@ -41,9 +42,148 @@ void main() {
         'route ${b ? "split" : "ok"}, arrows ${c ? "added" : "ok"}, '
         'fire size ${d ? "set" : "ok"}, fonts ${e ? "fixed" : "ok"}, '
         'trail width ${f ? "set" : "ok"}, labels ${g ? "added" : "ok"}, '
-        'contours ${k ? "added" : "ok"}, '
+        'contours ${k ? "added" : "ok"}, roads ${r ? "added" : "ok"}, '
         'base map ${!vector ? "raster" : h ? "patched" : "ok"}');
   }
+}
+
+/// The forest roads source (Forest Service MVUM, fed at runtime) and its
+/// layers: a light casing, roads solid or dashed for seasonal ones, motorized
+/// trails in their own color, and route numbers along the line from z12. They
+/// sit just under the OSM trails. Returns true when anything changed.
+bool ensureRoads(
+  Map<String, dynamic> style,
+  List<Map<String, dynamic>> layers,
+) {
+  var changed = false;
+  final sources = style['sources'] as Map<String, dynamic>;
+  if (!sources.containsKey('cairn-roads')) {
+    sources['cairn-roads'] = {
+      'type': 'geojson',
+      'data': {'type': 'FeatureCollection', 'features': <dynamic>[]},
+    };
+    changed = true;
+  }
+  var at = layers.indexWhere((l) => l['id'] == 'trails-casing');
+  if (at < 0) at = layers.length;
+  at--; // insert after the layer before trails-casing
+  for (final layer in roadLayers()) {
+    final existing = layers.indexWhere((l) => l['id'] == layer['id']);
+    if (existing >= 0) {
+      if (jsonEncode(layers[existing]) != jsonEncode(layer)) {
+        layers[existing] = layer;
+        changed = true;
+      }
+      at = existing;
+      continue;
+    }
+    layers.insert(at + 1, layer);
+    at++;
+    changed = true;
+  }
+  return changed;
+}
+
+List<Map<String, dynamic>> roadLayers() {
+  const width = [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    10,
+    0.9,
+    14,
+    1.9,
+    17,
+    3.2
+  ];
+  const casingWidth = [
+    'interpolate',
+    ['linear'],
+    ['zoom'],
+    10,
+    1.8,
+    14,
+    3.6,
+    17,
+    5.6
+  ];
+  Map<String, dynamic> line(
+    String id,
+    String kind,
+    bool seasonal,
+    String color, {
+    List<num>? dash,
+  }) =>
+      {
+        'id': id,
+        'type': 'line',
+        'source': 'cairn-roads',
+        'filter': [
+          'all',
+          [
+            '==',
+            ['get', 'kind'],
+            kind
+          ],
+          [
+            seasonal ? '==' : '!=',
+            ['get', 'seasonal'],
+            1
+          ],
+        ],
+        'layout': {'line-cap': 'round', 'line-join': 'round'},
+        'paint': {
+          'line-color': color,
+          'line-width': width,
+          if (dash != null) 'line-dasharray': dash,
+        },
+      };
+  return [
+    {
+      'id': 'roads-casing',
+      'type': 'line',
+      'source': 'cairn-roads',
+      'layout': {'line-cap': 'round', 'line-join': 'round'},
+      'paint': {
+        'line-color': '#FFFFFF',
+        'line-opacity': 0.7,
+        'line-width': casingWidth,
+      },
+    },
+    line('roads', 'road', false, '#4A4A4A'),
+    line('roads-seasonal', 'road', true, '#4A4A4A', dash: [3, 2]),
+    line('roads-trails', 'trail', false, '#B0413E'),
+    line('roads-trails-seasonal', 'trail', true, '#B0413E', dash: [3, 2]),
+    {
+      'id': 'roads-label',
+      'type': 'symbol',
+      'source': 'cairn-roads',
+      'minzoom': 12,
+      'layout': {
+        'symbol-placement': 'line',
+        'symbol-spacing': 300,
+        'text-field': ['get', 'number'],
+        'text-font': ['Noto Sans Regular'],
+        'text-size': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          12,
+          10,
+          16,
+          12
+        ],
+        'text-max-angle': 45,
+        'text-padding': 4,
+        'text-rotation-alignment': 'map',
+      },
+      'paint': {
+        'text-color': '#3A3A3A',
+        'text-halo-color': '#FFFFFF',
+        'text-halo-width': 1.5,
+      },
+    },
+  ];
 }
 
 /// The contour source and its three layers (thin lines, index lines, index

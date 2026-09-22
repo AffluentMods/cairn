@@ -1947,6 +1947,797 @@ class CacheCellsCompanion extends UpdateCompanion<CacheCell> {
   }
 }
 
+class $UsfsRoadsTable extends UsfsRoads
+    with TableInfo<$UsfsRoadsTable, UsfsRoad> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UsfsRoadsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _routeIdMeta =
+      const VerificationMeta('routeId');
+  @override
+  late final GeneratedColumn<String> routeId = GeneratedColumn<String>(
+      'route_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+      'number', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _symbolMeta = const VerificationMeta('symbol');
+  @override
+  late final GeneratedColumn<int> symbol = GeneratedColumn<int>(
+      'symbol', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _symbolNameMeta =
+      const VerificationMeta('symbolName');
+  @override
+  late final GeneratedColumn<String> symbolName = GeneratedColumn<String>(
+      'symbol_name', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _seasonalMeta =
+      const VerificationMeta('seasonal');
+  @override
+  late final GeneratedColumn<bool> seasonal = GeneratedColumn<bool>(
+      'seasonal', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("seasonal" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _surfaceMeta =
+      const VerificationMeta('surface');
+  @override
+  late final GeneratedColumn<String> surface = GeneratedColumn<String>(
+      'surface', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _maintLevelMeta =
+      const VerificationMeta('maintLevel');
+  @override
+  late final GeneratedColumn<String> maintLevel = GeneratedColumn<String>(
+      'maint_level', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _accessJsonMeta =
+      const VerificationMeta('accessJson');
+  @override
+  late final GeneratedColumn<String> accessJson = GeneratedColumn<String>(
+      'access_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('{}'));
+  static const VerificationMeta _lengthMiMeta =
+      const VerificationMeta('lengthMi');
+  @override
+  late final GeneratedColumn<double> lengthMi = GeneratedColumn<double>(
+      'length_mi', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  static const VerificationMeta _geomJsonMeta =
+      const VerificationMeta('geomJson');
+  @override
+  late final GeneratedColumn<String> geomJson = GeneratedColumn<String>(
+      'geom_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _minLatMeta = const VerificationMeta('minLat');
+  @override
+  late final GeneratedColumn<double> minLat = GeneratedColumn<double>(
+      'min_lat', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _minLonMeta = const VerificationMeta('minLon');
+  @override
+  late final GeneratedColumn<double> minLon = GeneratedColumn<double>(
+      'min_lon', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _maxLatMeta = const VerificationMeta('maxLat');
+  @override
+  late final GeneratedColumn<double> maxLat = GeneratedColumn<double>(
+      'max_lat', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _maxLonMeta = const VerificationMeta('maxLon');
+  @override
+  late final GeneratedColumn<double> maxLon = GeneratedColumn<double>(
+      'max_lon', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        routeId,
+        number,
+        name,
+        kind,
+        symbol,
+        symbolName,
+        seasonal,
+        surface,
+        maintLevel,
+        accessJson,
+        lengthMi,
+        geomJson,
+        minLat,
+        minLon,
+        maxLat,
+        maxLon
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'usfs_roads';
+  @override
+  VerificationContext validateIntegrity(Insertable<UsfsRoad> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('route_id')) {
+      context.handle(_routeIdMeta,
+          routeId.isAcceptableOrUnknown(data['route_id']!, _routeIdMeta));
+    } else if (isInserting) {
+      context.missing(_routeIdMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(_numberMeta,
+          number.isAcceptableOrUnknown(data['number']!, _numberMeta));
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    if (data.containsKey('symbol')) {
+      context.handle(_symbolMeta,
+          symbol.isAcceptableOrUnknown(data['symbol']!, _symbolMeta));
+    } else if (isInserting) {
+      context.missing(_symbolMeta);
+    }
+    if (data.containsKey('symbol_name')) {
+      context.handle(
+          _symbolNameMeta,
+          symbolName.isAcceptableOrUnknown(
+              data['symbol_name']!, _symbolNameMeta));
+    }
+    if (data.containsKey('seasonal')) {
+      context.handle(_seasonalMeta,
+          seasonal.isAcceptableOrUnknown(data['seasonal']!, _seasonalMeta));
+    }
+    if (data.containsKey('surface')) {
+      context.handle(_surfaceMeta,
+          surface.isAcceptableOrUnknown(data['surface']!, _surfaceMeta));
+    }
+    if (data.containsKey('maint_level')) {
+      context.handle(
+          _maintLevelMeta,
+          maintLevel.isAcceptableOrUnknown(
+              data['maint_level']!, _maintLevelMeta));
+    }
+    if (data.containsKey('access_json')) {
+      context.handle(
+          _accessJsonMeta,
+          accessJson.isAcceptableOrUnknown(
+              data['access_json']!, _accessJsonMeta));
+    }
+    if (data.containsKey('length_mi')) {
+      context.handle(_lengthMiMeta,
+          lengthMi.isAcceptableOrUnknown(data['length_mi']!, _lengthMiMeta));
+    }
+    if (data.containsKey('geom_json')) {
+      context.handle(_geomJsonMeta,
+          geomJson.isAcceptableOrUnknown(data['geom_json']!, _geomJsonMeta));
+    } else if (isInserting) {
+      context.missing(_geomJsonMeta);
+    }
+    if (data.containsKey('min_lat')) {
+      context.handle(_minLatMeta,
+          minLat.isAcceptableOrUnknown(data['min_lat']!, _minLatMeta));
+    } else if (isInserting) {
+      context.missing(_minLatMeta);
+    }
+    if (data.containsKey('min_lon')) {
+      context.handle(_minLonMeta,
+          minLon.isAcceptableOrUnknown(data['min_lon']!, _minLonMeta));
+    } else if (isInserting) {
+      context.missing(_minLonMeta);
+    }
+    if (data.containsKey('max_lat')) {
+      context.handle(_maxLatMeta,
+          maxLat.isAcceptableOrUnknown(data['max_lat']!, _maxLatMeta));
+    } else if (isInserting) {
+      context.missing(_maxLatMeta);
+    }
+    if (data.containsKey('max_lon')) {
+      context.handle(_maxLonMeta,
+          maxLon.isAcceptableOrUnknown(data['max_lon']!, _maxLonMeta));
+    } else if (isInserting) {
+      context.missing(_maxLonMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UsfsRoad map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UsfsRoad(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      routeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}route_id'])!,
+      number: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}number'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name']),
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+      symbol: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}symbol'])!,
+      symbolName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}symbol_name']),
+      seasonal: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}seasonal'])!,
+      surface: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}surface']),
+      maintLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}maint_level']),
+      accessJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}access_json'])!,
+      lengthMi: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}length_mi']),
+      geomJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}geom_json'])!,
+      minLat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}min_lat'])!,
+      minLon: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}min_lon'])!,
+      maxLat: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}max_lat'])!,
+      maxLon: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}max_lon'])!,
+    );
+  }
+
+  @override
+  $UsfsRoadsTable createAlias(String alias) {
+    return $UsfsRoadsTable(attachedDatabase, alias);
+  }
+}
+
+class UsfsRoad extends DataClass implements Insertable<UsfsRoad> {
+  final String id;
+  final String routeId;
+  final String number;
+  final String? name;
+  final String kind;
+  final int symbol;
+  final String? symbolName;
+  final bool seasonal;
+  final String? surface;
+  final String? maintLevel;
+  final String accessJson;
+  final double? lengthMi;
+  final String geomJson;
+  final double minLat;
+  final double minLon;
+  final double maxLat;
+  final double maxLon;
+  const UsfsRoad(
+      {required this.id,
+      required this.routeId,
+      required this.number,
+      this.name,
+      required this.kind,
+      required this.symbol,
+      this.symbolName,
+      required this.seasonal,
+      this.surface,
+      this.maintLevel,
+      required this.accessJson,
+      this.lengthMi,
+      required this.geomJson,
+      required this.minLat,
+      required this.minLon,
+      required this.maxLat,
+      required this.maxLon});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['route_id'] = Variable<String>(routeId);
+    map['number'] = Variable<String>(number);
+    if (!nullToAbsent || name != null) {
+      map['name'] = Variable<String>(name);
+    }
+    map['kind'] = Variable<String>(kind);
+    map['symbol'] = Variable<int>(symbol);
+    if (!nullToAbsent || symbolName != null) {
+      map['symbol_name'] = Variable<String>(symbolName);
+    }
+    map['seasonal'] = Variable<bool>(seasonal);
+    if (!nullToAbsent || surface != null) {
+      map['surface'] = Variable<String>(surface);
+    }
+    if (!nullToAbsent || maintLevel != null) {
+      map['maint_level'] = Variable<String>(maintLevel);
+    }
+    map['access_json'] = Variable<String>(accessJson);
+    if (!nullToAbsent || lengthMi != null) {
+      map['length_mi'] = Variable<double>(lengthMi);
+    }
+    map['geom_json'] = Variable<String>(geomJson);
+    map['min_lat'] = Variable<double>(minLat);
+    map['min_lon'] = Variable<double>(minLon);
+    map['max_lat'] = Variable<double>(maxLat);
+    map['max_lon'] = Variable<double>(maxLon);
+    return map;
+  }
+
+  UsfsRoadsCompanion toCompanion(bool nullToAbsent) {
+    return UsfsRoadsCompanion(
+      id: Value(id),
+      routeId: Value(routeId),
+      number: Value(number),
+      name: name == null && nullToAbsent ? const Value.absent() : Value(name),
+      kind: Value(kind),
+      symbol: Value(symbol),
+      symbolName: symbolName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(symbolName),
+      seasonal: Value(seasonal),
+      surface: surface == null && nullToAbsent
+          ? const Value.absent()
+          : Value(surface),
+      maintLevel: maintLevel == null && nullToAbsent
+          ? const Value.absent()
+          : Value(maintLevel),
+      accessJson: Value(accessJson),
+      lengthMi: lengthMi == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lengthMi),
+      geomJson: Value(geomJson),
+      minLat: Value(minLat),
+      minLon: Value(minLon),
+      maxLat: Value(maxLat),
+      maxLon: Value(maxLon),
+    );
+  }
+
+  factory UsfsRoad.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UsfsRoad(
+      id: serializer.fromJson<String>(json['id']),
+      routeId: serializer.fromJson<String>(json['routeId']),
+      number: serializer.fromJson<String>(json['number']),
+      name: serializer.fromJson<String?>(json['name']),
+      kind: serializer.fromJson<String>(json['kind']),
+      symbol: serializer.fromJson<int>(json['symbol']),
+      symbolName: serializer.fromJson<String?>(json['symbolName']),
+      seasonal: serializer.fromJson<bool>(json['seasonal']),
+      surface: serializer.fromJson<String?>(json['surface']),
+      maintLevel: serializer.fromJson<String?>(json['maintLevel']),
+      accessJson: serializer.fromJson<String>(json['accessJson']),
+      lengthMi: serializer.fromJson<double?>(json['lengthMi']),
+      geomJson: serializer.fromJson<String>(json['geomJson']),
+      minLat: serializer.fromJson<double>(json['minLat']),
+      minLon: serializer.fromJson<double>(json['minLon']),
+      maxLat: serializer.fromJson<double>(json['maxLat']),
+      maxLon: serializer.fromJson<double>(json['maxLon']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'routeId': serializer.toJson<String>(routeId),
+      'number': serializer.toJson<String>(number),
+      'name': serializer.toJson<String?>(name),
+      'kind': serializer.toJson<String>(kind),
+      'symbol': serializer.toJson<int>(symbol),
+      'symbolName': serializer.toJson<String?>(symbolName),
+      'seasonal': serializer.toJson<bool>(seasonal),
+      'surface': serializer.toJson<String?>(surface),
+      'maintLevel': serializer.toJson<String?>(maintLevel),
+      'accessJson': serializer.toJson<String>(accessJson),
+      'lengthMi': serializer.toJson<double?>(lengthMi),
+      'geomJson': serializer.toJson<String>(geomJson),
+      'minLat': serializer.toJson<double>(minLat),
+      'minLon': serializer.toJson<double>(minLon),
+      'maxLat': serializer.toJson<double>(maxLat),
+      'maxLon': serializer.toJson<double>(maxLon),
+    };
+  }
+
+  UsfsRoad copyWith(
+          {String? id,
+          String? routeId,
+          String? number,
+          Value<String?> name = const Value.absent(),
+          String? kind,
+          int? symbol,
+          Value<String?> symbolName = const Value.absent(),
+          bool? seasonal,
+          Value<String?> surface = const Value.absent(),
+          Value<String?> maintLevel = const Value.absent(),
+          String? accessJson,
+          Value<double?> lengthMi = const Value.absent(),
+          String? geomJson,
+          double? minLat,
+          double? minLon,
+          double? maxLat,
+          double? maxLon}) =>
+      UsfsRoad(
+        id: id ?? this.id,
+        routeId: routeId ?? this.routeId,
+        number: number ?? this.number,
+        name: name.present ? name.value : this.name,
+        kind: kind ?? this.kind,
+        symbol: symbol ?? this.symbol,
+        symbolName: symbolName.present ? symbolName.value : this.symbolName,
+        seasonal: seasonal ?? this.seasonal,
+        surface: surface.present ? surface.value : this.surface,
+        maintLevel: maintLevel.present ? maintLevel.value : this.maintLevel,
+        accessJson: accessJson ?? this.accessJson,
+        lengthMi: lengthMi.present ? lengthMi.value : this.lengthMi,
+        geomJson: geomJson ?? this.geomJson,
+        minLat: minLat ?? this.minLat,
+        minLon: minLon ?? this.minLon,
+        maxLat: maxLat ?? this.maxLat,
+        maxLon: maxLon ?? this.maxLon,
+      );
+  UsfsRoad copyWithCompanion(UsfsRoadsCompanion data) {
+    return UsfsRoad(
+      id: data.id.present ? data.id.value : this.id,
+      routeId: data.routeId.present ? data.routeId.value : this.routeId,
+      number: data.number.present ? data.number.value : this.number,
+      name: data.name.present ? data.name.value : this.name,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      symbol: data.symbol.present ? data.symbol.value : this.symbol,
+      symbolName:
+          data.symbolName.present ? data.symbolName.value : this.symbolName,
+      seasonal: data.seasonal.present ? data.seasonal.value : this.seasonal,
+      surface: data.surface.present ? data.surface.value : this.surface,
+      maintLevel:
+          data.maintLevel.present ? data.maintLevel.value : this.maintLevel,
+      accessJson:
+          data.accessJson.present ? data.accessJson.value : this.accessJson,
+      lengthMi: data.lengthMi.present ? data.lengthMi.value : this.lengthMi,
+      geomJson: data.geomJson.present ? data.geomJson.value : this.geomJson,
+      minLat: data.minLat.present ? data.minLat.value : this.minLat,
+      minLon: data.minLon.present ? data.minLon.value : this.minLon,
+      maxLat: data.maxLat.present ? data.maxLat.value : this.maxLat,
+      maxLon: data.maxLon.present ? data.maxLon.value : this.maxLon,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UsfsRoad(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('number: $number, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('symbol: $symbol, ')
+          ..write('symbolName: $symbolName, ')
+          ..write('seasonal: $seasonal, ')
+          ..write('surface: $surface, ')
+          ..write('maintLevel: $maintLevel, ')
+          ..write('accessJson: $accessJson, ')
+          ..write('lengthMi: $lengthMi, ')
+          ..write('geomJson: $geomJson, ')
+          ..write('minLat: $minLat, ')
+          ..write('minLon: $minLon, ')
+          ..write('maxLat: $maxLat, ')
+          ..write('maxLon: $maxLon')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id,
+      routeId,
+      number,
+      name,
+      kind,
+      symbol,
+      symbolName,
+      seasonal,
+      surface,
+      maintLevel,
+      accessJson,
+      lengthMi,
+      geomJson,
+      minLat,
+      minLon,
+      maxLat,
+      maxLon);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UsfsRoad &&
+          other.id == this.id &&
+          other.routeId == this.routeId &&
+          other.number == this.number &&
+          other.name == this.name &&
+          other.kind == this.kind &&
+          other.symbol == this.symbol &&
+          other.symbolName == this.symbolName &&
+          other.seasonal == this.seasonal &&
+          other.surface == this.surface &&
+          other.maintLevel == this.maintLevel &&
+          other.accessJson == this.accessJson &&
+          other.lengthMi == this.lengthMi &&
+          other.geomJson == this.geomJson &&
+          other.minLat == this.minLat &&
+          other.minLon == this.minLon &&
+          other.maxLat == this.maxLat &&
+          other.maxLon == this.maxLon);
+}
+
+class UsfsRoadsCompanion extends UpdateCompanion<UsfsRoad> {
+  final Value<String> id;
+  final Value<String> routeId;
+  final Value<String> number;
+  final Value<String?> name;
+  final Value<String> kind;
+  final Value<int> symbol;
+  final Value<String?> symbolName;
+  final Value<bool> seasonal;
+  final Value<String?> surface;
+  final Value<String?> maintLevel;
+  final Value<String> accessJson;
+  final Value<double?> lengthMi;
+  final Value<String> geomJson;
+  final Value<double> minLat;
+  final Value<double> minLon;
+  final Value<double> maxLat;
+  final Value<double> maxLon;
+  final Value<int> rowid;
+  const UsfsRoadsCompanion({
+    this.id = const Value.absent(),
+    this.routeId = const Value.absent(),
+    this.number = const Value.absent(),
+    this.name = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.symbol = const Value.absent(),
+    this.symbolName = const Value.absent(),
+    this.seasonal = const Value.absent(),
+    this.surface = const Value.absent(),
+    this.maintLevel = const Value.absent(),
+    this.accessJson = const Value.absent(),
+    this.lengthMi = const Value.absent(),
+    this.geomJson = const Value.absent(),
+    this.minLat = const Value.absent(),
+    this.minLon = const Value.absent(),
+    this.maxLat = const Value.absent(),
+    this.maxLon = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  UsfsRoadsCompanion.insert({
+    required String id,
+    required String routeId,
+    required String number,
+    this.name = const Value.absent(),
+    required String kind,
+    required int symbol,
+    this.symbolName = const Value.absent(),
+    this.seasonal = const Value.absent(),
+    this.surface = const Value.absent(),
+    this.maintLevel = const Value.absent(),
+    this.accessJson = const Value.absent(),
+    this.lengthMi = const Value.absent(),
+    required String geomJson,
+    required double minLat,
+    required double minLon,
+    required double maxLat,
+    required double maxLon,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        routeId = Value(routeId),
+        number = Value(number),
+        kind = Value(kind),
+        symbol = Value(symbol),
+        geomJson = Value(geomJson),
+        minLat = Value(minLat),
+        minLon = Value(minLon),
+        maxLat = Value(maxLat),
+        maxLon = Value(maxLon);
+  static Insertable<UsfsRoad> custom({
+    Expression<String>? id,
+    Expression<String>? routeId,
+    Expression<String>? number,
+    Expression<String>? name,
+    Expression<String>? kind,
+    Expression<int>? symbol,
+    Expression<String>? symbolName,
+    Expression<bool>? seasonal,
+    Expression<String>? surface,
+    Expression<String>? maintLevel,
+    Expression<String>? accessJson,
+    Expression<double>? lengthMi,
+    Expression<String>? geomJson,
+    Expression<double>? minLat,
+    Expression<double>? minLon,
+    Expression<double>? maxLat,
+    Expression<double>? maxLon,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (routeId != null) 'route_id': routeId,
+      if (number != null) 'number': number,
+      if (name != null) 'name': name,
+      if (kind != null) 'kind': kind,
+      if (symbol != null) 'symbol': symbol,
+      if (symbolName != null) 'symbol_name': symbolName,
+      if (seasonal != null) 'seasonal': seasonal,
+      if (surface != null) 'surface': surface,
+      if (maintLevel != null) 'maint_level': maintLevel,
+      if (accessJson != null) 'access_json': accessJson,
+      if (lengthMi != null) 'length_mi': lengthMi,
+      if (geomJson != null) 'geom_json': geomJson,
+      if (minLat != null) 'min_lat': minLat,
+      if (minLon != null) 'min_lon': minLon,
+      if (maxLat != null) 'max_lat': maxLat,
+      if (maxLon != null) 'max_lon': maxLon,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  UsfsRoadsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? routeId,
+      Value<String>? number,
+      Value<String?>? name,
+      Value<String>? kind,
+      Value<int>? symbol,
+      Value<String?>? symbolName,
+      Value<bool>? seasonal,
+      Value<String?>? surface,
+      Value<String?>? maintLevel,
+      Value<String>? accessJson,
+      Value<double?>? lengthMi,
+      Value<String>? geomJson,
+      Value<double>? minLat,
+      Value<double>? minLon,
+      Value<double>? maxLat,
+      Value<double>? maxLon,
+      Value<int>? rowid}) {
+    return UsfsRoadsCompanion(
+      id: id ?? this.id,
+      routeId: routeId ?? this.routeId,
+      number: number ?? this.number,
+      name: name ?? this.name,
+      kind: kind ?? this.kind,
+      symbol: symbol ?? this.symbol,
+      symbolName: symbolName ?? this.symbolName,
+      seasonal: seasonal ?? this.seasonal,
+      surface: surface ?? this.surface,
+      maintLevel: maintLevel ?? this.maintLevel,
+      accessJson: accessJson ?? this.accessJson,
+      lengthMi: lengthMi ?? this.lengthMi,
+      geomJson: geomJson ?? this.geomJson,
+      minLat: minLat ?? this.minLat,
+      minLon: minLon ?? this.minLon,
+      maxLat: maxLat ?? this.maxLat,
+      maxLon: maxLon ?? this.maxLon,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (routeId.present) {
+      map['route_id'] = Variable<String>(routeId.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    if (symbol.present) {
+      map['symbol'] = Variable<int>(symbol.value);
+    }
+    if (symbolName.present) {
+      map['symbol_name'] = Variable<String>(symbolName.value);
+    }
+    if (seasonal.present) {
+      map['seasonal'] = Variable<bool>(seasonal.value);
+    }
+    if (surface.present) {
+      map['surface'] = Variable<String>(surface.value);
+    }
+    if (maintLevel.present) {
+      map['maint_level'] = Variable<String>(maintLevel.value);
+    }
+    if (accessJson.present) {
+      map['access_json'] = Variable<String>(accessJson.value);
+    }
+    if (lengthMi.present) {
+      map['length_mi'] = Variable<double>(lengthMi.value);
+    }
+    if (geomJson.present) {
+      map['geom_json'] = Variable<String>(geomJson.value);
+    }
+    if (minLat.present) {
+      map['min_lat'] = Variable<double>(minLat.value);
+    }
+    if (minLon.present) {
+      map['min_lon'] = Variable<double>(minLon.value);
+    }
+    if (maxLat.present) {
+      map['max_lat'] = Variable<double>(maxLat.value);
+    }
+    if (maxLon.present) {
+      map['max_lon'] = Variable<double>(maxLon.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UsfsRoadsCompanion(')
+          ..write('id: $id, ')
+          ..write('routeId: $routeId, ')
+          ..write('number: $number, ')
+          ..write('name: $name, ')
+          ..write('kind: $kind, ')
+          ..write('symbol: $symbol, ')
+          ..write('symbolName: $symbolName, ')
+          ..write('seasonal: $seasonal, ')
+          ..write('surface: $surface, ')
+          ..write('maintLevel: $maintLevel, ')
+          ..write('accessJson: $accessJson, ')
+          ..write('lengthMi: $lengthMi, ')
+          ..write('geomJson: $geomJson, ')
+          ..write('minLat: $minLat, ')
+          ..write('minLon: $minLon, ')
+          ..write('maxLat: $maxLat, ')
+          ..write('maxLon: $maxLon, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $RoutesTable extends Routes with TableInfo<$RoutesTable, Route> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -6537,6 +7328,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $OsmRelationsTable osmRelations = $OsmRelationsTable(this);
   late final $PoisTable pois = $PoisTable(this);
   late final $CacheCellsTable cacheCells = $CacheCellsTable(this);
+  late final $UsfsRoadsTable usfsRoads = $UsfsRoadsTable(this);
   late final $RoutesTable routes = $RoutesTable(this);
   late final $RouteWaypointsTable routeWaypoints = $RouteWaypointsTable(this);
   late final $TracksTable tracks = $TracksTable(this);
@@ -6552,6 +7344,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       'CREATE INDEX idx_ways_bbox ON osm_ways (min_lat, max_lat, min_lon, max_lon)');
   late final Index idxPoisLatlon = Index(
       'idx_pois_latlon', 'CREATE INDEX idx_pois_latlon ON pois (lat, lon)');
+  late final Index idxRoadsBbox = Index('idx_roads_bbox',
+      'CREATE INDEX idx_roads_bbox ON usfs_roads (min_lat, max_lat, min_lon, max_lon)');
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6562,6 +7356,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         osmRelations,
         pois,
         cacheCells,
+        usfsRoads,
         routes,
         routeWaypoints,
         tracks,
@@ -6573,7 +7368,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         userWaypoints,
         customThemes,
         idxWaysBbox,
-        idxPoisLatlon
+        idxPoisLatlon,
+        idxRoadsBbox
       ];
 }
 
@@ -7558,6 +8354,351 @@ typedef $$CacheCellsTableProcessedTableManager = ProcessedTableManager<
     $$CacheCellsTableUpdateCompanionBuilder,
     (CacheCell, BaseReferences<_$AppDatabase, $CacheCellsTable, CacheCell>),
     CacheCell,
+    PrefetchHooks Function()>;
+typedef $$UsfsRoadsTableCreateCompanionBuilder = UsfsRoadsCompanion Function({
+  required String id,
+  required String routeId,
+  required String number,
+  Value<String?> name,
+  required String kind,
+  required int symbol,
+  Value<String?> symbolName,
+  Value<bool> seasonal,
+  Value<String?> surface,
+  Value<String?> maintLevel,
+  Value<String> accessJson,
+  Value<double?> lengthMi,
+  required String geomJson,
+  required double minLat,
+  required double minLon,
+  required double maxLat,
+  required double maxLon,
+  Value<int> rowid,
+});
+typedef $$UsfsRoadsTableUpdateCompanionBuilder = UsfsRoadsCompanion Function({
+  Value<String> id,
+  Value<String> routeId,
+  Value<String> number,
+  Value<String?> name,
+  Value<String> kind,
+  Value<int> symbol,
+  Value<String?> symbolName,
+  Value<bool> seasonal,
+  Value<String?> surface,
+  Value<String?> maintLevel,
+  Value<String> accessJson,
+  Value<double?> lengthMi,
+  Value<String> geomJson,
+  Value<double> minLat,
+  Value<double> minLon,
+  Value<double> maxLat,
+  Value<double> maxLon,
+  Value<int> rowid,
+});
+
+class $$UsfsRoadsTableFilterComposer
+    extends Composer<_$AppDatabase, $UsfsRoadsTable> {
+  $$UsfsRoadsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get symbol => $composableBuilder(
+      column: $table.symbol, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get symbolName => $composableBuilder(
+      column: $table.symbolName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get seasonal => $composableBuilder(
+      column: $table.seasonal, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get surface => $composableBuilder(
+      column: $table.surface, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get maintLevel => $composableBuilder(
+      column: $table.maintLevel, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get accessJson => $composableBuilder(
+      column: $table.accessJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get lengthMi => $composableBuilder(
+      column: $table.lengthMi, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get geomJson => $composableBuilder(
+      column: $table.geomJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get minLat => $composableBuilder(
+      column: $table.minLat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get minLon => $composableBuilder(
+      column: $table.minLon, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get maxLat => $composableBuilder(
+      column: $table.maxLat, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get maxLon => $composableBuilder(
+      column: $table.maxLon, builder: (column) => ColumnFilters(column));
+}
+
+class $$UsfsRoadsTableOrderingComposer
+    extends Composer<_$AppDatabase, $UsfsRoadsTable> {
+  $$UsfsRoadsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get routeId => $composableBuilder(
+      column: $table.routeId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get number => $composableBuilder(
+      column: $table.number, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get symbol => $composableBuilder(
+      column: $table.symbol, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get symbolName => $composableBuilder(
+      column: $table.symbolName, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get seasonal => $composableBuilder(
+      column: $table.seasonal, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get surface => $composableBuilder(
+      column: $table.surface, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get maintLevel => $composableBuilder(
+      column: $table.maintLevel, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get accessJson => $composableBuilder(
+      column: $table.accessJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get lengthMi => $composableBuilder(
+      column: $table.lengthMi, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get geomJson => $composableBuilder(
+      column: $table.geomJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get minLat => $composableBuilder(
+      column: $table.minLat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get minLon => $composableBuilder(
+      column: $table.minLon, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get maxLat => $composableBuilder(
+      column: $table.maxLat, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get maxLon => $composableBuilder(
+      column: $table.maxLon, builder: (column) => ColumnOrderings(column));
+}
+
+class $$UsfsRoadsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UsfsRoadsTable> {
+  $$UsfsRoadsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get routeId =>
+      $composableBuilder(column: $table.routeId, builder: (column) => column);
+
+  GeneratedColumn<String> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<int> get symbol =>
+      $composableBuilder(column: $table.symbol, builder: (column) => column);
+
+  GeneratedColumn<String> get symbolName => $composableBuilder(
+      column: $table.symbolName, builder: (column) => column);
+
+  GeneratedColumn<bool> get seasonal =>
+      $composableBuilder(column: $table.seasonal, builder: (column) => column);
+
+  GeneratedColumn<String> get surface =>
+      $composableBuilder(column: $table.surface, builder: (column) => column);
+
+  GeneratedColumn<String> get maintLevel => $composableBuilder(
+      column: $table.maintLevel, builder: (column) => column);
+
+  GeneratedColumn<String> get accessJson => $composableBuilder(
+      column: $table.accessJson, builder: (column) => column);
+
+  GeneratedColumn<double> get lengthMi =>
+      $composableBuilder(column: $table.lengthMi, builder: (column) => column);
+
+  GeneratedColumn<String> get geomJson =>
+      $composableBuilder(column: $table.geomJson, builder: (column) => column);
+
+  GeneratedColumn<double> get minLat =>
+      $composableBuilder(column: $table.minLat, builder: (column) => column);
+
+  GeneratedColumn<double> get minLon =>
+      $composableBuilder(column: $table.minLon, builder: (column) => column);
+
+  GeneratedColumn<double> get maxLat =>
+      $composableBuilder(column: $table.maxLat, builder: (column) => column);
+
+  GeneratedColumn<double> get maxLon =>
+      $composableBuilder(column: $table.maxLon, builder: (column) => column);
+}
+
+class $$UsfsRoadsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UsfsRoadsTable,
+    UsfsRoad,
+    $$UsfsRoadsTableFilterComposer,
+    $$UsfsRoadsTableOrderingComposer,
+    $$UsfsRoadsTableAnnotationComposer,
+    $$UsfsRoadsTableCreateCompanionBuilder,
+    $$UsfsRoadsTableUpdateCompanionBuilder,
+    (UsfsRoad, BaseReferences<_$AppDatabase, $UsfsRoadsTable, UsfsRoad>),
+    UsfsRoad,
+    PrefetchHooks Function()> {
+  $$UsfsRoadsTableTableManager(_$AppDatabase db, $UsfsRoadsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$UsfsRoadsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$UsfsRoadsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$UsfsRoadsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> routeId = const Value.absent(),
+            Value<String> number = const Value.absent(),
+            Value<String?> name = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+            Value<int> symbol = const Value.absent(),
+            Value<String?> symbolName = const Value.absent(),
+            Value<bool> seasonal = const Value.absent(),
+            Value<String?> surface = const Value.absent(),
+            Value<String?> maintLevel = const Value.absent(),
+            Value<String> accessJson = const Value.absent(),
+            Value<double?> lengthMi = const Value.absent(),
+            Value<String> geomJson = const Value.absent(),
+            Value<double> minLat = const Value.absent(),
+            Value<double> minLon = const Value.absent(),
+            Value<double> maxLat = const Value.absent(),
+            Value<double> maxLon = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UsfsRoadsCompanion(
+            id: id,
+            routeId: routeId,
+            number: number,
+            name: name,
+            kind: kind,
+            symbol: symbol,
+            symbolName: symbolName,
+            seasonal: seasonal,
+            surface: surface,
+            maintLevel: maintLevel,
+            accessJson: accessJson,
+            lengthMi: lengthMi,
+            geomJson: geomJson,
+            minLat: minLat,
+            minLon: minLon,
+            maxLat: maxLat,
+            maxLon: maxLon,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String routeId,
+            required String number,
+            Value<String?> name = const Value.absent(),
+            required String kind,
+            required int symbol,
+            Value<String?> symbolName = const Value.absent(),
+            Value<bool> seasonal = const Value.absent(),
+            Value<String?> surface = const Value.absent(),
+            Value<String?> maintLevel = const Value.absent(),
+            Value<String> accessJson = const Value.absent(),
+            Value<double?> lengthMi = const Value.absent(),
+            required String geomJson,
+            required double minLat,
+            required double minLon,
+            required double maxLat,
+            required double maxLon,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              UsfsRoadsCompanion.insert(
+            id: id,
+            routeId: routeId,
+            number: number,
+            name: name,
+            kind: kind,
+            symbol: symbol,
+            symbolName: symbolName,
+            seasonal: seasonal,
+            surface: surface,
+            maintLevel: maintLevel,
+            accessJson: accessJson,
+            lengthMi: lengthMi,
+            geomJson: geomJson,
+            minLat: minLat,
+            minLon: minLon,
+            maxLat: maxLat,
+            maxLon: maxLon,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UsfsRoadsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $UsfsRoadsTable,
+    UsfsRoad,
+    $$UsfsRoadsTableFilterComposer,
+    $$UsfsRoadsTableOrderingComposer,
+    $$UsfsRoadsTableAnnotationComposer,
+    $$UsfsRoadsTableCreateCompanionBuilder,
+    $$UsfsRoadsTableUpdateCompanionBuilder,
+    (UsfsRoad, BaseReferences<_$AppDatabase, $UsfsRoadsTable, UsfsRoad>),
+    UsfsRoad,
     PrefetchHooks Function()>;
 typedef $$RoutesTableCreateCompanionBuilder = RoutesCompanion Function({
   required String id,
@@ -10398,6 +11539,8 @@ class $AppDatabaseManager {
   $$PoisTableTableManager get pois => $$PoisTableTableManager(_db, _db.pois);
   $$CacheCellsTableTableManager get cacheCells =>
       $$CacheCellsTableTableManager(_db, _db.cacheCells);
+  $$UsfsRoadsTableTableManager get usfsRoads =>
+      $$UsfsRoadsTableTableManager(_db, _db.usfsRoads);
   $$RoutesTableTableManager get routes =>
       $$RoutesTableTableManager(_db, _db.routes);
   $$RouteWaypointsTableTableManager get routeWaypoints =>

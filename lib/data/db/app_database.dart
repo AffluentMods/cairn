@@ -78,6 +78,34 @@ class Pois extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Forest Service Motor Vehicle Use Map segments (roads and motorized
+/// trails), cached per z10 cell like OSM ways so the forest roads layer and
+/// its cards work offline (docs/DECISIONS.md, forest road maps).
+@TableIndex(
+    name: 'idx_roads_bbox', columns: {#minLat, #maxLat, #minLon, #maxLon})
+class UsfsRoads extends Table {
+  TextColumn get id => text()(); // "r2100011", "t1151A#1"
+  TextColumn get routeId => text()();
+  TextColumn get number => text()(); // "2100-011"
+  TextColumn get name => text().nullable()();
+  TextColumn get kind => text()(); // road, trail
+  IntColumn get symbol => integer()();
+  TextColumn get symbolName => text().nullable()();
+  BoolColumn get seasonal => boolean().withDefault(const Constant(false))();
+  TextColumn get surface => text().nullable()();
+  TextColumn get maintLevel => text().nullable()();
+  TextColumn get accessJson => text().withDefault(const Constant('{}'))();
+  RealColumn get lengthMi => real().nullable()();
+  TextColumn get geomJson => text()(); // [[lat,lon],...]
+  RealColumn get minLat => real()();
+  RealColumn get minLon => real()();
+  RealColumn get maxLat => real()();
+  RealColumn get maxLon => real()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 class CacheCells extends Table {
   TextColumn get cellKey => text()(); // "z10/163/357"
   TextColumn get dataset => text()(); // ways, pois, usfs, fires
@@ -257,6 +285,7 @@ class CustomThemes extends Table {
     OsmRelations,
     Pois,
     CacheCells,
+    UsfsRoads,
     Routes,
     RouteWaypoints,
     Tracks,
@@ -276,7 +305,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   /// Removes cached ways the trail parser no longer accepts (sidewalks,
   /// crossings, parking aisles, footway links); see the v6 migration.
@@ -318,6 +347,8 @@ class AppDatabase extends _$AppDatabase {
           // the trail query and parser no longer accept, so old cells do not
           // keep drawing street furniture as trails until their refresh.
           if (from < 6) await deleteCachedStreetFurniture();
+          // v7: Forest Service MVUM roads and motorized trails.
+          if (from < 7) await m.createTable(usfsRoads);
         },
       );
 

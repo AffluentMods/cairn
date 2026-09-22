@@ -32,6 +32,7 @@ import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
 import '../map_common/poi_icons.dart';
+import '../map_common/roads_layer_sync.dart';
 import '../map_common/trails_layer_sync.dart';
 import '../map_common/widgets/elevation_profile.dart';
 import '../map_common/widgets/layer_sheet.dart';
@@ -300,6 +301,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
   // helper as Explore; fetching is capped the same way.
   int? _trailsSig;
   String? _contoursSig;
+  int? _roadsSig;
   int _trailsGen = 0;
   bool _trailsRefreshing = false;
   bool _trailsPending = false;
@@ -357,6 +359,19 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
             isStale: stale,
           );
       if (contoursSig != null) _contoursSig = contoursSig;
+      if (ref.read(mapLayersProvider).contains(MapOverlay.roads)) {
+        final roadsSig = await syncRoadsLayer(
+          controller: c,
+          viewport: viewport,
+          repo: ref.read(roadRepositoryProvider),
+          previousSig: _roadsSig,
+          isStale: stale,
+        );
+        if (roadsSig != null) _roadsSig = roadsSig;
+      } else if (_roadsSig != null) {
+        await c.setGeoJsonSource('cairn-roads', emptyFeatureCollection());
+        _roadsSig = null;
+      }
     } catch (_) {
       // disposed controller between tabs
     } finally {
@@ -374,6 +389,7 @@ class _NavigateScreenState extends ConsumerState<NavigateScreen> {
     _handleIndex.clear();
     _trailsSig = null;
     _contoursSig = null;
+    _roadsSig = null;
     await _installWaypointLayer(c);
     await _syncRoute();
     unawaited(_refreshTrails());

@@ -5,10 +5,35 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('schema is at v6', () {
+  test('schema is at v7', () {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 6);
+    expect(db.schemaVersion, 7);
+  });
+
+  test('UsfsRoads round-trips a segment with its access map (v7)', () async {
+    final db = AppDatabase.forTesting(NativeDatabase.memory());
+    addTearDown(db.close);
+    await db.into(db.usfsRoads).insert(
+          UsfsRoadsCompanion.insert(
+            id: 'r2100011',
+            routeId: '2100011',
+            number: '2100-011',
+            name: const Value('Metzler'),
+            kind: 'road',
+            symbol: 3,
+            accessJson: const Value('{"passengerVehicle":"yearlong"}'),
+            geomJson: '[[46.57,-121.69],[46.573,-121.694]]',
+            minLat: 46.57,
+            minLon: -121.694,
+            maxLat: 46.573,
+            maxLon: -121.69,
+          ),
+        );
+    final row = await db.select(db.usfsRoads).getSingle();
+    expect(row.number, '2100-011');
+    expect(row.seasonal, isFalse);
+    expect(row.accessJson, contains('passengerVehicle'));
   });
 
   test('v6 cleanup drops cached sidewalks and keeps trails', () async {

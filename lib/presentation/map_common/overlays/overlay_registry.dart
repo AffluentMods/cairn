@@ -162,6 +162,25 @@ final overlays = <OverlayDef>[
     attribution: (l) => l.attributionUsgsTrails,
     coverage: Coverage.us,
   ),
+  // The Forest Service Motor Vehicle Use Map drawn with its own printed
+  // symbology (roads and motorized trails, with the route numbers), for
+  // people who know the paper map. Cairn's own Forest roads layer draws the
+  // same data in the app's style with tappable cards.
+  OverlayDef(
+    key: 'mvumOfficial',
+    minZoom: 10,
+    maxZoom: 18,
+    kind: OverlaySourceKind.rasterTiles,
+    label: (l) => l.overlayMvum,
+    subtitle: (l) => l.overlayMvumSubtitle,
+    tileUrl: 'https://apps.fs.usda.gov/arcx/rest/services/EDW/EDW_MVUM_01/'
+        'MapServer/export?bbox={bbox-epsg-3857}&bboxSR=3857&imageSR=3857'
+        '&size=512,512&dpi=192&format=png32&transparent=true'
+        '&layers=show:1,2&f=image',
+    opacity: 0.9,
+    attribution: (l) => l.attributionUsfs,
+    coverage: Coverage.us,
+  ),
   OverlayDef(
     key: 'gpsTraces',
     maxZoom: 16,

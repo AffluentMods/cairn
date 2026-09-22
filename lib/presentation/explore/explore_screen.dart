@@ -17,6 +17,7 @@ import '../map_common/contours_layer_sync.dart';
 import '../map_common/map_geojson.dart';
 import '../map_common/map_layers_provider.dart';
 import '../map_common/map_providers.dart';
+import '../map_common/roads_layer_sync.dart';
 import '../map_common/trails_layer_sync.dart';
 import '../map_common/widgets/layer_sheet.dart';
 import '../map_common/widgets/location_fab.dart';
@@ -28,6 +29,7 @@ import 'highlight_provider.dart';
 import 'nearby_trails_provider.dart';
 import 'trail_load_status.dart';
 import 'widgets/fire_card_sheet.dart';
+import 'widgets/road_card_sheet.dart';
 import 'widgets/trail_card.dart';
 import 'widgets/trail_detail_sheet.dart';
 import 'widgets/trail_search.dart';
@@ -62,6 +64,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 
   /// What the contour source holds ('' when cleared); null on a fresh style.
   String? _contoursSig;
+  int? _roadsSig;
 
   /// The fires currently drawn, so a tap on a flame or perimeter can open
   /// the incident's card.
@@ -75,6 +78,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
     _trailsSig = null;
     _poisSig = null;
     _contoursSig = null;
+    _roadsSig = null;
     await _installHighlight(c);
     await _applyHighlight();
     await _installUserWaypoints(c);
@@ -256,6 +260,23 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
       if (contoursSig == null) return;
       _contoursSig = contoursSig;
 
+      // Forest roads and motorized trails (Forest Service MVUM).
+      if (layers.contains(MapOverlay.roads)) {
+        final roadsSig = await syncRoadsLayer(
+          controller: controller,
+          viewport: viewport,
+          repo: ref.read(roadRepositoryProvider),
+          previousSig: _roadsSig,
+          isStale: stale,
+        );
+        if (roadsSig == null) return;
+        _roadsSig = roadsSig;
+      } else if (_roadsSig != null) {
+        await controller.setGeoJsonSource(
+            'cairn-roads', emptyFeatureCollection());
+        _roadsSig = null;
+      }
+
       if (layers.contains(MapOverlay.pois)) {
         final repo = ref.read(poiRepositoryProvider);
         if (viewportFetchesCells(viewport, maxCells: maxPoiCellsPerRefresh)) {
@@ -347,9 +368,27 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           }
         }
       }
-      final features = await controller.queryRenderedFeatures(
-          point, ['trails', 'trails-informal'], null);
-      if (features.isEmpty) return;
+      // A finger is wider than a line: query a small box around the tap so
+      // a thin trail or road a few pixels off still opens.
+      final box = Rect.fromCenter(
+        center: Offset(point.x, point.y),
+        width: 28,
+        height: 28,
+      );
+      final features = await controller.queryRenderedFeaturesInRect(
+          box, ['trails', 'trails-informal'], null);
+      if (features.isEmpty) {
+        // No trail under the finger: a forest road opens its MVUM card.
+        final roads = await controller.queryRenderedFeaturesInRect(
+            box, roadLayerIds, null);
+        if (roads.isEmpty) return;
+        final props = (roads.first as Map)['properties'];
+        final id = props is Map ? props['id']?.toString() : null;
+        if (id == null) return;
+        final road = await ref.read(roadRepositoryProvider).byId(id);
+        if (road != null && mounted) await showRoadCard(context, road);
+        return;
+      }
       final props = (features.first as Map)['properties'];
       final id = (props is Map) ? props['id'] : null;
       if (id == null) return;

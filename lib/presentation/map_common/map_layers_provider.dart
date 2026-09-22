@@ -5,7 +5,7 @@ import '../../core/settings/settings_providers.dart';
 
 /// Overlays the user can toggle on the map. The base style (outdoors/topo/
 /// satellite) is separate; these ride on top of any base.
-enum MapOverlay { trails, pois, fires, land }
+enum MapOverlay { trails, pois, fires, land, roads }
 
 const _kEnabledLayers = 'map.layers';
 

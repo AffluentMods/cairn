@@ -70,6 +70,13 @@
         "type": "FeatureCollection",
         "features": []
       }
+    },
+    "cairn-roads": {
+      "type": "geojson",
+      "data": {
+        "type": "FeatureCollection",
+        "features": []
+      }
     }
   },
   "layers": [
@@ -261,6 +268,264 @@
           "#E5484D"
         ],
         "line-width": 2
+      }
+    },
+    {
+      "id": "roads-casing",
+      "type": "line",
+      "source": "cairn-roads",
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#FFFFFF",
+        "line-opacity": 0.7,
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          1.8,
+          14,
+          3.6,
+          17,
+          5.6
+        ]
+      }
+    },
+    {
+      "id": "roads",
+      "type": "line",
+      "source": "cairn-roads",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "road"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "seasonal"
+          ],
+          1
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4A4A4A",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          0.9,
+          14,
+          1.9,
+          17,
+          3.2
+        ]
+      }
+    },
+    {
+      "id": "roads-seasonal",
+      "type": "line",
+      "source": "cairn-roads",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "road"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "seasonal"
+          ],
+          1
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#4A4A4A",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          0.9,
+          14,
+          1.9,
+          17,
+          3.2
+        ],
+        "line-dasharray": [
+          3,
+          2
+        ]
+      }
+    },
+    {
+      "id": "roads-trails",
+      "type": "line",
+      "source": "cairn-roads",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "trail"
+        ],
+        [
+          "!=",
+          [
+            "get",
+            "seasonal"
+          ],
+          1
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#B0413E",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          0.9,
+          14,
+          1.9,
+          17,
+          3.2
+        ]
+      }
+    },
+    {
+      "id": "roads-trails-seasonal",
+      "type": "line",
+      "source": "cairn-roads",
+      "filter": [
+        "all",
+        [
+          "==",
+          [
+            "get",
+            "kind"
+          ],
+          "trail"
+        ],
+        [
+          "==",
+          [
+            "get",
+            "seasonal"
+          ],
+          1
+        ]
+      ],
+      "layout": {
+        "line-cap": "round",
+        "line-join": "round"
+      },
+      "paint": {
+        "line-color": "#B0413E",
+        "line-width": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          10,
+          0.9,
+          14,
+          1.9,
+          17,
+          3.2
+        ],
+        "line-dasharray": [
+          3,
+          2
+        ]
+      }
+    },
+    {
+      "id": "roads-label",
+      "type": "symbol",
+      "source": "cairn-roads",
+      "minzoom": 12,
+      "layout": {
+        "symbol-placement": "line",
+        "symbol-spacing": 300,
+        "text-field": [
+          "get",
+          "number"
+        ],
+        "text-font": [
+          "Noto Sans Regular"
+        ],
+        "text-size": [
+          "interpolate",
+          [
+            "linear"
+          ],
+          [
+            "zoom"
+          ],
+          12,
+          10,
+          16,
+          12
+        ],
+        "text-max-angle": 45,
+        "text-padding": 4,
+        "text-rotation-alignment": "map"
+      },
+      "paint": {
+        "text-color": "#3A3A3A",
+        "text-halo-color": "#FFFFFF",
+        "text-halo-width": 1.5
       }
     },
     {

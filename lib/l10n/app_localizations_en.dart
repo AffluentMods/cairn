@@ -37,6 +37,122 @@ class AppLocalizationsEn extends AppLocalizations {
   String get layerLand => 'Wilderness and park boundaries';
 
   @override
+  String get layerRoads => 'Forest roads';
+
+  @override
+  String get layerRoadsSubtitle =>
+      'Forest Service roads and motorized trails, with what may drive them';
+
+  @override
+  String get overlayMvum => 'MVUM, as printed';
+
+  @override
+  String get overlayMvumSubtitle =>
+      'The Forest Service motor vehicle use map in its own symbols';
+
+  @override
+  String roadTitle(String number) {
+    return 'Forest Road $number';
+  }
+
+  @override
+  String roadTrailTitle(String number) {
+    return 'Motorized trail $number';
+  }
+
+  @override
+  String get roadOpenAllYear => 'Open all year';
+
+  @override
+  String get roadSeasonal => 'Seasonal';
+
+  @override
+  String get roadOpenTo => 'Open to';
+
+  @override
+  String get roadNotOpen => 'Not open to motor vehicles';
+
+  @override
+  String get roadAllYear => 'all year';
+
+  @override
+  String roadSeason(String from, String to) {
+    return '$from to $to';
+  }
+
+  @override
+  String get roadVehiclePassenger => 'Passenger vehicles';
+
+  @override
+  String get roadVehicleHighClearance => 'High-clearance vehicles';
+
+  @override
+  String get roadVehicleTruck => 'Trucks';
+
+  @override
+  String get roadVehicleMotorhome => 'Motorhomes';
+
+  @override
+  String get roadVehicleFourWd => '4WD over 50 in wide';
+
+  @override
+  String get roadVehicleAtv => 'ATVs';
+
+  @override
+  String get roadVehicleMotorcycle => 'Motorcycles';
+
+  @override
+  String get roadVehicleOtherOhv => 'Other off-highway vehicles';
+
+  @override
+  String get roadSurface => 'Surface';
+
+  @override
+  String get roadSurfaceGravel => 'Gravel';
+
+  @override
+  String get roadSurfaceNative => 'Dirt (native material)';
+
+  @override
+  String get roadSurfacePaved => 'Paved';
+
+  @override
+  String get roadSurfaceChipSeal => 'Chip seal';
+
+  @override
+  String get roadSurfaceImproved => 'Improved dirt';
+
+  @override
+  String get roadSurfaceConcrete => 'Concrete';
+
+  @override
+  String get roadMaintenance => 'Maintained for';
+
+  @override
+  String get roadMaint1 => 'Closed vehicles (basic custodial care)';
+
+  @override
+  String get roadMaint2 => 'High-clearance vehicles';
+
+  @override
+  String get roadMaint3 => 'Passenger cars';
+
+  @override
+  String get roadMaint4 => 'Passenger cars, moderate comfort';
+
+  @override
+  String get roadMaint5 => 'Passenger cars, high comfort';
+
+  @override
+  String roadLength(String distance) {
+    return '$distance of road in this segment';
+  }
+
+  @override
+  String get roadMvumNote =>
+      'From the Forest Service Motor Vehicle Use Map. Check the current MVUM and forest alerts before you drive; conditions and closures change.';
+
+  @override
   String get layerConditions => 'Conditions';
 
   @override

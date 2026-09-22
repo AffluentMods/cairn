@@ -148,6 +148,216 @@ abstract class AppLocalizations {
   /// **'Wilderness and park boundaries'**
   String get layerLand;
 
+  /// No description provided for @layerRoads.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest roads'**
+  String get layerRoads;
+
+  /// No description provided for @layerRoadsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest Service roads and motorized trails, with what may drive them'**
+  String get layerRoadsSubtitle;
+
+  /// No description provided for @overlayMvum.
+  ///
+  /// In en, this message translates to:
+  /// **'MVUM, as printed'**
+  String get overlayMvum;
+
+  /// No description provided for @overlayMvumSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'The Forest Service motor vehicle use map in its own symbols'**
+  String get overlayMvumSubtitle;
+
+  /// No description provided for @roadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Forest Road {number}'**
+  String roadTitle(String number);
+
+  /// No description provided for @roadTrailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorized trail {number}'**
+  String roadTrailTitle(String number);
+
+  /// No description provided for @roadOpenAllYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Open all year'**
+  String get roadOpenAllYear;
+
+  /// No description provided for @roadSeasonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Seasonal'**
+  String get roadSeasonal;
+
+  /// No description provided for @roadOpenTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Open to'**
+  String get roadOpenTo;
+
+  /// No description provided for @roadNotOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not open to motor vehicles'**
+  String get roadNotOpen;
+
+  /// No description provided for @roadAllYear.
+  ///
+  /// In en, this message translates to:
+  /// **'all year'**
+  String get roadAllYear;
+
+  /// No description provided for @roadSeason.
+  ///
+  /// In en, this message translates to:
+  /// **'{from} to {to}'**
+  String roadSeason(String from, String to);
+
+  /// No description provided for @roadVehiclePassenger.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger vehicles'**
+  String get roadVehiclePassenger;
+
+  /// No description provided for @roadVehicleHighClearance.
+  ///
+  /// In en, this message translates to:
+  /// **'High-clearance vehicles'**
+  String get roadVehicleHighClearance;
+
+  /// No description provided for @roadVehicleTruck.
+  ///
+  /// In en, this message translates to:
+  /// **'Trucks'**
+  String get roadVehicleTruck;
+
+  /// No description provided for @roadVehicleMotorhome.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorhomes'**
+  String get roadVehicleMotorhome;
+
+  /// No description provided for @roadVehicleFourWd.
+  ///
+  /// In en, this message translates to:
+  /// **'4WD over 50 in wide'**
+  String get roadVehicleFourWd;
+
+  /// No description provided for @roadVehicleAtv.
+  ///
+  /// In en, this message translates to:
+  /// **'ATVs'**
+  String get roadVehicleAtv;
+
+  /// No description provided for @roadVehicleMotorcycle.
+  ///
+  /// In en, this message translates to:
+  /// **'Motorcycles'**
+  String get roadVehicleMotorcycle;
+
+  /// No description provided for @roadVehicleOtherOhv.
+  ///
+  /// In en, this message translates to:
+  /// **'Other off-highway vehicles'**
+  String get roadVehicleOtherOhv;
+
+  /// No description provided for @roadSurface.
+  ///
+  /// In en, this message translates to:
+  /// **'Surface'**
+  String get roadSurface;
+
+  /// No description provided for @roadSurfaceGravel.
+  ///
+  /// In en, this message translates to:
+  /// **'Gravel'**
+  String get roadSurfaceGravel;
+
+  /// No description provided for @roadSurfaceNative.
+  ///
+  /// In en, this message translates to:
+  /// **'Dirt (native material)'**
+  String get roadSurfaceNative;
+
+  /// No description provided for @roadSurfacePaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Paved'**
+  String get roadSurfacePaved;
+
+  /// No description provided for @roadSurfaceChipSeal.
+  ///
+  /// In en, this message translates to:
+  /// **'Chip seal'**
+  String get roadSurfaceChipSeal;
+
+  /// No description provided for @roadSurfaceImproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Improved dirt'**
+  String get roadSurfaceImproved;
+
+  /// No description provided for @roadSurfaceConcrete.
+  ///
+  /// In en, this message translates to:
+  /// **'Concrete'**
+  String get roadSurfaceConcrete;
+
+  /// No description provided for @roadMaintenance.
+  ///
+  /// In en, this message translates to:
+  /// **'Maintained for'**
+  String get roadMaintenance;
+
+  /// No description provided for @roadMaint1.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed vehicles (basic custodial care)'**
+  String get roadMaint1;
+
+  /// No description provided for @roadMaint2.
+  ///
+  /// In en, this message translates to:
+  /// **'High-clearance vehicles'**
+  String get roadMaint2;
+
+  /// No description provided for @roadMaint3.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger cars'**
+  String get roadMaint3;
+
+  /// No description provided for @roadMaint4.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger cars, moderate comfort'**
+  String get roadMaint4;
+
+  /// No description provided for @roadMaint5.
+  ///
+  /// In en, this message translates to:
+  /// **'Passenger cars, high comfort'**
+  String get roadMaint5;
+
+  /// No description provided for @roadLength.
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} of road in this segment'**
+  String roadLength(String distance);
+
+  /// No description provided for @roadMvumNote.
+  ///
+  /// In en, this message translates to:
+  /// **'From the Forest Service Motor Vehicle Use Map. Check the current MVUM and forest alerts before you drive; conditions and closures change.'**
+  String get roadMvumNote;
+
   /// No description provided for @layerConditions.
   ///
   /// In en, this message translates to:

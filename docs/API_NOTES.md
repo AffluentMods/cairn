@@ -125,3 +125,22 @@ update the parser plus this note if they differ:
   snowmobile routes and spelling variants such as "PCNST" and "Lilly Basin"). Only 3 of the 102
   route-member ways lack a name of their own, all of them roads, so copying relation names onto
   ways would add nothing here.
+- **Forest Service Motor Vehicle Use Map** (`EDW/EDW_MVUM_01/MapServer`, checked 2026-09-22):
+  layer 1 is roads, layer 2 motorized trails (layers 4 and 5 repeat them with the visitor-map
+  symbology; 0 and 3 are legend layers; 6 to 15 show data coverage at small scales). Fields are
+  lowercase: `id` (the seven-digit route id, "2100011" is spur 011 of road 2100; trails can carry
+  letters such as "1151A"), `name` (capitals, "METZLER"), `symbol` (1 to 6 for roads: open to all
+  vehicles, highway-legal only, special designation, each yearlong or seasonal),
+  `mvum_symbol_name`, `seasonal` ("yearlong", "seasonal", or null), `surfacetype` ("AGG - CRUSHED
+  AGGREGATE OR GRAVEL", "NAT - NATIVE MATERIAL", "AC - ASPHALT", "BST - BITUMINOUS SURFACE
+  TREATMENT", ...), `operationalmaintlevel` ("2 - HIGH CLEARANCE VEHICLES"), `gis_miles`, and one
+  pair per vehicle class: `passengervehicle` ("open" or null) with `passengervehicle_datesopen`
+  ("01/01-12/31" for all year, else "MM/DD-MM/DD"); likewise `highclearancevehicle`, `truck`,
+  `bus`, `motorhome`, `fourwd_gt50inches` (dates field `fourwd_gt50_datesopen`), `twowd_gt50inches`,
+  `atv`, `motorcycle`, `otherwheeled_ohv`, and the tracked and other OHV classes. `f=geojson` with
+  `outSR=4326` works; `maxRecordCount` is 2000 and `exceededTransferLimit` (top level in GeoJSON)
+  flags a cut page, followed with `resultOffset`. A z10 cell near Packwood answered in under a
+  second with 43 segments; `export` tiles draw the printed symbology in 0.3 to 0.5 s.
+- **EDW_RoadBasic_01** (all National Forest System roads, including ones closed to motor
+  vehicles) carries `symbol_code` (paved, gravel, dirt, not maintained) and `openforuseto`; not
+  used, since the MVUM already carries surface and maintenance level for the roads that matter.

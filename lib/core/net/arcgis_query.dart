@@ -14,6 +14,7 @@ class ArcGisQuery {
     String where = '1=1',
     String outFields = '*',
     int? resultRecordCount,
+    int? resultOffset,
   }) {
     final xmin = bbox[1];
     final ymin = bbox[0];
@@ -30,6 +31,7 @@ class ArcGisQuery {
       'f': 'geojson',
       'returnGeometry': 'true',
       if (resultRecordCount != null) 'resultRecordCount': '$resultRecordCount',
+      if (resultOffset != null) 'resultOffset': '$resultOffset',
     };
     return Uri.parse('$baseUrl/query').replace(queryParameters: params);
   }

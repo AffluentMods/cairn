@@ -170,6 +170,13 @@ class LayerSheet extends ConsumerWidget {
                 overlay: MapOverlay.pois,
               ),
               _CairnLayerRow(
+                icon: Icons.directions_car_outlined,
+                label: l10n.layerRoads,
+                subtitle: l10n.layerRoadsSubtitle,
+                on: cairnLayers.contains(MapOverlay.roads),
+                overlay: MapOverlay.roads,
+              ),
+              _CairnLayerRow(
                 icon: Icons.forest_outlined,
                 label: l10n.layerLand,
                 on: cairnLayers.contains(MapOverlay.land),
@@ -464,10 +471,12 @@ class _CairnLayerRow extends ConsumerWidget {
     required this.label,
     required this.on,
     required this.overlay,
+    this.subtitle,
   });
 
   final IconData icon;
   final String label;
+  final String? subtitle;
   final bool on;
   final MapOverlay overlay;
 
@@ -480,6 +489,10 @@ class _CairnLayerRow extends ConsumerWidget {
       onChanged: (_) => ref.read(mapLayersProvider.notifier).toggle(overlay),
       secondary: Icon(icon, color: scheme.onSurface, size: 20),
       title: Text(label, style: const TextStyle(fontSize: 14)),
+      subtitle: subtitle == null
+          ? null
+          : Text(subtitle!,
+              style: TextStyle(fontSize: 11.5, color: scheme.onSurfaceVariant)),
     );
   }
 }
@@ -554,6 +567,7 @@ class _OverlayRow extends ConsumerWidget {
         'slope' => Icons.terrain_outlined,
         'lidarHillshade' => Icons.landscape_outlined,
         'officialTrails' => Icons.hiking,
+        'mvumOfficial' => Icons.map_outlined,
         'gpsTraces' => Icons.timeline_outlined,
         _ => Icons.layers_outlined,
       };
