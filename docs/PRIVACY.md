@@ -17,10 +17,12 @@ location and your hikes stay on your device.
 Cairn is a map, so it fetches map and conditions data. Each request sends only a coordinate
 or a rectangular map area, never an identifier, to these public sources:
 
-- OpenFreeMap and OpenMapTiles (basemap), USGS The National Map (topo, imagery),
-  Mapzen / AWS Terrain Tiles (elevation), OpenStreetMap via Overpass (trails and points),
-  USFS EDW (official trails and boundaries), NIFC WFIGS (fires), NOAA National Weather
-  Service (weather), Open-Meteo (air quality and fallback weather).
+- OpenFreeMap and OpenMapTiles (basemap), USGS The National Map (topo, imagery, slope,
+  lidar, official trails), Mapzen / AWS Terrain Tiles (elevation; contour lines are traced
+  on your phone from these), OpenStreetMap via Overpass (trails and points), USFS EDW
+  (official trails, forest roads and the motor vehicle use map, boundaries), NIFC WFIGS
+  (fires), NOAA National Weather Service (weather and weather maps), Open-Meteo (air quality
+  and fallback weather), IGN (France base map).
 - The optional Affluent Labs proxy, for the few sources that need an API key (air quality
   monitors, park alerts, campgrounds). The proxy holds the keys, not the app, and logs
   nothing but a per-address rate-limit counter.

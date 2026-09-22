@@ -20,13 +20,17 @@ core app.
 
 ## What it does
 
-- Browse trails on USGS Topo, satellite, or an outdoors vector basemap, all with hillshade.
+- Browse trails on USGS Topo, satellite, or an outdoors vector basemap, all with hillshade
+  and contour lines traced on the phone, labeled in your units.
+- Forest roads from the Forest Service motor vehicle use map: tap one for what may drive it
+  and when, its surface, and its maintenance level.
 - Plan a route: tap waypoints, snap to trails, get distance, elevation gain, and an
   elevation profile with grade coloring.
 - Record a hike with the screen off: distance, moving time, pace, gain, pack-aware calories.
 - See conditions: NIFC fire perimeters, air quality, NWS weather at the trailhead and the
   high point, red flag warnings, daylight and moon.
-- Download regions for fully offline use: tiles, terrain, trails, and land boundaries.
+- Download regions for fully offline use: tiles, terrain, trails, forest roads, land
+  boundaries, and the overlays you choose (official trails, the printed MVUM, slope, lidar).
 - Import and export GPX.
 - Optional end-to-end encrypted multi-device sync (bring your own server, or self-host the
   Cairn sync server). Nothing leaves your device readable, and sync is off by default.
@@ -60,8 +64,9 @@ Release artifacts are produced by [tool/build.sh](tool/build.sh).
 ## Data sources and attribution
 
 Cairn renders data from OpenStreetMap (ODbL), OpenFreeMap and OpenMapTiles, USGS The
-National Map (public domain), Mapzen / AWS Terrain Tiles, NIFC WFIGS fire data (CC-BY),
-NOAA National Weather Service, and Open-Meteo. Full attribution is shown in the map's
+National Map (public domain, including the National Digital Trails), the USDA Forest Service
+(trails, roads, the motor vehicle use map, boundaries), Mapzen / AWS Terrain Tiles, NIFC WFIGS
+fire data (CC-BY), NOAA National Weather Service, and Open-Meteo. Full attribution is shown in the map's
 attribution control and in Settings, Data sources.
 
 To fix a wrong trail name or a missing water source, edit
