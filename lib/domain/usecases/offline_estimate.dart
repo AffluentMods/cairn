@@ -49,6 +49,24 @@ RegionEstimate estimateRegionBytes(
   );
 }
 
+/// Rough size of one raster overlay tile (a 512 px ArcGIS export, or an XYZ
+/// PNG); the samples ran 10 to 80 KB.
+const overlayTileBytes = 45 * 1024;
+
+/// Tiles one raster overlay needs across [bbox] from [minZoom] to [maxZoom],
+/// both inclusive; zero when the range is empty.
+int overlayTileCount(
+  List<double> bbox, {
+  required int minZoom,
+  required int maxZoom,
+}) {
+  var n = 0;
+  for (var z = minZoom; z <= maxZoom; z++) {
+    n += tilesForBbox(bbox, z).length;
+  }
+  return n;
+}
+
 /// Bounding boxes (south, west, north, east) covering a route corridor: the
 /// route is cut into pieces about [chunkM] long and each piece's box is padded
 /// by [bufferM]. A route download fetches these at trail-detail zooms (z15 to

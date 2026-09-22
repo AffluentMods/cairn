@@ -4868,6 +4868,14 @@ class $OfflineRegionsTable extends OfflineRegions
   late final GeneratedColumn<int> bytes = GeneratedColumn<int>(
       'bytes', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _overlayKeysMeta =
+      const VerificationMeta('overlayKeys');
+  @override
+  late final GeneratedColumn<String> overlayKeys = GeneratedColumn<String>(
+      'overlay_keys', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -4883,7 +4891,8 @@ class $OfflineRegionsTable extends OfflineRegions
         createdAt,
         status,
         tileCount,
-        bytes
+        bytes,
+        overlayKeys
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4974,6 +4983,12 @@ class $OfflineRegionsTable extends OfflineRegions
       context.handle(
           _bytesMeta, bytes.isAcceptableOrUnknown(data['bytes']!, _bytesMeta));
     }
+    if (data.containsKey('overlay_keys')) {
+      context.handle(
+          _overlayKeysMeta,
+          overlayKeys.isAcceptableOrUnknown(
+              data['overlay_keys']!, _overlayKeysMeta));
+    }
     return context;
   }
 
@@ -5011,6 +5026,8 @@ class $OfflineRegionsTable extends OfflineRegions
           .read(DriftSqlType.int, data['${effectivePrefix}tile_count']),
       bytes: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}bytes']),
+      overlayKeys: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}overlay_keys'])!,
     );
   }
 
@@ -5035,6 +5052,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
   final int status;
   final int? tileCount;
   final int? bytes;
+  final String overlayKeys;
   const OfflineRegion(
       {required this.id,
       required this.name,
@@ -5049,7 +5067,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
       required this.createdAt,
       required this.status,
       this.tileCount,
-      this.bytes});
+      this.bytes,
+      required this.overlayKeys});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -5073,6 +5092,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
     if (!nullToAbsent || bytes != null) {
       map['bytes'] = Variable<int>(bytes);
     }
+    map['overlay_keys'] = Variable<String>(overlayKeys);
     return map;
   }
 
@@ -5097,6 +5117,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
           : Value(tileCount),
       bytes:
           bytes == null && nullToAbsent ? const Value.absent() : Value(bytes),
+      overlayKeys: Value(overlayKeys),
     );
   }
 
@@ -5118,6 +5139,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
       status: serializer.fromJson<int>(json['status']),
       tileCount: serializer.fromJson<int?>(json['tileCount']),
       bytes: serializer.fromJson<int?>(json['bytes']),
+      overlayKeys: serializer.fromJson<String>(json['overlayKeys']),
     );
   }
   @override
@@ -5138,6 +5160,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
       'status': serializer.toJson<int>(status),
       'tileCount': serializer.toJson<int?>(tileCount),
       'bytes': serializer.toJson<int?>(bytes),
+      'overlayKeys': serializer.toJson<String>(overlayKeys),
     };
   }
 
@@ -5155,7 +5178,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
           DateTime? createdAt,
           int? status,
           Value<int?> tileCount = const Value.absent(),
-          Value<int?> bytes = const Value.absent()}) =>
+          Value<int?> bytes = const Value.absent(),
+          String? overlayKeys}) =>
       OfflineRegion(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -5173,6 +5197,7 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
         status: status ?? this.status,
         tileCount: tileCount.present ? tileCount.value : this.tileCount,
         bytes: bytes.present ? bytes.value : this.bytes,
+        overlayKeys: overlayKeys ?? this.overlayKeys,
       );
   OfflineRegion copyWithCompanion(OfflineRegionsCompanion data) {
     return OfflineRegion(
@@ -5192,6 +5217,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
       status: data.status.present ? data.status.value : this.status,
       tileCount: data.tileCount.present ? data.tileCount.value : this.tileCount,
       bytes: data.bytes.present ? data.bytes.value : this.bytes,
+      overlayKeys:
+          data.overlayKeys.present ? data.overlayKeys.value : this.overlayKeys,
     );
   }
 
@@ -5211,7 +5238,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
           ..write('createdAt: $createdAt, ')
           ..write('status: $status, ')
           ..write('tileCount: $tileCount, ')
-          ..write('bytes: $bytes')
+          ..write('bytes: $bytes, ')
+          ..write('overlayKeys: $overlayKeys')
           ..write(')'))
         .toString();
   }
@@ -5231,7 +5259,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
       createdAt,
       status,
       tileCount,
-      bytes);
+      bytes,
+      overlayKeys);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5249,7 +5278,8 @@ class OfflineRegion extends DataClass implements Insertable<OfflineRegion> {
           other.createdAt == this.createdAt &&
           other.status == this.status &&
           other.tileCount == this.tileCount &&
-          other.bytes == this.bytes);
+          other.bytes == this.bytes &&
+          other.overlayKeys == this.overlayKeys);
 }
 
 class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
@@ -5267,6 +5297,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
   final Value<int> status;
   final Value<int?> tileCount;
   final Value<int?> bytes;
+  final Value<String> overlayKeys;
   final Value<int> rowid;
   const OfflineRegionsCompanion({
     this.id = const Value.absent(),
@@ -5283,6 +5314,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
     this.status = const Value.absent(),
     this.tileCount = const Value.absent(),
     this.bytes = const Value.absent(),
+    this.overlayKeys = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OfflineRegionsCompanion.insert({
@@ -5300,6 +5332,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
     required int status,
     this.tileCount = const Value.absent(),
     this.bytes = const Value.absent(),
+    this.overlayKeys = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : id = Value(id),
         name = Value(name),
@@ -5327,6 +5360,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
     Expression<int>? status,
     Expression<int>? tileCount,
     Expression<int>? bytes,
+    Expression<String>? overlayKeys,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5344,6 +5378,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
       if (status != null) 'status': status,
       if (tileCount != null) 'tile_count': tileCount,
       if (bytes != null) 'bytes': bytes,
+      if (overlayKeys != null) 'overlay_keys': overlayKeys,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5363,6 +5398,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
       Value<int>? status,
       Value<int?>? tileCount,
       Value<int?>? bytes,
+      Value<String>? overlayKeys,
       Value<int>? rowid}) {
     return OfflineRegionsCompanion(
       id: id ?? this.id,
@@ -5379,6 +5415,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
       status: status ?? this.status,
       tileCount: tileCount ?? this.tileCount,
       bytes: bytes ?? this.bytes,
+      overlayKeys: overlayKeys ?? this.overlayKeys,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5428,6 +5465,9 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
     if (bytes.present) {
       map['bytes'] = Variable<int>(bytes.value);
     }
+    if (overlayKeys.present) {
+      map['overlay_keys'] = Variable<String>(overlayKeys.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5451,6 +5491,7 @@ class OfflineRegionsCompanion extends UpdateCompanion<OfflineRegion> {
           ..write('status: $status, ')
           ..write('tileCount: $tileCount, ')
           ..write('bytes: $bytes, ')
+          ..write('overlayKeys: $overlayKeys, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10149,6 +10190,7 @@ typedef $$OfflineRegionsTableCreateCompanionBuilder = OfflineRegionsCompanion
   required int status,
   Value<int?> tileCount,
   Value<int?> bytes,
+  Value<String> overlayKeys,
   Value<int> rowid,
 });
 typedef $$OfflineRegionsTableUpdateCompanionBuilder = OfflineRegionsCompanion
@@ -10167,6 +10209,7 @@ typedef $$OfflineRegionsTableUpdateCompanionBuilder = OfflineRegionsCompanion
   Value<int> status,
   Value<int?> tileCount,
   Value<int?> bytes,
+  Value<String> overlayKeys,
   Value<int> rowid,
 });
 
@@ -10221,6 +10264,9 @@ class $$OfflineRegionsTableFilterComposer
 
   ColumnFilters<int> get bytes => $composableBuilder(
       column: $table.bytes, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get overlayKeys => $composableBuilder(
+      column: $table.overlayKeys, builder: (column) => ColumnFilters(column));
 }
 
 class $$OfflineRegionsTableOrderingComposer
@@ -10274,6 +10320,9 @@ class $$OfflineRegionsTableOrderingComposer
 
   ColumnOrderings<int> get bytes => $composableBuilder(
       column: $table.bytes, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get overlayKeys => $composableBuilder(
+      column: $table.overlayKeys, builder: (column) => ColumnOrderings(column));
 }
 
 class $$OfflineRegionsTableAnnotationComposer
@@ -10326,6 +10375,9 @@ class $$OfflineRegionsTableAnnotationComposer
 
   GeneratedColumn<int> get bytes =>
       $composableBuilder(column: $table.bytes, builder: (column) => column);
+
+  GeneratedColumn<String> get overlayKeys => $composableBuilder(
+      column: $table.overlayKeys, builder: (column) => column);
 }
 
 class $$OfflineRegionsTableTableManager extends RootTableManager<
@@ -10369,6 +10421,7 @@ class $$OfflineRegionsTableTableManager extends RootTableManager<
             Value<int> status = const Value.absent(),
             Value<int?> tileCount = const Value.absent(),
             Value<int?> bytes = const Value.absent(),
+            Value<String> overlayKeys = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OfflineRegionsCompanion(
@@ -10386,6 +10439,7 @@ class $$OfflineRegionsTableTableManager extends RootTableManager<
             status: status,
             tileCount: tileCount,
             bytes: bytes,
+            overlayKeys: overlayKeys,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -10403,6 +10457,7 @@ class $$OfflineRegionsTableTableManager extends RootTableManager<
             required int status,
             Value<int?> tileCount = const Value.absent(),
             Value<int?> bytes = const Value.absent(),
+            Value<String> overlayKeys = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               OfflineRegionsCompanion.insert(
@@ -10420,6 +10475,7 @@ class $$OfflineRegionsTableTableManager extends RootTableManager<
             status: status,
             tileCount: tileCount,
             bytes: bytes,
+            overlayKeys: overlayKeys,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0

@@ -11,13 +11,16 @@ import '../../domain/models/offline_region.dart';
 import '../../domain/usecases/offline_estimate.dart';
 import '../map_common/basemaps/basemap_registry.dart';
 import '../map_common/map_providers.dart';
+import '../map_common/overlays/overlay_controller.dart';
+import '../map_common/overlays/overlay_registry.dart';
 import '../settings/summit_sheet.dart';
 import '../shared/empty_state.dart';
 import 'library_providers.dart';
 import 'offline_download.dart';
 
-/// Progress of an in-flight region job: id and 0..1.
-final _activeDownloadProvider =
+/// Progress of an in-flight region job: id and 0..1. Shared with the Saved
+/// tab's Offline list, which shows the same tiles.
+final activeDownloadProvider =
     StateProvider<({String id, double progress})?>((ref) => null);
 
 /// Offline regions: list what is downloaded, and download a new region for the
@@ -32,7 +35,7 @@ class OfflineRegionsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final regions = ref.watch(offlineRegionsProvider);
-    final active = ref.watch(_activeDownloadProvider);
+    final active = ref.watch(activeDownloadProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +64,7 @@ class OfflineRegionsScreen extends ConsumerWidget {
             padding: const EdgeInsets.only(bottom: 24),
             children: [
               for (final r in items)
-                _RegionTile(
+                OfflineRegionTile(
                   region: r,
                   progress: active?.id == r.id ? active!.progress : null,
                 ),
@@ -97,8 +100,8 @@ class OfflineRegionsScreen extends ConsumerWidget {
   }
 }
 
-class _RegionTile extends ConsumerWidget {
-  const _RegionTile({required this.region, this.progress});
+class OfflineRegionTile extends ConsumerWidget {
+  const OfflineRegionTile({required this.region, this.progress, super.key});
 
   final OfflineRegionModel region;
   final double? progress;
@@ -110,8 +113,11 @@ class _RegionTile extends ConsumerWidget {
     final mb = region.bytes == null
         ? null
         : '${(region.bytes! / (1024 * 1024)).round()} MB';
-    final styles =
-        region.styleKeys.map((k) => basemapByKey(k).label(l10n)).join(', ');
+    final styles = [
+      for (final k in region.styleKeys) basemapByKey(k).label(l10n),
+      for (final k in region.overlayKeys)
+        if (overlayByKey(k) case final def?) def.label(l10n),
+    ].join(', ');
     final busy = progress != null;
     final stale = !busy && region.status == OfflineStatus.downloading;
     final failed = !busy && region.status == OfflineStatus.error;
@@ -202,9 +208,10 @@ class _RegionTile extends ConsumerWidget {
   /// boxes are not stored, so resuming one refetches its overview area.
   Future<void> _resume(WidgetRef ref) async {
     final repo = ref.read(offlineRepositoryProvider);
-    final active = ref.read(_activeDownloadProvider.notifier);
+    final active = ref.read(activeDownloadProvider.notifier);
+    final library = ref.read(libraryRefreshProvider.notifier);
     await repo.updateStatus(region.id, OfflineStatus.downloading);
-    bumpLibrary(ref);
+    library.state++;
     active.state = (id: region.id, progress: 0);
     try {
       await downloadRegionBundle(
@@ -214,7 +221,7 @@ class _RegionTile extends ConsumerWidget {
       );
     } finally {
       active.state = null;
-      bumpLibrary(ref);
+      library.state++;
     }
   }
 
@@ -222,7 +229,8 @@ class _RegionTile extends ConsumerWidget {
   /// downloaded weeks ago carries current closures and reroutes.
   Future<void> _refresh(BuildContext context, WidgetRef ref) async {
     final repo = ref.read(offlineRepositoryProvider);
-    final active = ref.read(_activeDownloadProvider.notifier);
+    final active = ref.read(activeDownloadProvider.notifier);
+    final library = ref.read(libraryRefreshProvider.notifier);
     final messenger = ScaffoldMessenger.of(context);
     messenger
         .showSnackBar(SnackBar(content: Text(context.l10n.offlineRefreshing)));
@@ -235,7 +243,7 @@ class _RegionTile extends ConsumerWidget {
       );
     } finally {
       active.state = null;
-      bumpLibrary(ref);
+      library.state++;
     }
   }
 }
@@ -250,6 +258,7 @@ class _NewRegionSheet extends ConsumerStatefulWidget {
 
 class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
   late final Set<String> _styles;
+  late final Set<String> _overlays;
   int _maxZoom = 14;
   final _name = TextEditingController();
   bool _downloading = false;
@@ -257,9 +266,14 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
   @override
   void initState() {
     super.initState();
-    // Default to the base map on screen when it can be cached.
+    // Default to the base map on screen when it can be cached, and to the
+    // overlays that are on the map right now (the live ones cannot be kept).
     final current = ref.read(basemapProvider);
     _styles = {current.offlineAllowed ? current.key : basemaps.first.key};
+    _overlays = {
+      for (final k in ref.read(overlayControllerProvider))
+        if (overlayByKey(k)?.offlineAllowed ?? false) k,
+    };
   }
 
   @override
@@ -278,6 +292,7 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
         maxLat: widget.bbox[2],
         maxLon: widget.bbox[3],
         styleKeys: _styles.toList(),
+        overlayKeys: _overlays.toList(),
         minZoom: 10,
         maxZoom: _maxZoom,
         createdAt: DateTime.now(),
@@ -330,6 +345,35 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
             ],
           ),
           const SizedBox(height: 12),
+          Text(l10n.offlineOverlays,
+              style: Theme.of(context).textTheme.labelLarge),
+          Wrap(
+            spacing: 8,
+            children: [
+              for (final o in overlays.where((o) => o.offlineAllowed))
+                FilterChip(
+                  label: Text(o.label(l10n)),
+                  selected: _overlays.contains(o.key),
+                  onSelected: (on) => setState(() {
+                    if (on) {
+                      _overlays.add(o.key);
+                    } else {
+                      _overlays.remove(o.key);
+                    }
+                  }),
+                ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              l10n.offlineAlwaysIncluded,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Text('${l10n.offlineMaxZoom}: z$_maxZoom'),
           Slider(
             value: _maxZoom.toDouble(),
@@ -372,8 +416,12 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
 
   Future<void> _download() async {
     setState(() => _downloading = true);
+    // Everything the job needs is read now: the sheet pops before the
+    // download ends, and a disposed widget's ref cannot be used to refresh
+    // the list (the region showed "Incomplete" until the next visit).
     final repo = ref.read(offlineRepositoryProvider);
-    final active = ref.read(_activeDownloadProvider.notifier);
+    final active = ref.read(activeDownloadProvider.notifier);
+    final library = ref.read(libraryRefreshProvider.notifier);
     final id = const Uuid().v4();
     final est = _estimate;
     final region = OfflineRegionModel(
@@ -384,6 +432,7 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
       maxLat: widget.bbox[2],
       maxLon: widget.bbox[3],
       styleKeys: _styles.toList(),
+      overlayKeys: _overlays.toList(),
       minZoom: 10,
       maxZoom: _maxZoom,
       createdAt: DateTime.now(),
@@ -392,7 +441,7 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
       bytes: est.bytes,
     );
     await repo.upsert(region);
-    bumpLibrary(ref);
+    library.state++;
     if (mounted) Navigator.of(context).pop();
 
     active.state = (id: id, progress: 0);
@@ -404,7 +453,7 @@ class _NewRegionSheetState extends ConsumerState<_NewRegionSheet> {
       );
     } finally {
       active.state = null;
-      bumpLibrary(ref);
+      library.state++;
     }
   }
 }

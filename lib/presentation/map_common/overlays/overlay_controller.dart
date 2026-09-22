@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/settings/settings_providers.dart';
+import '../../../data/data_providers.dart' show appSupportDirProvider;
 import '../map_layers_provider.dart' show legacyLayersKey;
 import '../map_providers.dart';
 import 'overlay_registry.dart';
@@ -45,6 +46,8 @@ class OverlayController extends Notifier<Set<String>> {
   @override
   Set<String> build() {
     final prefs = ref.read(sharedPreferencesProvider);
+    // Downloaded overlay tiles live under the app support directory.
+    TileProxy.instance.cacheDir ??= ref.read(appSupportDirProvider);
     _refreshTimer ??=
         Timer.periodic(const Duration(minutes: 1), (_) => _refreshDue());
     ref.onDispose(() {
@@ -94,12 +97,10 @@ class OverlayController extends Notifier<Set<String>> {
     final source = def.tileUrl;
     if (source == null) return;
     await _remove(c, def); // clear any stale copy (style reload or refresh)
-    // ArcGIS export overlays use the {bbox-epsg-3857} token, which MapLibre
-    // Native does not substitute; serve those through the on-device tile proxy.
-    var tileUrl = source;
-    if (source.contains('{bbox-epsg-3857}')) {
-      tileUrl = await TileProxy.instance.register(def.key, source);
-    }
+    // Every raster overlay goes through the on-device tile proxy: it fills
+    // the {bbox-epsg-3857} token MapLibre Native cannot, and it serves the
+    // tiles an offline region downloaded before asking upstream.
+    var tileUrl = await TileProxy.instance.register(def.key, source);
     if (def.refresh != null) {
       final sep = tileUrl.contains('?') ? '&' : '?';
       tileUrl = '$tileUrl${sep}t=${DateTime.now().millisecondsSinceEpoch}';

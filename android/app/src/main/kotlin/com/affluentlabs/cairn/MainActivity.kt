@@ -38,6 +38,22 @@ class MainActivity : FlutterActivity() {
                         }
                         result.success(null)
                     }
+                    // MapLibre Native stops fetching every tile the moment Android
+                    // reports no connectivity, including the loopback tile proxy
+                    // that serves downloaded overlay tiles. Telling it the app is
+                    // connected lets offline overlays draw; upstream base-map
+                    // tiles still come from its offline store, and a request that
+                    // fails just fails (docs/DECISIONS.md, offline overlays).
+                    "mapAssumeConnected" -> {
+                        try {
+                            org.maplibre.android.net.ConnectivityReceiver
+                                .instance(applicationContext)
+                                .setConnected(true)
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.success(false)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }

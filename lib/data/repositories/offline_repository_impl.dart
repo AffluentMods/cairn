@@ -67,6 +67,7 @@ class OfflineRepositoryImpl implements OfflineRepository {
             status: offlineStatusToInt(r.status),
             tileCount: Value(r.tileCount),
             bytes: Value(r.bytes),
+            overlayKeys: Value(r.overlayKeys.join(',')),
           ),
         );
   }
@@ -157,5 +158,7 @@ class OfflineRepositoryImpl implements OfflineRepository {
         status: offlineStatusFromInt(row.status),
         tileCount: row.tileCount,
         bytes: row.bytes,
+        overlayKeys:
+            row.overlayKeys.split(',').where((s) => s.isNotEmpty).toList(),
       );
 }

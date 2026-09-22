@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
+import 'dart:math' as math;
+
 import 'package:maplibre_gl/maplibre_gl.dart';
 
+import '../../core/geo/tile_math.dart';
 import '../../domain/models/offline_region.dart';
 import '../../domain/repositories/offline_repository.dart';
 import '../../domain/usecases/offline_estimate.dart';
 import '../map_common/basemaps/basemap_registry.dart';
+import '../map_common/overlays/overlay_registry.dart';
+import '../map_common/overlays/tile_proxy.dart';
 
 /// Base maps served as vector tiles (small); the rest are raster imagery.
 const vectorBasemapKeys = {'outdoors', 'terrain', 'road'};
@@ -27,8 +32,16 @@ Future<void> _raiseTileLimit() async {
   }
 }
 
+/// The zoom range an overlay is stored at for a region: the region's range
+/// clipped to what the overlay draws (a z11-and-up overlay has no z10 tiles).
+(int, int) overlayZoomRange(OverlayDef def, OfflineRegionModel region) => (
+      math.max(def.minZoom, region.minZoom),
+      math.min(def.maxZoom, region.maxZoom),
+    );
+
 /// Estimated bytes for a region: the bbox across its zoom range for each
-/// style, plus the z15 to z16 corridor boxes when given.
+/// style, the z15 to z16 corridor boxes when given, and each overlay across
+/// its own zoom range.
 RegionEstimate estimateRegion(
   OfflineRegionModel region, {
   List<List<double>> corridor = const [],
@@ -42,24 +55,34 @@ RegionEstimate estimateRegion(
     vectorStyles: vector,
     rasterStyles: raster,
   );
-  if (corridor.isEmpty) return base;
-  final tiles = corridorTileCount(
-    corridor,
-    minZoom: corridorMinZoom,
-    maxZoom: corridorMaxZoom,
-  );
-  final bytes = tiles * (vector * 25 * 1024 + raster * 60 * 1024);
-  return RegionEstimate(
-    tileCount: base.tileCount + tiles * region.styleKeys.length,
-    bytes: base.bytes + bytes,
-  );
+  var tiles = base.tileCount;
+  var bytes = base.bytes;
+  if (corridor.isNotEmpty) {
+    final n = corridorTileCount(
+      corridor,
+      minZoom: corridorMinZoom,
+      maxZoom: corridorMaxZoom,
+    );
+    tiles += n * region.styleKeys.length;
+    bytes += n * (vector * 25 * 1024 + raster * 60 * 1024);
+  }
+  for (final key in region.overlayKeys) {
+    final def = overlayByKey(key);
+    if (def == null) continue;
+    final (minZ, maxZ) = overlayZoomRange(def, region);
+    final n = overlayTileCount(region.bbox, minZoom: minZ, maxZoom: maxZ);
+    tiles += n;
+    bytes += n * overlayTileBytes;
+  }
+  return RegionEstimate(tileCount: tiles, bytes: bytes);
 }
 
 /// Downloads the basemap tiles for [region] (every selected style across the
-/// bbox and zoom range, plus trail-detail tiles along [corridor]) and then
-/// prefetches trails, POIs, land, and terrain. Every MapLibre region carries
-/// the Cairn region id in its metadata so Delete can free it. Marks the record
-/// done or error; [onProgress] reports 0..1 across the whole job.
+/// bbox and zoom range, plus trail-detail tiles along [corridor]), prefetches
+/// trails, roads, POIs, land, and terrain, then stores each chosen overlay's
+/// tiles through the tile proxy. Every MapLibre region carries the Cairn
+/// region id in its metadata so Delete can free it. Marks the record done or
+/// error; [onProgress] reports 0..1 across the whole job.
 Future<bool> downloadRegionBundle(
   OfflineRepository repo,
   OfflineRegionModel region, {
@@ -68,10 +91,14 @@ Future<bool> downloadRegionBundle(
 }) async {
   await _raiseTileLimit();
   final styles = region.styleKeys.map(basemapByKey).toList();
-  final jobs = styles.length * (1 + corridor.length);
+  final overlayDefs = [
+    for (final key in region.overlayKeys)
+      if (overlayByKey(key) case final def?) def,
+  ];
+  final jobs = styles.length * (1 + corridor.length) + 1 + overlayDefs.length;
   var done = 0;
   void report(double within) =>
-      onProgress?.call(((done + within) / (jobs + 1)).clamp(0.0, 1.0));
+      onProgress?.call(((done + within) / jobs).clamp(0.0, 1.0));
 
   try {
     for (final style in styles) {
@@ -105,6 +132,13 @@ Future<bool> downloadRegionBundle(
       }
     }
     await repo.prefetchDataLayers(region.bbox, onProgress: report);
+    done++;
+    report(0);
+    for (final def in overlayDefs) {
+      await downloadOverlayTiles(region, def, onProgress: report);
+      done++;
+      report(0);
+    }
     await repo.updateStatus(region.id, OfflineStatus.done);
     return true;
   } catch (_) {
@@ -113,8 +147,37 @@ Future<bool> downloadRegionBundle(
   }
 }
 
+/// Stores one overlay's tiles for [region] through the tile proxy, zoom by
+/// zoom. A tile that fails is skipped (Resume fetches it later); the proxy
+/// keeps what arrived. [onProgress] reports 0..1 within this overlay.
+Future<void> downloadOverlayTiles(
+  OfflineRegionModel region,
+  OverlayDef def, {
+  void Function(double progress)? onProgress,
+}) async {
+  final template = def.tileUrl;
+  if (template == null) return;
+  final (minZ, maxZ) = overlayZoomRange(def, region);
+  final tiles = <TileXY>[
+    for (var z = minZ; z <= maxZ; z++) ...tilesForBbox(region.bbox, z),
+  ];
+  for (var i = 0; i < tiles.length; i++) {
+    final t = tiles[i];
+    await TileProxy.instance.downloadTile(
+      regionId: region.id,
+      key: def.key,
+      template: template,
+      z: t.z,
+      x: t.x,
+      y: t.y,
+    );
+    onProgress?.call((i + 1) / tiles.length);
+  }
+}
+
 /// Removes every MapLibre offline region downloaded for the Cairn region
-/// [id], so Delete frees the tiles and not just the row.
+/// [id] and the overlay tiles stored for it, so Delete frees the tiles and
+/// not just the row.
 Future<void> freeRegionTiles(String id) async {
   try {
     final regions = await getListOfRegions();
@@ -126,4 +189,5 @@ Future<void> freeRegionTiles(String id) async {
   } catch (_) {
     // No MapLibre offline store (a test or a platform without one).
   }
+  await TileProxy.instance.deleteRegionTiles(id);
 }

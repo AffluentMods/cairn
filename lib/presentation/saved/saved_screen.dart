@@ -14,6 +14,7 @@ import '../../domain/models/route_plan.dart';
 import '../shared/empty_state.dart';
 import 'gpx_import.dart';
 import 'library_providers.dart';
+import 'offline_regions_screen.dart';
 import 'profile_sparklines.dart';
 
 /// The Saved tab (Addendum A1): saved routes, saved trails, and offline regions.
@@ -200,20 +201,45 @@ class _TrailsTab extends ConsumerWidget {
   }
 }
 
+/// The downloaded regions, right here in the tab (they used to live only
+/// behind the New region button, so the tab always read as empty), with the
+/// same tiles and progress as the Offline maps screen.
 class _OfflineTab extends ConsumerWidget {
   const _OfflineTab();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    return EmptyState(
-      icon: Icons.download_for_offline_outlined,
-      title: l10n.savedOffline,
-      message: l10n.libraryEmptyOffline,
-      action: FilledButton(
-        onPressed: () => context.push('/saved/offline'),
-        child: Text(l10n.offlineNew),
-      ),
+    final regions = ref.watch(offlineRegionsProvider).valueOrNull ?? const [];
+    final active = ref.watch(activeDownloadProvider);
+    if (regions.isEmpty) {
+      return EmptyState(
+        icon: Icons.download_for_offline_outlined,
+        title: l10n.savedOffline,
+        message: l10n.libraryEmptyOffline,
+        action: FilledButton(
+          onPressed: () => context.push('/saved/offline'),
+          child: Text(l10n.offlineNew),
+        ),
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.only(top: 8, bottom: 24),
+      children: [
+        for (final r in regions)
+          OfflineRegionTile(
+            region: r,
+            progress: active?.id == r.id ? active!.progress : null,
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+          child: OutlinedButton.icon(
+            onPressed: () => context.push('/saved/offline'),
+            icon: const Icon(Icons.add),
+            label: Text(l10n.offlineNew),
+          ),
+        ),
+      ],
     );
   }
 }

@@ -5,10 +5,10 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('schema is at v7', () {
+  test('schema is at v8', () {
     final db = AppDatabase.forTesting(NativeDatabase.memory());
     addTearDown(db.close);
-    expect(db.schemaVersion, 7);
+    expect(db.schemaVersion, 8);
   });
 
   test('UsfsRoads round-trips a segment with its access map (v7)', () async {

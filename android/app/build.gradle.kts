@@ -107,3 +107,11 @@ configurations.configureEach {
 flutter {
     source = "../.."
 }
+
+dependencies {
+    // MainActivity's "mapAssumeConnected" reaches MapLibre's ConnectivityReceiver
+    // directly; the maplibre_gl plugin keeps the SDK off the app's compile
+    // classpath. Same version as the plugin (Gradle dedupes; a newer plugin
+    // wins the conflict).
+    implementation("org.maplibre.gl:android-sdk:11.9.0")
+}

@@ -3,6 +3,16 @@ import 'package:cairn/domain/usecases/offline_estimate.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
+  test('overlay tiles count every zoom in the range and none outside it', () {
+    const bbox = [46.40, -121.60, 46.60, -121.30];
+    final z12 = overlayTileCount(bbox, minZoom: 12, maxZoom: 12);
+    final z12to14 = overlayTileCount(bbox, minZoom: 12, maxZoom: 14);
+    expect(z12, greaterThan(0));
+    // Each zoom roughly quadruples the count.
+    expect(z12to14, greaterThan(z12 * 10));
+    expect(overlayTileCount(bbox, minZoom: 14, maxZoom: 12), 0);
+  });
+
   final bbox = [46.4, -121.55, 46.55, -121.35];
 
   test('a real region has a positive estimate', () {

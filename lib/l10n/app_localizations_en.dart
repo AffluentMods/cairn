@@ -522,6 +522,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get offlineStyles => 'Map types';
 
   @override
+  String get offlineOverlays => 'Overlays to include';
+
+  @override
+  String get offlineAlwaysIncluded =>
+      'Trails, forest roads, water and camps, boundaries, and the terrain for contours and profiles are always included.';
+
+  @override
+  String get offlineOverlaysNone => 'No overlays';
+
+  @override
   String get offlineName => 'Region name';
 
   @override

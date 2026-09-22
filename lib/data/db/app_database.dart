@@ -198,6 +198,8 @@ class OfflineRegions extends Table {
   IntColumn get status => integer()(); // 0 pending 1 downloading 2 done 3 error
   IntColumn get tileCount => integer().nullable()();
   IntColumn get bytes => integer().nullable()();
+  // Raster overlays downloaded with the region, comma-separated keys (v8).
+  TextColumn get overlayKeys => text().withDefault(const Constant(''))();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -305,7 +307,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   /// Removes cached ways the trail parser no longer accepts (sidewalks,
   /// crossings, parking aisles, footway links); see the v6 migration.
@@ -349,6 +351,10 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) await deleteCachedStreetFurniture();
           // v7: Forest Service MVUM roads and motorized trails.
           if (from < 7) await m.createTable(usfsRoads);
+          // v8: offline regions remember which raster overlays they hold.
+          if (from < 8) {
+            await m.addColumn(offlineRegions, offlineRegions.overlayKeys);
+          }
         },
       );
 

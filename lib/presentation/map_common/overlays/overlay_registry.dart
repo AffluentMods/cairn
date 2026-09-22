@@ -54,6 +54,11 @@ class OverlayDef {
 
   String get sourceId => 'overlay-$key';
   String get layerId => 'overlay-$key-layer';
+
+  /// True when an offline region may store this overlay's tiles: anything
+  /// that does not refresh on a timer (radar, forecasts, and snow depth are
+  /// live pictures that would be stale by the time the signal is gone).
+  bool get offlineAllowed => refresh == null;
 }
 
 // ArcGIS ImageServer rendering rules, URL-encoded so the whole value can sit in

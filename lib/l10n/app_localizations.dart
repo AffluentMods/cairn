@@ -1012,6 +1012,24 @@ abstract class AppLocalizations {
   /// **'Map types'**
   String get offlineStyles;
 
+  /// No description provided for @offlineOverlays.
+  ///
+  /// In en, this message translates to:
+  /// **'Overlays to include'**
+  String get offlineOverlays;
+
+  /// No description provided for @offlineAlwaysIncluded.
+  ///
+  /// In en, this message translates to:
+  /// **'Trails, forest roads, water and camps, boundaries, and the terrain for contours and profiles are always included.'**
+  String get offlineAlwaysIncluded;
+
+  /// No description provided for @offlineOverlaysNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No overlays'**
+  String get offlineOverlaysNone;
+
   /// No description provided for @offlineName.
   ///
   /// In en, this message translates to:

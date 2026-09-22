@@ -506,3 +506,16 @@ option that ships fastest and record it here.
   road, "2100-011" for a spur). Offline bundles prefetch the roads with the trails.
 - **Taps on the map query a 28 px box, not a point.** Reason: a thin road or trail a few pixels
   off the finger opened nothing, and a fingertip is wider than a line.
+- **Offline regions store raster overlay tiles through the tile proxy, chosen per region, and
+  MapLibre is told to assume it is connected.** Reason: the user wants to download all kinds of
+  maps, and MapLibre's own offline store only holds what a style declares; the runtime overlays
+  (Official trails, the printed MVUM, slope, lidar hillshade, GPS traces) are fetched per tile into
+  `overlay-tiles/REGION/KEY/z/x/y.png` under the app support directory and served by the loopback
+  proxy before upstream, so deleting a region deletes its folder. Every raster overlay now goes
+  through the proxy (plain XYZ ones included) for that reason. MapLibre Native refuses every tile
+  request, loopback included, when Android reports no connectivity, so once the map exists
+  `MainActivity` sets its ConnectivityReceiver to connected: base-map tiles still come from the
+  offline store and a request that cannot reach a server simply fails. Live overlays (radar,
+  temperature, snow depth) refresh on a timer and are not offered for download.
+- **The Saved tab's Offline list shows the regions.** Reason: it only ever showed the empty state
+  with a New region button; the regions lived one screen deeper, so the tab always read as empty.

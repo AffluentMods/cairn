@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../core/l10n/l10n_ext.dart';
+import '../../core/platform/map_network.dart';
 import '../../core/settings/settings_providers.dart';
 import '../../core/theme/cairn_colors.dart';
 import '../shell/shell_providers.dart';
@@ -84,6 +85,9 @@ class _CairnMapState extends ConsumerState<CairnMap> {
   void _onCreated(MapLibreMapController c) {
     _controller = c;
     ref.read(mapControllerProvider.notifier).state = c;
+    // Downloaded overlay tiles come through the loopback proxy, which
+    // MapLibre would otherwise skip with no signal.
+    unawaited(MapNetwork.assumeConnected());
     widget.onControllerReady?.call(c);
   }
 

@@ -33,6 +33,7 @@ class OfflineRegionModel {
     required this.status,
     this.tileCount,
     this.bytes,
+    this.overlayKeys = const [],
   });
 
   final String id;
@@ -50,6 +51,10 @@ class OfflineRegionModel {
   final OfflineStatus status;
   final int? tileCount;
   final int? bytes;
+
+  /// Raster overlay keys downloaded with the region (Official trails, MVUM,
+  /// slope, ...), served offline by the tile proxy.
+  final List<String> overlayKeys;
 
   List<double> get bbox => [minLat, minLon, maxLat, maxLon];
 }
