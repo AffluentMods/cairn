@@ -6827,7 +6827,8 @@
           17,
           4.5
         ]
-      }
+      },
+      "minzoom": 9
     },
     {
       "id": "trails-informal",
@@ -6881,7 +6882,8 @@
           2,
           2
         ]
-      }
+      },
+      "minzoom": 9
     },
     {
       "id": "trails-label",
@@ -7106,7 +7108,8 @@
           "kind"
         ],
         "peak"
-      ]
+      ],
+      "minzoom": 10
     }
   ],
   "name": "Cairn Road"

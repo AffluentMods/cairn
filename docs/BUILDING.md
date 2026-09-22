@@ -104,3 +104,12 @@ adb emu geo fix <lon> <lat>     # one fix, e.g. adb emu geo fix -121.47 46.44
 
 Android Studio's Extended Controls > Location can play back a GPX or KML track
 if you prefer a scripted route without the in-app simulator.
+
+## Map previews
+
+The layer sheet's base-map tiles and overlay thumbnails are crops of emulator captures:
+`tool/crop_map_previews.py` for base maps (a square around the map center) and
+`tool/crop_overlay_previews.py` for overlays (a 7:5 window, with an optional center for a sparse
+overlay). Capture each map at the same view over Packwood or the Goat Rocks, then run the tool
+with `key:screenshot.png` pairs; the files land in `assets/map_previews/`.
+

@@ -23,6 +23,37 @@ both API backends, a security audit, a design mockup canvas, and now (morning se
 homelab deploy bundle, RevenueCat store wiring, on-device verification, and a public GitHub
 push. `flutter analyze` clean, 249 tests, both flavors build.
 
+### Contours, forest roads, and downloadable overlays 2026-09-22 (done)
+
+You said "yes do the contours", asked for forest road maps to preview, see, and download inside
+the app, and to make everything perfect. Shipped and verified on the Pixel 3a emulator (details
+in docs/DECISIONS.md, service notes in docs/API_NOTES.md):
+
+- **Contour lines**, traced on the phone from the terrain tiles Cairn already downloads: 200,
+  100, and 40 ft (50, 20, 10 m) by zoom, index lines heavier and labeled in your units, seams
+  stitched between tiles, cached per tile, off on Topo (its own contours) and below z12, a switch
+  in the layer sheet that names the interval at the current zoom. Offline bundles now fetch the
+  terrain zooms contours need.
+- **Forest roads** from the Forest Service Motor Vehicle Use Map as a Cairn layer (off by
+  default): roads and motorized trails with route numbers as printed ("2100-011"), cached per
+  cell like trails, and a tap card with open all year or seasonal, which vehicles may use it and
+  when, surface, maintenance level, and the MVUM caveat. The printed MVUM is also a raster
+  overlay. Both work offline.
+- **Overlays in offline bundles**: the New region sheet offers Official trails, the printed
+  MVUM, slope, lidar hillshade, and GPS traces; their tiles are stored per region and served by
+  the tile proxy with no signal (MapLibre is told to assume connectivity, which it needs for
+  loopback). Verified in airplane mode: base map, contours, trails, roads, and the downloaded
+  MVUM overlay all drew.
+- **Fixes found on the way**: the Saved tab's Offline list always read as empty (the regions
+  lived one screen deeper); the region list did not refresh when a download finished; map taps
+  missed thin lines (a 28 px box now); the trail network drew as a brown web at whole-range
+  zooms (trails hide below z9, POI discs below z10); the trail detail stats ran together.
+- **Previews**: overlay rows in the layer sheet show a real thumbnail of the overlay on the
+  Outdoors map (tool/crop_overlay_previews.py); the live weather layers keep their icons.
+
+Question 20 is answered (contours are in). Still open for you: 16 (physical-phone pass), 19
+(Dependabot PRs), 21 (any bugs you saw).
+
 ### More trails and a better map 2026-09-21 (done)
 
 You said trails were missing and the map could be far better. What was wrong, and what changed

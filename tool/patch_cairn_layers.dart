@@ -30,6 +30,7 @@ void main() {
     final g = upsertLayerAfter(layers, 'trails-informal', trailsLabelLayer());
     final k = ensureContours(style, layers);
     final r = ensureRoads(style, layers);
+    poiZoomFloor(layers);
     // After every Cairn symbol layer exists, so the new label gets a font too.
     final e = fixLabelFonts(style, layers);
     final vector =
@@ -318,6 +319,17 @@ List<Map<String, dynamic>> contourLayers() => [
 /// hiker scans an area at, and a touch wider close in. Returns true when
 /// changed.
 bool boldTrails(List<Map<String, dynamic>> layers) {
+  // Below z9 a cached trail network covers a whole range in a brown web;
+  // hillshade and parks carry the picture there, and the list says zoom in.
+  var changed = false;
+  for (final id in ['trails-casing', 'trails', 'trails-informal']) {
+    final i = layers.indexWhere((l) => l['id'] == id);
+    if (i < 0) continue;
+    final minzoom = layers[i]['minzoom'];
+    if (minzoom is num && minzoom >= 9) continue;
+    layers[i]['minzoom'] = 9;
+    changed = true;
+  }
   const width = [
     'interpolate',
     ['linear'],
@@ -333,7 +345,6 @@ bool boldTrails(List<Map<String, dynamic>> layers) {
     17,
     4.5,
   ];
-  var changed = false;
   for (final id in ['trails', 'trails-informal']) {
     final i = layers.indexWhere((l) => l['id'] == id);
     if (i < 0) continue;
@@ -537,6 +548,17 @@ bool outdoorBaseMap(List<Map<String, dynamic>> layers) {
     'peak'
   ]);
   return changed;
+}
+
+/// POI markers from z10: at a whole-range view a lone lake or camp disc is
+/// noise on the hillshade, and the trails hide below z9 for the same reason.
+bool poiZoomFloor(List<Map<String, dynamic>> layers) {
+  final i = layers.indexWhere((l) => l['id'] == 'pois');
+  if (i < 0) return false;
+  final minzoom = layers[i]['minzoom'];
+  if (minzoom is num && minzoom >= 10) return false;
+  layers[i]['minzoom'] = 10;
+  return true;
 }
 
 /// National park, wilderness, and national forest names at their label

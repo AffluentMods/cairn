@@ -659,7 +659,8 @@
           17,
           4.5
         ]
-      }
+      },
+      "minzoom": 9
     },
     {
       "id": "trails-informal",
@@ -713,7 +714,8 @@
           2,
           2
         ]
-      }
+      },
+      "minzoom": 9
     },
     {
       "id": "trails-label",
@@ -930,7 +932,8 @@
       "paint": {
         "text-halo-color": "#F6F3EC",
         "text-halo-width": 1.2
-      }
+      },
+      "minzoom": 10
     }
   ],
   "glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf"

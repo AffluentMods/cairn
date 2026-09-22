@@ -519,3 +519,12 @@ option that ships fastest and record it here.
   temperature, snow depth) refresh on a timer and are not offered for download.
 - **The Saved tab's Offline list shows the regions.** Reason: it only ever showed the empty state
   with a New region button; the regions lived one screen deeper, so the tab always read as empty.
+- **Overlay rows in the layer sheet carry a real preview thumbnail** (assets/map_previews/
+  overlay_KEY.png, cropped from emulator captures by tool/crop_overlay_previews.py), the icon
+  staying as the fallback. Reason: the user wants to preview maps before switching them on. The
+  three live weather layers keep their icons: radar, forecast temperature, and snow depth show
+  nothing on a dry September day, and a blank thumbnail would say less than a raindrop.
+- **Trails hide below z9 and POI markers below z10.** Reason: at a whole-range view the cached
+  trail network drew as a brown web over the hillshade and a lone camp or lake disc floated on
+  it; the parks, wilderness names, and relief carry that view, and the list already says to zoom
+  in.

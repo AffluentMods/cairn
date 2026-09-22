@@ -526,7 +526,13 @@ class _OverlayRow extends ConsumerWidget {
           value: on,
           onChanged: (v) =>
               ref.read(overlayControllerProvider.notifier).toggle(def.key, v),
-          secondary: Icon(_iconFor(def.key), color: scheme.onSurface, size: 20),
+          // A real crop of the overlay on the Outdoors map, so the row shows
+          // what switching it on looks like; the icon is the fallback.
+          secondary: _OverlayPreview(
+            def: def,
+            fallback:
+                Icon(_iconFor(def.key), color: scheme.onSurface, size: 20),
+          ),
           title: Row(
             children: [
               Flexible(
@@ -571,6 +577,38 @@ class _OverlayRow extends ConsumerWidget {
         'gpsTraces' => Icons.timeline_outlined,
         _ => Icons.layers_outlined,
       };
+}
+
+/// The overlay's preview thumbnail (assets/map_previews/overlay_KEY.png,
+/// cropped from an emulator capture by tool/crop_overlay_previews.py).
+class _OverlayPreview extends StatelessWidget {
+  const _OverlayPreview({required this.def, required this.fallback});
+
+  final OverlayDef def;
+  final Widget fallback;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return SizedBox(
+      width: 64,
+      height: 46,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            border: Border.all(color: scheme.outlineVariant),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Image.asset(
+            'assets/map_previews/overlay_${def.key}.png',
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => Center(child: fallback),
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _CoverageChip extends StatelessWidget {
