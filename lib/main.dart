@@ -11,6 +11,7 @@ import 'core/diagnostics/crash_log.dart';
 import 'core/diagnostics/stall_watchdog.dart';
 import 'core/settings/settings_providers.dart';
 import 'data/data_providers.dart';
+import 'presentation/map_common/overlays/tile_proxy.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,6 +36,10 @@ Future<void> main() async {
   // The recording service (a separate isolate) reports through this port; it
   // must exist before the app re-attaches to a service that outlived the app.
   FlutterForegroundTask.initCommunicationPort();
+
+  // Downloaded overlay tiles live under the app support directory; the tile
+  // proxy serves them before asking upstream (offline regions).
+  TileProxy.instance.cacheDir = supportDir;
 
   runApp(
     ProviderScope(

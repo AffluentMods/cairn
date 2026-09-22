@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:maplibre_gl/maplibre_gl.dart';
 
 import '../../../core/settings/settings_providers.dart';
-import '../../../data/data_providers.dart' show appSupportDirProvider;
 import '../map_layers_provider.dart' show legacyLayersKey;
 import '../map_providers.dart';
 import 'overlay_registry.dart';
@@ -46,8 +45,6 @@ class OverlayController extends Notifier<Set<String>> {
   @override
   Set<String> build() {
     final prefs = ref.read(sharedPreferencesProvider);
-    // Downloaded overlay tiles live under the app support directory.
-    TileProxy.instance.cacheDir ??= ref.read(appSupportDirProvider);
     _refreshTimer ??=
         Timer.periodic(const Duration(minutes: 1), (_) => _refreshDue());
     ref.onDispose(() {
